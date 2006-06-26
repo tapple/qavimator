@@ -2,8 +2,10 @@
 
 # need to find a way to compile libquat/ before src/ via qmake/make
 
-$QTDIR/bin/qmake
 cd libquat/
+$QTDIR/bin/qmake
 make
+
 cd ..
+$QTDIR/bin/qmake
 make
