@@ -5,6 +5,8 @@
 
 CONFIG += release \
           warn_on \
+          qt \
+          thread \
           staticlib 
 TEMPLATE = lib 
 HEADERS += GEN_List.h \
