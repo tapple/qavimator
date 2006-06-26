@@ -145,9 +145,17 @@ void qavimator::cb_AnimationView()
     // check for joint updates -- Zi Ree
     bool doDrag=(x || y || z);
 
-    xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
-    ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
-    zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
+    if (editPartCombo->currentText()=="hip") {
+      xSlider->setRange(-359*PRECISION, 359*PRECISION);
+      ySlider->setRange(-359*PRECISION, 359*PRECISION);
+      zSlider->setRange(-359*PRECISION, 359*PRECISION);
+    }
+    else
+    {
+      xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
+      ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
+      zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
+    }
 
     x = getX()+x;
     y = getY()+y;
@@ -292,9 +300,17 @@ void qavimator::updateInputs()
     anim->getRotationLimits(editPartCombo->currentText(), &xMin, &xMax, &yMin, &yMax,
                             &zMin, &zMax);
 
-    xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
-    ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
-    zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
+    if (editPartCombo->currentText()=="hip") {
+      xSlider->setRange(-359*PRECISION, 359*PRECISION);
+      ySlider->setRange(-359*PRECISION, 359*PRECISION);
+      zSlider->setRange(-359*PRECISION, 359*PRECISION);
+    }
+    else
+    {
+      xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
+      ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
+      zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
+    }
 
     setX(x);
     setY(y);
