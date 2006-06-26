@@ -406,6 +406,8 @@ void Animation::interpolateFrames(BVHNode *joint) {
   double start, end, step;
   int i, len, last;
 
+  qDebug("Animation::interpolateFrames()");
+
   for (int c = 0; c < joint->numChannels; c++) {
     start = joint->frame[0][c];
     last = 0;

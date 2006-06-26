@@ -32,6 +32,7 @@
 #include "animationview.h"
 
 #define FILTER "Animation Files (*.bvh *.avm)"
+#define PRECISION 100
 
 qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose )
 {
@@ -53,13 +54,17 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   connect(animationView,SIGNAL(callback()),this,SLOT(cb_AnimationView()));
 
-  connect(xSlider,SIGNAL(sliderMoved(int)),this,SLOT(cb_RotRoller(int)));
-  connect(ySlider,SIGNAL(sliderMoved(int)),this,SLOT(cb_RotRoller(int)));
-  connect(zSlider,SIGNAL(sliderMoved(int)),this,SLOT(cb_RotRoller(int)));
+  connect(xSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
+  connect(ySlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
+  connect(zSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
 
   connect(xRotationEdit,SIGNAL(returnPressed()),this,SLOT(cb_RotValue()));
   connect(yRotationEdit,SIGNAL(returnPressed()),this,SLOT(cb_RotValue()));
   connect(zRotationEdit,SIGNAL(returnPressed()),this,SLOT(cb_RotValue()));
+
+  connect(xRotationEdit,SIGNAL(lostFocus()),this,SLOT(cb_RotValue()));
+  connect(yRotationEdit,SIGNAL(lostFocus()),this,SLOT(cb_RotValue()));
+  connect(zRotationEdit,SIGNAL(lostFocus()),this,SLOT(cb_RotValue()));
 
   connect(xPositionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_PosRoller(int)));
   connect(yPositionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_PosRoller(int)));
@@ -68,6 +73,10 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(xPositionEdit,SIGNAL(returnPressed()),this,SLOT(cb_PosValue()));
   connect(yPositionEdit,SIGNAL(returnPressed()),this,SLOT(cb_PosValue()));
   connect(zPositionEdit,SIGNAL(returnPressed()),this,SLOT(cb_PosValue()));
+
+  connect(xPositionEdit,SIGNAL(lostFocus()),this,SLOT(cb_PosValue()));
+  connect(yPositionEdit,SIGNAL(lostFocus()),this,SLOT(cb_PosValue()));
+  connect(zPositionEdit,SIGNAL(lostFocus()),this,SLOT(cb_PosValue()));
 
   connect(this,SIGNAL(enablePosition(bool)),xPositionLabel,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enablePosition(bool)),yPositionLabel,SLOT(setEnabled(bool)));
@@ -98,9 +107,18 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   connect(fpsSpin,SIGNAL(valueChanged(int)),this,SLOT(cb_fpsValue(int)));
 
-  connect(positionSlider,SIGNAL(sliderMoved(int)),this,SLOT(cb_FrameSlider(int)));
+  connect(positionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_FrameSlider(int)));
   connect(playButton,SIGNAL(clicked()),this,SLOT(cb_PlayBtn()));
   connect(&timer,SIGNAL(timeout()),this,SLOT(cb_timeout()));
+
+  xSlider->setPageStep(10*PRECISION);
+  ySlider->setPageStep(10*PRECISION);
+  zSlider->setPageStep(10*PRECISION);
+  xPositionSlider->setPageStep(10*PRECISION);
+  yPositionSlider->setPageStep(10*PRECISION);
+  zPositionSlider->setPageStep(10*PRECISION);
+
+  positionSlider->setPageStep(1);
 
   fileNew();
 }
@@ -127,9 +145,9 @@ void qavimator::cb_AnimationView()
     // check for joint updates -- Zi Ree
     bool doDrag=(x || y || z);
 
-    xSlider->setRange(xMin*100, xMax*100);
-    ySlider->setRange(yMin*100, yMax*100);
-    zSlider->setRange(zMin*100, zMax*100);
+    xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
+    ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
+    zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
 
     x = getX()+x;
     y = getY()+y;
@@ -166,6 +184,8 @@ void qavimator::cb_PartChoice()
 
 void qavimator::cb_RotRoller(int)
 {
+  qDebug("qavimator::cb_RotRoller()");
+
   double x = getX();
   double y = getY();
   double z = getZ();
@@ -189,13 +209,13 @@ void qavimator::cb_RotValue()
   double y = yRotationEdit->text().toDouble();
   double z = zRotationEdit->text().toDouble();
 
-  double min_x = xSlider->minValue()/100;
-  double min_y = ySlider->minValue()/100;
-  double min_z = zSlider->minValue()/100;
+  double min_x = xSlider->minValue()/PRECISION;
+  double min_y = ySlider->minValue()/PRECISION;
+  double min_z = zSlider->minValue()/PRECISION;
 
-  double max_x = xSlider->maxValue()/100;
-  double max_y = ySlider->maxValue()/100;
-  double max_z = zSlider->maxValue()/100;
+  double max_x = xSlider->maxValue()/PRECISION;
+  double max_y = ySlider->maxValue()/PRECISION;
+  double max_z = zSlider->maxValue()/PRECISION;
 
   if (x<min_x) x = min_x;  if (y<min_y) y = min_y;  if (z<min_z) z = min_z;
   if (x>max_x) x = max_x;  if (y>max_y) y = max_y;  if (z>max_z) z = max_z;
@@ -237,13 +257,13 @@ void qavimator::cb_PosValue()
   double y = yPositionEdit->text().toDouble();
   double z = zPositionEdit->text().toDouble();
 
-  double min_x = xPositionSlider->minValue()/100;
-  double min_y = yPositionSlider->minValue()/100;
-  double min_z = zPositionSlider->minValue()/100;
+  double min_x = xPositionSlider->minValue()/PRECISION;
+  double min_y = yPositionSlider->minValue()/PRECISION;
+  double min_z = zPositionSlider->minValue()/PRECISION;
 
-  double max_x = xPositionSlider->maxValue()/100;
-  double max_y = yPositionSlider->maxValue()/100;
-  double max_z = zPositionSlider->maxValue()/100;
+  double max_x = xPositionSlider->maxValue()/PRECISION;
+  double max_y = yPositionSlider->maxValue()/PRECISION;
+  double max_z = zPositionSlider->maxValue()/PRECISION;
 
   if (x<min_x) x = min_x;  if (y<min_y) y = min_y;  if (z<min_z) z = min_z;
   if (x>max_x) x = max_x;  if (y>max_y) y = max_y;  if (z>max_z) z = max_z;
@@ -272,16 +292,18 @@ void qavimator::updateInputs()
     anim->getRotationLimits(editPartCombo->currentText(), &xMin, &xMax, &yMin, &yMax,
                             &zMin, &zMax);
 
-    xSlider->setRange(xMin*100, xMax*100);
-    ySlider->setRange(yMin*100, yMax*100);
-    zSlider->setRange(zMin*100, zMax*100);
+    xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
+    ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
+    zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
 
     setX(x);
     setY(y);
     setZ(z);
 
     positionSlider->setMaxValue(anim->getNumberOfFrames()-1);
+    positionSlider->blockSignals(true);
     positionSlider->setValue(anim->getFrame());
+    positionSlider->blockSignals(false);
     currentFrameLabel->setText(QString::number(anim->getFrame()+1));
     framesSpin->setValue(anim->getNumberOfFrames());
 // FIXME:    if (anim->useRotationLimits()) w->limits->setonly();
@@ -508,68 +530,73 @@ void qavimator::optionsJointLimits(bool on)
 
 void qavimator::setX(float x)
 {
-  xSlider->setValue(x*100);
-  xRotationEdit->setText(QString::number(x));
+  setSliderValue(xSlider,xRotationEdit,x);
 }
 
 void qavimator::setY(float y)
 {
-  ySlider->setValue(y*100);
-  yRotationEdit->setText(QString::number(y));
+  setSliderValue(ySlider,yRotationEdit,y);
 }
 
 void qavimator::setZ(float z)
 {
-  zSlider->setValue(z*100);
-  zRotationEdit->setText(QString::number(z));
+  setSliderValue(zSlider,zRotationEdit,z);
 }
 
 float qavimator::getX()
 {
-  return xSlider->value()/100;
+  return xSlider->value()/PRECISION;
 }
 
 float qavimator::getY()
 {
-  return ySlider->value()/100;
+  return ySlider->value()/PRECISION;
 }
 
 float qavimator::getZ()
 {
-  return zSlider->value()/100;
+  return zSlider->value()/PRECISION;
 }
 
 void qavimator::setXPos(float x)
 {
-  xPositionSlider->setValue(x*100);
-  xPositionEdit->setText(QString::number(x));
+  setSliderValue(xPositionSlider,xPositionEdit,x);
 }
 
 void qavimator::setYPos(float y)
 {
-  yPositionSlider->setValue(y*100);
-  yPositionEdit->setText(QString::number(y));
+  setSliderValue(yPositionSlider,yPositionEdit,y);
 }
 
 void qavimator::setZPos(float z)
 {
-  zPositionSlider->setValue(z*100);
-  zPositionEdit->setText(QString::number(z));
+  setSliderValue(zPositionSlider,zPositionEdit,z);
 }
 
 float qavimator::getXPos()
 {
-  return xPositionSlider->value()/100;
+  return xPositionSlider->value()/PRECISION;
 }
 
 float qavimator::getYPos()
 {
-  return yPositionSlider->value()/100;
+  return yPositionSlider->value()/PRECISION;
 }
 
 float qavimator::getZPos()
 {
-  return zPositionSlider->value()/100;
+  return zPositionSlider->value()/PRECISION;
+}
+
+// helper function to prevent feedback between the two widgets
+void qavimator::setSliderValue(QSlider* slider,QLineEdit* edit,float value)
+{
+  slider->blockSignals(true);
+  edit->blockSignals(true);
+  slider->setValue(value*PRECISION);
+  edit->setText(QString::number(value));
+  edit->blockSignals(false);
+  slider->blockSignals(false);
 }
 
 void qavimator::updateFps()

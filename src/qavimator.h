@@ -47,6 +47,7 @@ class qavimator : public MainApplicationForm
     void enablePosition(bool state);
 
   protected:
+    void setSliderValue(QSlider* slider,QLineEdit* edit,float value);
 
   protected slots:
     void cb_AnimationView();
