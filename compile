@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# get Qt3 precedence from Qt4
+export PATH=$QTDIR/bin:$PATH
+
 # need to find a way to compile libquat/ before src/ via qmake/make
 
 cd libquat/
