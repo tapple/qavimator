@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# need to find a way to compile libquat/ before src/ via qmake/make
+
+qmake
+cd libquat/
+make
+cd ..
+make
