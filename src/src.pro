@@ -5,6 +5,7 @@
 
 mainapplicationform.ui.target = mainapplicationform.ui 
 mainapplicationform.ui.commands = $$IDL_COMPILER 
+QT += qt3support
 TARGETDEPS += ../libquat/liblibquat.a 
 LIBS += ../libquat/liblibquat.a \
         -lGLU 
