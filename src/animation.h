@@ -22,18 +22,22 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
+#include <qobject.h>
+
 #include "bvh.h"
 #include "iktree.h"
+#include "rotation.h"
 
 //#define DEFAULT_POSE "data/TPose.avm"
 #define DEFAULT_POSE "data/Relaxed.avm"
 #define LIMITS_FILE "data/SL.lim"
 
-class QString;
+class Animation : public QObject
+{
+  Q_OBJECT
 
-class Animation {
- public:
-  typedef enum { IK_LHAND=0, IK_RHAND, IK_LFOOT, IK_RFOOT, NUM_IK } IKPartType;
+  public:
+    typedef enum { IK_LHAND=0, IK_RHAND, IK_LFOOT, IK_RFOOT, NUM_IK } IKPartType;
 
   Animation(const char *bvhFile = NULL);
   ~Animation();
@@ -58,7 +62,7 @@ class Animation {
   void getFrameData(double *data);
   void setFrameData(double *data);
   void setRotation(const char *jointName, double x, double y, double z);
-  void getRotation(const char *jointName, double *x, double *y, double *z);
+  Rotation getRotation(const char *jointName);
   void useRotationLimits(bool flag);
   bool useRotationLimits() { return limits; }
   void getRotationLimits(const char *jointName,
@@ -82,6 +86,10 @@ class Animation {
   static bool isSecondLifeJoint(BVHNode *joint);
 
   enum { MAX_PARTS = 64 };
+
+  signals:
+    void currentFrame(int frame);
+
  private:
   BVHNode *frames;
   int frame;

@@ -30,6 +30,7 @@
 
 #include "qavimator.h"
 #include "animationview.h"
+#include "rotation.h"
 
 #define FILTER "Animation Files (*.bvh *.avm)"
 #define PRECISION 100
@@ -305,7 +306,11 @@ void qavimator::updateInputs()
 
   if (anim) {
     double xMin, xMax, yMin, yMax, zMin, zMax;
-    anim->getRotation(editPartCombo->currentText(), &x,&y,&z);
+
+    Rotation rot=anim->getRotation(editPartCombo->currentText());
+    x=rot.x;
+    y=rot.y;
+    z=rot.z;
 
     anim->getRotationLimits(editPartCombo->currentText(), &xMin, &xMax, &yMin, &yMax,
                             &zMin, &zMax);
@@ -327,10 +332,7 @@ void qavimator::updateInputs()
     setZ(z);
 
     positionSlider->setMaxValue(anim->getNumberOfFrames()-1);
-    positionSlider->blockSignals(true);
-    positionSlider->setValue(anim->getFrame());
-    positionSlider->blockSignals(false);
-    currentFrameLabel->setText(QString::number(anim->getFrame()+1));
+
     framesSpin->setValue(anim->getNumberOfFrames());
 // FIXME:    if (anim->useRotationLimits()) w->limits->setonly();
   }
@@ -466,6 +468,9 @@ void qavimator::fileNew()
 
   animationView->setAnimation(new Animation());
 
+  // FIXME: code duplication
+  connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
+
   editPartCombo->setCurrentItem(1);
 
   playing = false;
@@ -486,6 +491,8 @@ void qavimator::fileOpen()
   if (file) {
     setCurrentFile(file);
     animationView->setAnimation(new Animation(file));
+    // FIXME: code duplication
+    connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
     editPartCombo->setCurrentItem(1);
     updateInputs();
     updateFps();
@@ -664,4 +671,13 @@ void qavimator::setCurrentFile(const QString& fileName)
   qDebug("current file "+fileName);
   currentFile=fileName;
   setCaption("qavimator ["+currentFile+"]");
+}
+
+// this slot gets called from Animation::setFrame(int)
+void qavimator::setCurrentFrame(int frame)
+{
+  positionSlider->blockSignals(true);
+  positionSlider->setValue(frame);
+  currentFrameLabel->setText(QString::number(frame+1));
+  positionSlider->blockSignals(false);
 }

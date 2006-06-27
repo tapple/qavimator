@@ -26,11 +26,14 @@
 // #include "main.h"
 #include "animation.h"
 #include "bvh.h"
+#include "rotation.h"
 
 Animation::Animation(const char *bvhFile) :
   frame(0), mirrored(false)
 {
   QString fileName;
+
+  emit currentFrame(0);
 
   execPath=qApp->applicationDirPath();
   // load BVH that defines motion
@@ -61,7 +64,7 @@ void Animation::loadBVH(const char *bvhFile)
 {
   QString limFile=execPath+"/"+LIMITS_FILE;
   frames = animRead(bvhFile, limFile);
-  frame = 0;
+  setFrame(0);
 }
 
 void Animation::saveBVH(const char *bvhFile)
@@ -107,13 +110,14 @@ void Animation::setNumberOfFrames(int num)
 void Animation::setFrame(int frameNumber)
 {
   qDebug(QString("Animation::setFrame(%1)").arg(frameNumber));
-  int currFrame = frame;
+
   if (frameNumber >= 0 && frameNumber < frames->numFrames &&
       frame != frameNumber) {
     for (int i=0; i<NUM_IK; i++) {
       setIK((IKPartType)i, false);
     }
     frame = frameNumber;
+    emit currentFrame(frame);
   }
 }
 
@@ -121,7 +125,10 @@ int Animation::stepForward()
 {
   qDebug(QString("Animation::stepForward()"));
   if (frames)
-    return (frame = (frame + 1) % frames->numFrames);
+  {
+    setFrame((frame + 1) % frames->numFrames);
+    return frame;
+  }
   else
     return 0;
 }
@@ -258,19 +265,25 @@ void Animation::setRotation(const char *jointName, double x, double y, double z)
   }
 }
 
-void Animation::getRotation(const char *jointName, double *x, double *y, double *z)
+Rotation Animation::getRotation(const char* jointName)
 {
+  double x,y,z;
+
   qDebug(QString("Animation::getRotation(%1)").arg(jointName));
 
   BVHNode *node = bvhFindNode(frames, jointName);
   if (node) {
-    *x = bvhGetChannel(node, frame, BVH_XROT);
-    *y = bvhGetChannel(node, frame, BVH_YROT);
-    *z = bvhGetChannel(node, frame, BVH_ZROT);
+    x = bvhGetChannel(node, frame, BVH_XROT);
+    y = bvhGetChannel(node, frame, BVH_YROT);
+    z = bvhGetChannel(node, frame, BVH_ZROT);
   }
   else {
-    *x = *y = *z = 0;
+    x = y = z = 0;
   }
+
+  Rotation rot(jointName,x,y,z);
+
+  return rot;
 }
 
 void Animation::useRotationLimits(bool flag)

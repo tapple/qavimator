@@ -67,6 +67,8 @@ class qavimator : public MainApplicationForm
     void numFramesChanged(int num);
     void keyframeButtonToggled(bool on);
 
+    void setCurrentFrame(int frame);
+
     // ------- Menu Action Slots (Callbacks) --------
     void fileNew();
     void fileOpen();
