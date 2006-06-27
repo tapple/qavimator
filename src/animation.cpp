@@ -292,23 +292,25 @@ void Animation::useRotationLimits(bool flag)
   ikTree.setJointLimits(flag);
 }
 
-void Animation::getRotationLimits(const char *jointName,
-				  double *xMin, double *xMax,
-				  double *yMin, double *yMax,
-				  double *zMin, double *zMax)
+RotationLimits Animation::getRotationLimits(const char *jointName)
 {
+  double xMin,yMin,zMin,xMax,yMax,zMax;
+
   if (limits) {
     BVHNode *node = bvhFindNode(frames, jointName);
     if (node) {
-      bvhGetChannelLimits(node, BVH_XROT, xMin, xMax);
-      bvhGetChannelLimits(node, BVH_YROT, yMin, yMax);
-      bvhGetChannelLimits(node, BVH_ZROT, zMin, zMax);
+      bvhGetChannelLimits(node, BVH_XROT, &xMin, &xMax);
+      bvhGetChannelLimits(node, BVH_YROT, &yMin, &yMax);
+      bvhGetChannelLimits(node, BVH_ZROT, &zMin, &zMax);
     }
   }
   else {
-    *xMin = *yMin = *zMin = -180;
-    *xMax = *yMax = *zMax = 180;
+    xMin = yMin = zMin = -180;
+    xMax = yMax = zMax = 180;
   }
+
+  RotationLimits rotLimit(jointName,xMin,xMax,yMin,yMax,zMin,zMax);
+  return rotLimit;
 }
 
 int Animation::getRotationOrder(const char *jointName)

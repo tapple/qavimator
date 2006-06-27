@@ -147,8 +147,13 @@ void qavimator::cb_AnimationView()
 
     cb_PartChoice();
     animationView->getChangeValues(&x, &y, &z);
-    anim->getRotationLimits(partName, &xMin, &xMax,
-    &yMin, &yMax, &zMin, &zMax);
+    RotationLimits rotLimits=anim->getRotationLimits(partName);
+    xMin=rotLimits.xMin;
+    yMin=rotLimits.yMin;
+    zMin=rotLimits.zMin;
+    xMax=rotLimits.xMax;
+    yMax=rotLimits.yMax;
+    zMax=rotLimits.zMax;
 
     // check for joint updates, if one if the values is not 0, assume drag -- Zi Ree
     bool doDrag=(x || y || z);
@@ -312,8 +317,13 @@ void qavimator::updateInputs()
     y=rot.y;
     z=rot.z;
 
-    anim->getRotationLimits(editPartCombo->currentText(), &xMin, &xMax, &yMin, &yMax,
-                            &zMin, &zMax);
+    RotationLimits rotLimits=anim->getRotationLimits(editPartCombo->currentText());
+    xMin=rotLimits.xMin;
+    yMin=rotLimits.yMin;
+    zMin=rotLimits.zMin;
+    xMax=rotLimits.xMax;
+    yMax=rotLimits.yMax;
+    zMax=rotLimits.zMax;
 
     if (editPartCombo->currentText()=="hip") {
       xSlider->setRange(-359*PRECISION, 359*PRECISION);

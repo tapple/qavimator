@@ -30,3 +30,19 @@ Rotation::Rotation(const QString& part,double rx,double ry, double rz)
 Rotation::~Rotation()
 {
 }
+
+RotationLimits::RotationLimits(const QString& jointName,double rxMin,double rxMax,
+                                                        double ryMin,double ryMax,
+                                                        double rzMin,double rzMax)
+{
+  xMin=rxMin;
+  yMin=ryMin;
+  zMin=rzMin;
+  xMax=rxMax;
+  yMax=ryMax;
+  zMax=rzMax;
+}
+
+RotationLimits::~RotationLimits()
+{
+}
