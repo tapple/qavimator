@@ -80,6 +80,7 @@ class qavimator : public MainApplicationForm
     void optionsSkeleton(bool on);
     void optionsJointLimits(bool on);
     void optionsLoop(bool on);
+    void optionsProtectFirstFrame(bool on);
 
   protected:
     void setCurrentFile(const QString& fileName);
@@ -111,6 +112,10 @@ class qavimator : public MainApplicationForm
     bool playing;
     bool loop;
     bool frameDataValid;
+    // if set the first frame of an animation is protected
+    bool protectFirstFrame;
+    // will be true if a frame is protected
+    bool protect;
 };
 
 #endif

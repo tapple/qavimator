@@ -120,6 +120,11 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   positionSlider->setPageStep(1);
 
+  // by default protect the first animation frame from being edited, this helps
+  // with Second Life import
+  protectFirstFrame=true;
+  protect=true;
+
   fileNew();
 }
 
@@ -137,46 +142,51 @@ void qavimator::cb_AnimationView()
     for(int index=0;index<editPartCombo->count();index++)
       if(editPartCombo->text(index)==partName) editPartCombo->setCurrentItem(index);
 
+    Animation *anim = animationView->getAnimation();
+
     cb_PartChoice();
     animationView->getChangeValues(&x, &y, &z);
-    animationView->getAnimation()->getRotationLimits(partName, &xMin, &xMax,
+    anim->getRotationLimits(partName, &xMin, &xMax,
     &yMin, &yMax, &zMin, &zMax);
 
-    // check for joint updates -- Zi Ree
+    // check for joint updates, if one if the values is not 0, assume drag -- Zi Ree
     bool doDrag=(x || y || z);
-
-    if (editPartCombo->currentText()=="hip") {
-      xSlider->setRange(-359*PRECISION, 359*PRECISION);
-      ySlider->setRange(-359*PRECISION, 359*PRECISION);
-      zSlider->setRange(-359*PRECISION, 359*PRECISION);
-    }
-    else
+    // check if this frame is protected
+    if(!protect)
     {
-      xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
-      ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
-      zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
+      if (editPartCombo->currentText()=="hip") {
+        xSlider->setRange(-359*PRECISION, 359*PRECISION);
+        ySlider->setRange(-359*PRECISION, 359*PRECISION);
+        zSlider->setRange(-359*PRECISION, 359*PRECISION);
+      }
+      else
+      {
+        xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
+        ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
+        zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
+      }
+
+      x = getX()+x;
+      y = getY()+y;
+      z = getZ()+z;
+
+      if (x < xMin) x = xMin;
+      if (x > xMax) x = xMax;
+      if (y < yMin) y = yMin;
+      if (y > yMax) y = yMax;
+      if (z < zMin) z = zMin;
+      if (z > zMax) z = zMax;
+
+      setX(x);
+      setY(y);
+      setZ(z);
+
+      // I think this was specifically designed to set a keyframe upon selecting a
+      // part.  Disabled so you can check whether a keyframe is set on a specific
+      // part.  -- Lex Neva
+      //cb_RotRoller(w->xRotRoller, NULL);
+      if(doDrag) cb_RotRoller(0);
     }
-
-    x = getX()+x;
-    y = getY()+y;
-    z = getZ()+z;
-
-    if (x < xMin) x = xMin;
-    if (x > xMax) x = xMax;
-    if (y < yMin) y = yMin;
-    if (y > yMax) y = yMax;
-    if (z < zMin) z = zMin;
-    if (z > zMax) z = zMax;
-
-    setX(x);
-    setY(y);
-    setZ(z);
-
-    // I think this was specifically designed to set a keyframe upon selecting a
-    // part.  Disabled so you can check whether a keyframe is set on a specific
-    // part.  -- Lex Neva
-    //cb_RotRoller(w->xRotRoller, NULL);
-    if(doDrag) cb_RotRoller(0);
 
   } else {
     // make key button reflect that nothing is selected
@@ -325,7 +335,7 @@ void qavimator::updateInputs()
 // FIXME:    if (anim->useRotationLimits()) w->limits->setonly();
   }
   if (editPartCombo->currentText()=="hip") {
-    enablePosition(true);
+    emit enablePosition(!protect);
     anim->getPosition("hip", &x,&y,&z);
 
     setXPos(x);
@@ -333,7 +343,7 @@ void qavimator::updateInputs()
     setZPos(z);
   }
   else {
-    enablePosition(false);
+    emit enablePosition(false);
   }
   playButton->setText(playing ? "||" : ">");
 
@@ -361,8 +371,13 @@ void qavimator::updateKeyBtn()
 
 void qavimator::enableInputs(bool state) 
 {
-  enableRotation(state);
-  if (editPartCombo->currentText()=="hip") enablePosition(state);
+  qDebug(QString("enableInputs(%1)").arg(state));
+  if(protect) state=false;
+  qDebug(QString("protect==%1").arg(protect));
+
+  emit enableRotation(state);
+  if (editPartCombo->currentText()=="hip") emit enablePosition(state);
+
   keyframeButton->setEnabled(state);
 }
 
@@ -407,6 +422,14 @@ void qavimator::cb_fpsValue(int fps) {
 
 void qavimator::cb_FrameSlider(int position)
 {
+  qDebug(QString("cb_FrameSlider(%1)").arg(position));
+
+  // check if we are at the first frame and if it's protected
+  if(position==0 && protectFirstFrame) protect=true;
+  else protect=false;
+
+  if(protect) qDebug("Protected!");
+
   playing = false;
   animationView->getAnimation()->setFrame(position);
   updateInputs();
@@ -541,6 +564,16 @@ void qavimator::optionsJointLimits(bool on)
 {
   animationView->getAnimation()->useRotationLimits(on);
   animationView->repaint();
+  updateInputs();
+}
+
+// Menu Action: Oprions / Protect First Frame
+void qavimator::optionsProtectFirstFrame(bool on)
+{
+  protectFirstFrame=on;
+  if(on && positionSlider->value()==0) protect=true;
+  else protect=false;
+
   updateInputs();
 }
 

@@ -63,6 +63,9 @@
                     <property name="name">
                         <cstring>keyframeButton</cstring>
                     </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
                     <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>0</hsizetype>
@@ -477,6 +480,9 @@
                             <property name="name">
                                 <cstring>xRotationLabel</cstring>
                             </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
                                     <hsizetype>0</hsizetype>
@@ -492,6 +498,9 @@
                         <widget class="QLineEdit">
                             <property name="name">
                                 <cstring>xRotationEdit</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
@@ -534,6 +543,9 @@
                     <property name="name">
                         <cstring>ySlider</cstring>
                     </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
                     <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>5</hsizetype>
@@ -549,6 +561,9 @@
                 <widget class="QSlider" row="1" column="0">
                     <property name="name">
                         <cstring>xSlider</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
                     </property>
                     <property name="sizePolicy">
                         <sizepolicy>
@@ -574,6 +589,9 @@
                             <property name="name">
                                 <cstring>zRotationLabel</cstring>
                             </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
                                     <hsizetype>0</hsizetype>
@@ -589,6 +607,9 @@
                         <widget class="QLineEdit">
                             <property name="name">
                                 <cstring>zRotationEdit</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
@@ -631,6 +652,9 @@
                     <property name="name">
                         <cstring>zSlider</cstring>
                     </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
                     <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>5</hsizetype>
@@ -655,6 +679,9 @@
                             <property name="name">
                                 <cstring>yRotationLabel</cstring>
                             </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
                                     <hsizetype>0</hsizetype>
@@ -670,6 +697,9 @@
                         <widget class="QLineEdit">
                             <property name="name">
                                 <cstring>yRotationEdit</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
@@ -916,17 +946,18 @@
         <action name="editCopyAction"/>
         <action name="editPasteAction"/>
     </item>
+    <item text="Options" name="Options">
+        <action name="optionsSkeletonMenu"/>
+        <action name="optionsJointLimitsMenu"/>
+        <action name="optionsLoopAction"/>
+        <action name="optionsProtect_First_FrameAction"/>
+    </item>
+    <separator/>
     <item text="&amp;Help" name="helpMenu">
         <action name="helpContentsAction"/>
         <action name="helpIndexAction"/>
         <separator/>
         <action name="helpAboutAction"/>
-    </item>
-    <separator/>
-    <item text="Options" name="Options">
-        <action name="optionsSkeletonMenu"/>
-        <action name="optionsJointLimitsMenu"/>
-        <action name="optionsLoopAction"/>
     </item>
 </menubar>
 <toolbars>
@@ -1326,6 +1357,23 @@
             <string>Loop</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>optionsProtect_First_FrameAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>true</bool>
+        </property>
+        <property name="text">
+            <string>Protect First Frame</string>
+        </property>
+        <property name="menuText">
+            <string>Protect First Frame</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -1501,6 +1549,12 @@
         <receiver>MainApplicationForm</receiver>
         <slot>keyframeButtonToggled(bool)</slot>
     </connection>
+    <connection>
+        <sender>optionsProtect_First_FrameAction</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>optionsProtectFirstFrame(bool)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
@@ -1533,6 +1587,7 @@
     <slot>optionsLoop( bool )</slot>
     <slot>numFramesChanged( int )</slot>
     <slot>keyframeButtonToggled( bool )</slot>
+    <slot>optionsProtectFirstFrame( bool )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

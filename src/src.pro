@@ -5,14 +5,14 @@
 
 mainapplicationform.ui.target = mainapplicationform.ui 
 mainapplicationform.ui.commands = $$IDL_COMPILER 
-QT += qt3support
+QT = qt3support 
 TARGETDEPS += ../libquat/liblibquat.a 
 LIBS += ../libquat/liblibquat.a \
         -lGLU 
 INCLUDEPATH += ../libquat \
                /usr/include 
 TARGET = ../bin/qavimator 
-CONFIG += release \
+CONFIG += debug \
           warn_on \
           qt \
           opengl \
