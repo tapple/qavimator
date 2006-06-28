@@ -81,7 +81,6 @@ double Animation::frameTime()
 }
 
 void Animation::setFrameTime(double frameTime) {
-  qDebug(QString("Animation::setFrameTime(%1)").arg(frameTime));
   if (frames)
     bvhSetFrameTime(frames, frameTime);
 }
@@ -91,11 +90,11 @@ void Animation::setNumberOfFramesHelper(BVHNode *joint, int num)
   int currNum = joint->numFrames;
 
   if (num > currNum) {
-  for (int i=currNum; i < num; i++) {
-    for (int c=0; c < joint->numChannels; c++) {
-      joint->frame[i][c] = joint->frame[currNum-1][c];
+    for (int i=currNum; i < num; i++) {
+      for (int c=0; c < joint->numChannels; c++) {
+        joint->frame[i][c] = joint->frame[currNum-1][c];
+      }
     }
-  }
   }
   joint->numFrames = num;
   for (int i=0; i < joint->numChildren; i++)
@@ -109,8 +108,6 @@ void Animation::setNumberOfFrames(int num)
 
 void Animation::setFrame(int frameNumber)
 {
-  qDebug(QString("Animation::setFrame(%1)").arg(frameNumber));
-
   if (frameNumber >= 0 && frameNumber < frames->numFrames &&
       frame != frameNumber) {
     for (int i=0; i<NUM_IK; i++) {
@@ -123,7 +120,6 @@ void Animation::setFrame(int frameNumber)
 
 int Animation::stepForward()
 {
-  qDebug(QString("Animation::stepForward()"));
   if (frames)
   {
     setFrame((frame + 1) % frames->numFrames);
@@ -135,7 +131,6 @@ int Animation::stepForward()
 
 void Animation::applyIK(const char *name)
 {
-  qDebug(QString("Animation::applyIK(%1)").arg(name));
   BVHNode *node = bvhFindNode(frames, name);
   if (node) {
     for (int i=0; i<3; i++) {
@@ -244,8 +239,6 @@ void Animation::solveIK()
 
 void Animation::setRotation(const char *jointName, double x, double y, double z)
 {
-  qDebug(QString("Animation::setRotation(%1, %2, %3, %4)").arg(jointName).arg(x).arg(y).arg(z));
-
   BVHNode *node = bvhFindNode(frames, jointName);
   BVHNode *node2 = NULL;
   const char *mirrorName;
@@ -268,8 +261,6 @@ void Animation::setRotation(const char *jointName, double x, double y, double z)
 Rotation Animation::getRotation(const char* jointName)
 {
   double x,y,z;
-
-  qDebug(QString("Animation::getRotation(%1)").arg(jointName));
 
   BVHNode *node = bvhFindNode(frames, jointName);
   if (node) {
@@ -324,7 +315,6 @@ int Animation::getRotationOrder(const char *jointName)
 
 void Animation::setPosition(const char *jointName, double x, double y, double z)
 {
-  qDebug(QString("Animation::setPosition(%1, %2, %3, %4)").arg(jointName).arg(x).arg(y).arg(z));
   BVHNode *node = bvhFindNode(frames, jointName);
   if (node) {
     bvhSetChannel(node, frame, BVH_XPOS, x);
@@ -335,17 +325,22 @@ void Animation::setPosition(const char *jointName, double x, double y, double z)
   }
 }
 
-void Animation::getPosition(const char *jointName, double *x, double *y, double *z)
+Position Animation::getPosition(const char *jointName)
 {
+  double x,y,z;
+
   BVHNode *node = bvhFindNode(frames, jointName);
   if (node) {
-    *x = bvhGetChannel(node, frame, BVH_XPOS);
-    *y = bvhGetChannel(node, frame, BVH_YPOS);
-    *z = bvhGetChannel(node, frame, BVH_ZPOS);
+    x = bvhGetChannel(node, frame, BVH_XPOS);
+    y = bvhGetChannel(node, frame, BVH_YPOS);
+    z = bvhGetChannel(node, frame, BVH_ZPOS);
   }
   else {
-    *x = *y = *z = 0;
+    x = y = z = 0;
   }
+
+  Position pos(jointName,x,y,z);
+  return pos;
 }
 
 const char *Animation::getPartName(int index)
@@ -382,14 +377,11 @@ void Animation::addKeyFrameHelper(BVHNode *joint)
 
 void Animation::addKeyFrame()
 {
-  qDebug(QString("Animation::addKeyFrame()"));
   addKeyFrameHelper(frames);
 }
 
 void Animation::addKeyFrame(BVHNode *joint)
 {
-  qDebug(QString("Animation::addKeyFrame(joint)"));
-
   bool newKey = true;
   int numKeyFrames = joint->numKeyFrames;
   int i, *kf = joint->keyFrames;
@@ -420,8 +412,6 @@ void Animation::interpolateFrames(BVHNode *joint) {
   int *kf;
   double start, end, step;
   int i, len, last;
-
-  qDebug("Animation::interpolateFrames()");
 
   for (int c = 0; c < joint->numChannels; c++) {
     start = joint->frame[0][c];
@@ -538,7 +528,6 @@ void Animation::delKeyFrame() {
 }
 
 bool Animation::toggleKeyFrame(const char *jointName) {
-  qDebug(QString("Animation::toggleKeyFrame(%1)").arg(jointName));
   if (jointName == NULL) {
     return toggleKeyFrame();
   } else {
@@ -556,7 +545,6 @@ bool Animation::toggleKeyFrame(const char *jointName) {
 
 // returns TRUE if frame is now a keyframe for entire animation, FALSE if not
 bool Animation::toggleKeyFrame() {
-  qDebug(QString("Animation::toggleKeyFrame()"));
   if (frame == 0 || frame == (getNumberOfFrames() - 1))
     return true;  // first and last frames will always stay keyframes
 
@@ -576,7 +564,6 @@ void Animation::getFrameData(double *data)
 
 void Animation::setFrameData(double *data)
 {
-  qDebug(QString("Animation::setFrameData()"));
   bvhSetFrameData(frames, frame, data);
   addKeyFrame();
 }

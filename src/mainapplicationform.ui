@@ -1555,6 +1555,12 @@
         <receiver>MainApplicationForm</receiver>
         <slot>optionsProtectFirstFrame(bool)</slot>
     </connection>
+    <connection>
+        <sender>editPartCombo</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>cb_PartChoice()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
@@ -1588,6 +1594,7 @@
     <slot>numFramesChanged( int )</slot>
     <slot>keyframeButtonToggled( bool )</slot>
     <slot>optionsProtectFirstFrame( bool )</slot>
+    <slot>cb_PartChoice()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

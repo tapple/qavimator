@@ -31,6 +31,7 @@
 #define NOKEY_IMAGE "data/nokey.png"
 
 #include "mainapplicationform.h"
+#include "rotation.h"
 
 class qavimator : public MainApplicationForm
 {
@@ -50,7 +51,9 @@ class qavimator : public MainApplicationForm
     void setSliderValue(QSlider* slider,QLineEdit* edit,float value);
 
   protected slots:
-    void cb_AnimationView();
+    void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimits,Position pos);
+    void partDragged(const QString& partName,double changeX,double changeY,double changeZ);
+    void backgroundClicked();
 
     void cb_PartChoice();
     void cb_RotRoller(int dummy);

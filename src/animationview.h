@@ -35,6 +35,7 @@
 
 #include "animation.h"
 #include "camera.h"
+#include "rotation.h"
 
 #define MALE_BVH   "data/SLMale.bvh"
 #define FEMALE_BVH "data/SLFemale.bvh"
@@ -67,7 +68,9 @@ class AnimationView : public QGLWidget
     void getChangeValues(double *x, double *y, double *z);
 
   signals:
-    void callback();
+    void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
+    void partDragged(const QString&,double changeX,double changeY,double changeZ);
+    void backgroundClicked();
 
   protected:
     bool leftMouseButton;

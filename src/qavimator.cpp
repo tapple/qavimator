@@ -53,7 +53,21 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   resize(850,600);
 
-  connect(animationView,SIGNAL(callback()),this,SLOT(cb_AnimationView()));
+  connect(animationView,SIGNAL(partClicked(const QString&,
+                                           Rotation,
+                                           RotationLimits,
+                                           Position)),
+                     this,SLOT(partClicked(const QString&,
+                                           Rotation,
+                                           RotationLimits,
+                                           Position)));
+
+  connect(animationView,SIGNAL(partDragged(const QString&,
+                                           double,double,double)),
+                     this,SLOT(partDragged(const QString&,
+                                           double,double,double)));
+
+  connect(animationView,SIGNAL(backgroundClicked()),this,SLOT(backgroundClicked()));
 
   connect(xSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
   connect(ySlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
@@ -133,83 +147,103 @@ qavimator::~qavimator()
 {
 }
 
-void qavimator::cb_AnimationView()
+// slot gets called by AnimationView::mousePressEvent()
+void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits limits,Position pos)
 {
-  const char *partName = animationView->getSelectedPart();
-  double x, y, z;
-  double xMin, xMax, yMin, yMax, zMin, zMax;
-
-  if (partName) {
+  if(partName)
+  {
     for(int index=0;index<editPartCombo->count();index++)
       if(editPartCombo->text(index)==partName) editPartCombo->setCurrentItem(index);
 
-    Animation *anim = animationView->getAnimation();
+    setX(rot.x);
+    setY(rot.y);
+    setZ(rot.z);
 
-    cb_PartChoice();
-    animationView->getChangeValues(&x, &y, &z);
-    RotationLimits rotLimits=anim->getRotationLimits(partName);
-    xMin=rotLimits.xMin;
-    yMin=rotLimits.yMin;
-    zMin=rotLimits.zMin;
-    xMax=rotLimits.xMax;
-    yMax=rotLimits.yMax;
-    zMax=rotLimits.zMax;
-
-    // check for joint updates, if one if the values is not 0, assume drag -- Zi Ree
-    bool doDrag=(x || y || z);
-    // check if this frame is protected
-    if(!protect)
+    if(partName=="hip")
     {
-      if (editPartCombo->currentText()=="hip") {
-        xSlider->setRange(-359*PRECISION, 359*PRECISION);
-        ySlider->setRange(-359*PRECISION, 359*PRECISION);
-        zSlider->setRange(-359*PRECISION, 359*PRECISION);
-      }
-      else
-      {
-        xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
-        ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
-        zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
-      }
+      enablePosition(!protect);
 
-      x = getX()+x;
-      y = getY()+y;
-      z = getZ()+z;
+      setXPos(pos.x);
+      setYPos(pos.y);
+      setZPos(pos.z);
 
-      if (x < xMin) x = xMin;
-      if (x > xMax) x = xMax;
-      if (y < yMin) y = yMin;
-      if (y > yMax) y = yMax;
-      if (z < zMin) z = zMin;
-      if (z > zMax) z = zMax;
+      xSlider->setRange(-359*PRECISION, 359*PRECISION);
+      ySlider->setRange(-359*PRECISION, 359*PRECISION);
+      zSlider->setRange(-359*PRECISION, 359*PRECISION);
+    }
+    else
+    {
+      enablePosition(false);
 
-      setX(x);
-      setY(y);
-      setZ(z);
-
-      // I think this was specifically designed to set a keyframe upon selecting a
-      // part.  Disabled so you can check whether a keyframe is set on a specific
-      // part.  -- Lex Neva
-      //cb_RotRoller(w->xRotRoller, NULL);
-      if(doDrag) cb_RotRoller(0);
+      xSlider->setRange(limits.xMin*PRECISION, limits.xMax*PRECISION);
+      ySlider->setRange(limits.yMin*PRECISION, limits.yMax*PRECISION);
+      zSlider->setRange(limits.zMin*PRECISION, limits.zMax*PRECISION);
     }
 
-  } else {
-    // make key button reflect that nothing is selected
+    // show the user if this part has a key frame here
     updateKeyBtn();
   }
 }
 
+// slot gets called by AnimationView::mouseMoveEvent()
+void qavimator::partDragged(const QString& partName,double x,double y,double z)
+{
+  if(partName)
+  {
+    // check if this frame is protected
+    if(!protect)
+    {
+      double newX=getX()+x;
+      double newY=getY()+y;
+      double newZ=getZ()+z;
+
+      Animation *anim = animationView->getAnimation();
+      RotationLimits rotLimits=anim->getRotationLimits(partName);
+
+      double xMin=rotLimits.xMin;
+      double yMin=rotLimits.yMin;
+      double zMin=rotLimits.zMin;
+      double xMax=rotLimits.xMax;
+      double yMax=rotLimits.yMax;
+      double zMax=rotLimits.zMax;
+
+      if (newX < xMin) newX = xMin;
+      if (newX > xMax) newX = xMax;
+      if (newY < yMin) newY = yMin;
+      if (newY > yMax) newY = yMax;
+      if (newZ < zMin) newZ = zMin;
+      if (newZ > zMax) newZ = zMax;
+
+      setX(newX);
+      setY(newY);
+      setZ(newZ);
+
+      animationView->getAnimation()->setRotation(partName,newX,newY,newZ);
+      animationView->repaint();
+
+      updateKeyBtn();
+    }
+  }
+  else qDebug("partDragged(): partName==\"\"!");
+}
+
+// slot gets called by AnimationView::mouseButtonClicked()
+void qavimator::backgroundClicked()
+{
+  updateKeyBtn();
+}
+
+// slot gets called by body part dropdown list
 void qavimator::cb_PartChoice()
 {
+  // selectPart will fire partClicked event, so we don't bother
+  // about updating controls ourselves here
   animationView->selectPart(editPartCombo->currentText());
-  updateInputs();
+  animationView->setFocus();
 }
 
 void qavimator::cb_RotRoller(int)
 {
-  qDebug("qavimator::cb_RotRoller()");
-
   double x = getX();
   double y = getY();
   double z = getZ();
@@ -219,7 +253,6 @@ void qavimator::cb_RotRoller(int)
   setZ(z);
 
   if (editPartCombo->currentText()) {
-    qDebug("cb_RotRoller -> setRotation()");
     animationView->getAnimation()->setRotation(editPartCombo->currentText(), x, y, z);
     animationView->repaint();
   }
@@ -249,7 +282,6 @@ void qavimator::cb_RotValue()
   setZ(z);
 
   if (editPartCombo->currentText()) {
-    qDebug("cb_RotValue -> setRotation()");
     animationView->getAnimation()->setRotation(editPartCombo->currentText(), x, y, z);
     animationView->repaint();
   }
@@ -348,11 +380,11 @@ void qavimator::updateInputs()
   }
   if (editPartCombo->currentText()=="hip") {
     emit enablePosition(!protect);
-    anim->getPosition("hip", &x,&y,&z);
+    Position pos=anim->getPosition("hip");
 
-    setXPos(x);
-    setYPos(y);
-    setZPos(z);
+    setXPos(pos.x);
+    setYPos(pos.y);
+    setZPos(pos.z);
   }
   else {
     emit enablePosition(false);
@@ -383,9 +415,7 @@ void qavimator::updateKeyBtn()
 
 void qavimator::enableInputs(bool state) 
 {
-  qDebug(QString("enableInputs(%1)").arg(state));
   if(protect) state=false;
-  qDebug(QString("protect==%1").arg(protect));
 
   emit enableRotation(state);
   if (editPartCombo->currentText()=="hip") emit enablePosition(state);
@@ -428,19 +458,14 @@ void qavimator::cb_PlayBtn()
 }
 
 void qavimator::cb_fpsValue(int fps) {
-  qDebug(QString("qavimator::cb_fpsValue(%1)").arg(fps));
   animationView->getAnimation()->setFrameTime(1.0/(double) fps);
 }
 
 void qavimator::cb_FrameSlider(int position)
 {
-  qDebug(QString("cb_FrameSlider(%1)").arg(position));
-
   // check if we are at the first frame and if it's protected
   if(position==0 && protectFirstFrame) protect=true;
   else protect=false;
-
-  if(protect) qDebug("Protected!");
 
   playing = false;
   animationView->getAnimation()->setFrame(position);
@@ -558,7 +583,11 @@ void qavimator::editCopy()
 void qavimator::editPaste()
 {
   if (frameDataValid)
+  {
     animationView->getAnimation()->setFrameData(frameData);
+    animationView->repaint();
+    updateInputs();
+  }
 }
 
 // Menu Action: Options / Skeleton
@@ -678,7 +707,6 @@ void qavimator::updateFps()
 // convenience function to set window title in a defined way
 void qavimator::setCurrentFile(const QString& fileName)
 {
-  qDebug("current file "+fileName);
   currentFile=fileName;
   setCaption("qavimator ["+currentFile+"]");
 }

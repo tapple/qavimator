@@ -245,7 +245,7 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       if (modifier & SHIFT) { changeX = dragY; }
       if (modifier & ALT)   { changeY = dragX; }
       else if (modifier & CTRL) { changeZ = -dragX; }
-      emit callback();
+      emit partDragged(getSelectedPart(),changeX,changeY,changeZ);
     }
     else {
       if (modifier & SHIFT)
@@ -257,7 +257,6 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       else
         camera.rotate(dragY, dragX);
     }
-    repaint();
   }
   else
   {
@@ -270,6 +269,8 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
 {
   if(event->button()==LeftButton)
   {
+    leftMouseButton=true;
+
     last_x=event->x();
     last_y=event->y();
 
@@ -278,12 +279,17 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
       animation->setMirrored(false);
     partDragging = partSelected = selected;
     if (selected) {
+      QString part=getSelectedPart();
       changeX = changeY = changeZ = 0;
       dragX = dragY = 0;
+      emit partClicked(part,
+                       Rotation(animation->getRotation(part)),
+                       animation->getRotationLimits(part),
+                       Position(animation->getPosition(part))
+                      );
     }
-    // MainWindow now
-    emit callback();
-    leftMouseButton=true;
+    else emit backgroundClicked();
+
     repaint();
   }
 }
@@ -305,6 +311,7 @@ void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
   else if (selected)
     animation->setIK(animation->getPartName(selected),
                      !animation->getIK(animation->getPartName(selected)));
+  repaint();
 }
 
 void AnimationView::wheelEvent(QWheelEvent* event)
@@ -518,6 +525,11 @@ const char *AnimationView::getSelectedPart()
 void AnimationView::selectPart(const char *part)
 {
   partSelected = animation->getPartIndex(part);
+  emit partClicked(part,
+                   Rotation(animation->getRotation(part)),
+                   animation->getRotationLimits(part),
+                   Position(animation->getPosition(part))
+                  );
   repaint();
 }
 

@@ -47,13 +47,25 @@ class RotationLimits
                                             double zMin,double zMax);
     ~RotationLimits();
 
-    QString bodyPart;
+    QString jointName;
     double xMin;
     double yMin;
     double zMin;
     double xMax;
     double yMax;
     double zMax;
+};
+
+class Position
+{
+  public:
+    Position(const QString& bodyPart,double x,double y,double z);
+    ~Position();
+
+    QString bodyPart;
+    double x;
+    double y;
+    double z;
 };
 
 #endif

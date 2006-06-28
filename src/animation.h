@@ -67,7 +67,7 @@ class Animation : public QObject
   bool useRotationLimits() { return limits; }
   RotationLimits getRotationLimits(const char *jointName);
   void setPosition(const char *jointName, double x, double y, double z);
-  void getPosition(const char *jointName, double *x, double *y, double *z);
+  Position getPosition(const char *jointName);
   int getRotationOrder(const char *jointName);
   void addKeyFrame();
   void addKeyFrame(BVHNode *joint);

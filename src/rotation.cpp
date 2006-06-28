@@ -31,10 +31,12 @@ Rotation::~Rotation()
 {
 }
 
-RotationLimits::RotationLimits(const QString& jointName,double rxMin,double rxMax,
-                                                        double ryMin,double ryMax,
-                                                        double rzMin,double rzMax)
+RotationLimits::RotationLimits(const QString& joint,double rxMin,double rxMax,
+                                                    double ryMin,double ryMax,
+                                                    double rzMin,double rzMax)
 {
+  jointName=joint;
+
   xMin=rxMin;
   yMin=ryMin;
   zMin=rzMin;
@@ -44,5 +46,17 @@ RotationLimits::RotationLimits(const QString& jointName,double rxMin,double rxMa
 }
 
 RotationLimits::~RotationLimits()
+{
+}
+
+Position::Position(const QString& part,double px,double py, double pz)
+{
+  bodyPart=part;
+  x=px;
+  y=py;
+  z=pz;
+}
+
+Position::~Position()
 {
 }
