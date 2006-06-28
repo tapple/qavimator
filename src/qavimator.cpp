@@ -126,6 +126,8 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(playButton,SIGNAL(clicked()),this,SLOT(cb_PlayBtn()));
   connect(&timer,SIGNAL(timeout()),this,SLOT(cb_timeout()));
 
+  connect(this,SIGNAL(resetCamera()),animationView,SLOT(resetCamera()));
+
   xSlider->setPageStep(10*PRECISION);
   ySlider->setPageStep(10*PRECISION);
   zSlider->setPageStep(10*PRECISION);

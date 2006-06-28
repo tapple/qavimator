@@ -65,7 +65,9 @@ class AnimationView : public QGLWidget
     void hideSkeleton() { skeleton = false; }
     void selectPart(const char *part);
     const char *getSelectedPart();
-    void getChangeValues(double *x, double *y, double *z);
+
+  public slots:
+    void resetCamera();
 
   signals:
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
@@ -120,7 +122,6 @@ class AnimationView : public QGLWidget
     void setProjection();
     void setModelView();
     void setBodyMaterial();
-    void resetCamera();
     void clearSelected();
     int pickPart(int x, int y);
     void drawCircle(int axis, float radius, int width);

@@ -533,9 +533,8 @@ void AnimationView::selectPart(const char *part)
   repaint();
 }
 
-void AnimationView::getChangeValues(double *x, double *y, double *z)
+void AnimationView::resetCamera()
 {
-  *x = changeX;
-  *y = changeY;
-  *z = changeZ;
+  camera.reset();
+  repaint();
 }

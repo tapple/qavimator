@@ -978,6 +978,7 @@
         <action name="editPasteAction"/>
         <action name="editUndoAction"/>
         <action name="editRedoAction"/>
+        <action name="resetCameraAction"/>
     </toolbar>
     <toolbar dock="2">
         <property name="name">
@@ -1261,10 +1262,16 @@
     </action>
     <action>
         <property name="name">
-            <cstring>Action</cstring>
+            <cstring>resetCameraAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image11</iconset>
         </property>
         <property name="text">
             <string>Unnamed</string>
+        </property>
+        <property name="toolTip">
+            <string>Reset camera view to default position</string>
         </property>
     </action>
     <action>
@@ -1408,6 +1415,9 @@
     </image>
     <image name="image10">
         <data format="PNG" length="662">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000025d49444154388dd593a172db4010863f670a56ecc42278d0653693a0c21c68d6c2e60df21a818111349499c254a8329b55f0e089ddb15ba602b79d6692d699b6d399fee86e67e7db7f77efe07fd3e2c74bd775b3730eef3d5115002382b5166b2d5757578b1729bf02b76d3b0f8703b92d58aed7600400ef1ce3c70306a8aa8aebebeb57c117dfa06ddb525dd754efb600a82a49138a123532ec3ac42b9bcde655ce2ffabe9f87c340fde13dcb4d8daaa24e48ee12c6823808c107969b1a8a9ce3f1f8aa515c38e7c8ada5aa6b00c45f129c67d223938c88e6c860d118b1d592d139baae9bcf83a78965b5465134801b1d2e1f4945c0e350096408ea154490c2e0bd3fef5853c2e486a0019f4d84f58418418362b0408e8b23c924501093314dd359f01b809814112025144015f1964c0bbc1b484b07e4688880c029ebd78e4141f5b434fd76864c053f1e084b0f8580265440634044ce838bbcc03987a61350a3a2285e1d5a4414d0708aa598082162ad3d0fb6d6e287cfa498508d274050447370428c91af8d10fd4481608c390b5e00dcddddcd8e80a9de420248e804840856f03e02907d729465c9ba5ae3468731e6a79fe50260b55a6102c4ee40a6894c33f2cb0cb106512814f8f899b22cb9b9b959b8d1f1f8f848d334b46dfbe29bfe5eadeffbf9783c323a871881ecb4200d1151a8eb9aed76bb00188661eeba8efd7e8f3186ed76cb6ab57ae2fe591b5dd7cdde7b628c8808799e63ada5aaaa67b9bbdd6e6e9a06ef3d755d3f29fec7eafb7ebebdbd9dadb5735996f3fdfdfdfca2e3dfd5c3c3c3dc340dd334b1d96cfe1e184e63dceff7a494fe26f61fe90bbc4c5e59d614caf40000000049454e44ae426082</data>
+    </image>
+    <image name="image11">
+        <data format="PNG" length="1151">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000044649444154388d8d935b685c451cc6bff9cfecb9eed94bf696359bd0244d5bec25bd2848a9b40a05a92f45aa82e2f5450441940ac56729a28f52111f845a85bed83c88624aa117ac52b3bd116b4a4c9ada366976dd4dd2cd2667f79c3d333e6c9126d94006fe0c33c3fce69b6fbe6158a5d987be272d64beb5b7bfe3a39dbd6d1b535103c5b91af263a59b17aeddfdccbd75eeb897ff52aeb6bf65b35e38211e7f6ff0c4c9df0bea76d953ff3c52b74b9efaeed769b5f19d1f8f6bfdaf855663f05693ceae378f7cf8e2ce0f7ab30e1eb8120f5c89b947cab17464d36dfdf949ee2fde3875614d60ebe0f1c8baee753feceb6fd7ab7585aa2751f514e63d854a5d350faa49685a08378b7257a970ff1b39f3f7c2720ead3849e8fb3299b6c8542540712140d95598a949cc3eacb22b515c0830556920d39e8a38ddbbf7b7522c964f30a6726d3113d3d5006d61011d0a82331003a402fc0650f7154a0b12d18801cb347a66d7025641c33504a0690470060a118420100181540898829280ae29d83a417a8bfe9a14372a5343d5f979d59b0b33c7e2b00d82ae1138636848859a27a18502100366cb55551e3d7fbd157885c7b5df3e1f191fbd752e6e13e2618eb82390880824a3cd3e1e1688d902118b6362f8f2b0377ee68f56e09571f3175545c5afe8f1ce97f66ccb5a2947206671383ac1d4184cc140002ee5271e0c7efdf1fbdedcddab6b0303f027878ae5f833dbabbebd359734d0d31642426300182667029cb954c6e9d367cf4c5f38f6098096bfaf2538f1eac0bb7bf7ec38f2cad359504361786211a3531eee4cd761a1814d3913333cd387dcb38562fee4d09ac0e14327d7efe8ef1d38f0642e14d63918313816876d72d8264112c10b8074cc600557db174a6c3ef5eff04fa5e59c25a9b09e3b868e6ce2e8d64d398b1143c995e004106300141400291502093414d0b32e612fce6d3b7a53330f059ebbc492258acd1daf6f7cea89be2f3249871831f80af015831b006e00d402c00b00b7a1b0e04b048a8109630333b203d37f9e2e3cca5a12b75422f2465f775a983a8171062e082244300c0ecbe030f5e6980b06c69bf94ea5c23cb37efbdbab5ae1ecff9436f4a40f1a1a8765102c9dc3d0183441e0ff7f6905bf01783e83e012d47408a96cfbf3ba9338529f2fd7562816d1ce8e8e4c7483a537a19641b00d0ec7e2883c2cc712702c826d36d74d9d60e984442ad1d3b7fbe5ee968a19e7bd5d99308fdb1c8c3737587af3fa9a682a0e24506f30706abe9394802d18eaae46a9aecd9b008cac50dc98ba3232746dfc5ecc003aa31c498b236a121c83e0680c118dc1d1191c83103508699bd01513d03843f1defdd2c8f96f6fb74c45fdcec585a93bf706af4fb8494f698f59ba61a46dceda2d4242032282c1208014e07bc06c056a64b45039f7f3e0d95fbe3a7cb83096bfd474fca103cb5f1380605ce4d25b0eec8c756ed9168927bb92f1685cd7047122d4dd5aa55e2d4fde1fcbdff8ebe2c05529835b00169743fe03a92ca5789b84ddd20000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -1561,6 +1571,12 @@
         <receiver>MainApplicationForm</receiver>
         <slot>cb_PartChoice()</slot>
     </connection>
+    <connection>
+        <sender>resetCameraAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>resetCamera()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
@@ -1595,6 +1611,7 @@
     <slot>keyframeButtonToggled( bool )</slot>
     <slot>optionsProtectFirstFrame( bool )</slot>
     <slot>cb_PartChoice()</slot>
+    <slot>resetCamera()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
