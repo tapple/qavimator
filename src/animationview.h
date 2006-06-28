@@ -88,6 +88,7 @@ class AnimationView : public QGLWidget
     virtual void wheelEvent(QWheelEvent* event);
     virtual void keyPressEvent(QKeyEvent* event);
     virtual void keyReleaseEvent(QKeyEvent* event);
+    virtual void resizeEvent(QResizeEvent* newSize);
 
     void draw();
 

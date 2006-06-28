@@ -538,3 +538,24 @@ void AnimationView::resetCamera()
   camera.reset();
   repaint();
 }
+
+// handle widget resizes
+void AnimationView::resizeEvent(QResizeEvent* newSize)
+{
+  int w=newSize->size().width();
+  int h=newSize->size().height();
+  float aspect=1.0*w/h;
+
+  // reset coordinates
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+  // resize GL viewport
+  glViewport(0,0,w,h);
+
+  // set up aspect ratio
+  setProjection();
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+}
