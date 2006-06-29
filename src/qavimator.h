@@ -53,6 +53,8 @@ class qavimator : public MainApplicationForm
     void setSliderValue(QSlider* slider,QLineEdit* edit,float value);
 
   protected slots:
+    void readSettings();
+
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimits,Position pos);
     void partDragged(const QString& partName,double changeX,double changeY,double changeZ);
     void backgroundClicked();

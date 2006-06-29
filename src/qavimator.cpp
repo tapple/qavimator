@@ -27,6 +27,7 @@
 #include <qlabel.h>
 #include <qfiledialog.h>
 #include <qaction.h>
+#include <qsettings.h>
 
 #include "qavimator.h"
 #include "animationview.h"
@@ -38,10 +39,9 @@
 qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose )
 {
   playing=false;
-  loop=true;
   frameDataValid = false;
 
-  resize(850,600);
+  readSettings();
 
   connect(animationView,SIGNAL(partClicked(const QString&,
                                            Rotation,
@@ -133,6 +133,55 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
 qavimator::~qavimator()
 {
+  fileExit();
+}
+
+void qavimator::readSettings()
+{
+  QSettings settings;
+  settings.setPath("DeZiRee","QAvimator",QSettings::User);
+  settings.beginGroup("/qavimator");
+
+  // if no settings found, start up with defaults
+  int width=850;
+  int height=600;
+  int figureType=0;
+  loop=true;
+  protectFirstFrame=true;
+  bool skeleton=false;
+  bool jointLimits=true;
+
+  bool settingsFound=settings.readBoolEntry("/settings");
+  if(settingsFound)
+  {
+    loop=settings.readBoolEntry("/loop");
+    skeleton=settings.readBoolEntry("/skeleton");
+    jointLimits=settings.readBoolEntry("/joint_limits");
+    protectFirstFrame=settings.readBoolEntry("/protect_first_frame");
+
+    int width=settings.readNumEntry("/mainwindow_width");
+    int height=settings.readNumEntry("/mainwindow_height");
+
+    // sanity
+    if(width<50) width=50;
+    if(height<50) height=50;
+
+    figureType=settings.readNumEntry("/figure");
+
+    settings.endGroup();
+  }
+
+  resize(width,height);
+
+  optionsLoopAction->setOn(loop);
+  optionsSkeletonAction->setOn(skeleton);
+  optionsJointLimitsAction->setOn(jointLimits);
+  // prevent a signal to be sent to yet uninitialized animation view
+  optionsProtectFirstFrameAction->blockSignals(true);
+  optionsProtectFirstFrameAction->setOn(protectFirstFrame);
+  optionsProtectFirstFrameAction->blockSignals(false);
+  figureCombo->setCurrentItem(figureType);
+  figureChanged(figureType);
 }
 
 // slot gets called by AnimationView::mousePressEvent()
@@ -439,7 +488,7 @@ void qavimator::cb_PlayBtn()
 {
   playing = !playing;
   if (playing)
-    timer.start(animationView->getAnimation()->frameTime()*1000);
+    timer.start((int)(animationView->getAnimation()->frameTime()*1000));
   else
   {
     // take care of locks, key frames ...
@@ -503,13 +552,13 @@ void qavimator::fileNew()
 
   playing=false;
 
-  // by default protect the first animation frame from being edited, this helps
-  // with Second Life import
-  protectFirstFrame=true;
+  if(protectFirstFrame)
+    // skip first frame, since it's protected anyway
+    animationView->getAnimation()->setFrame(1);
+  else
+    animationView->getAnimation()->setFrame(0);
 
-  // skip first frame, since it's protected anyway
-  animationView->getAnimation()->setFrame(1);
-  // show next frame as unprotected
+  // show frame as unprotected
   emit protectFrame(false);
   protect=false;
 
@@ -562,9 +611,27 @@ void qavimator::fileSaveAs()
   }
 }
 
-// Menu Action: File / QExit
+// Menu Action: File / Exit
 void qavimator::fileExit()
 {
+  QSettings settings;
+  settings.setPath("DeZiRee","QAvimator",QSettings::User);
+
+  settings.beginGroup("/qavimator");
+
+  // make sure we know next time, that there actually was a settings file
+  settings.writeEntry("/settings",true);
+
+  settings.writeEntry("/loop",loop);
+  settings.writeEntry("/skeleton",optionsSkeletonAction->isOn());
+  settings.writeEntry("/joint_limits",optionsJointLimitsAction->isOn());
+  settings.writeEntry("/protect_first_frame",optionsProtectFirstFrameAction->isOn());
+
+  settings.writeEntry("/figure",figureCombo->currentItem());
+  settings.writeEntry("/mainwindow_width",size().width());
+  settings.writeEntry("/mainwindow_height",size().height());
+
+  settings.endGroup();
   qApp->quit();
 }
 

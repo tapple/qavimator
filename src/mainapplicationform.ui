@@ -947,10 +947,10 @@
         <action name="editPasteAction"/>
     </item>
     <item text="Options" name="Options">
-        <action name="optionsSkeletonMenu"/>
-        <action name="optionsJointLimitsMenu"/>
+        <action name="optionsSkeletonAction"/>
+        <action name="optionsJointLimitsAction"/>
         <action name="optionsLoopAction"/>
-        <action name="optionsProtect_First_FrameAction"/>
+        <action name="optionsProtectFirstFrameAction"/>
     </item>
     <separator/>
     <item text="&amp;Help" name="helpMenu">
@@ -1318,7 +1318,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>optionsSkeletonMenu</cstring>
+            <cstring>optionsSkeletonAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1332,7 +1332,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>optionsJointLimitsMenu</cstring>
+            <cstring>optionsJointLimitsAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1366,7 +1366,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>optionsProtect_First_FrameAction</cstring>
+            <cstring>optionsProtectFirstFrameAction</cstring>
         </property>
         <property name="toggleAction">
             <bool>true</bool>
@@ -1512,13 +1512,13 @@
         <slot>helpAbout()</slot>
     </connection>
     <connection>
-        <sender>optionsSkeletonMenu</sender>
+        <sender>optionsSkeletonAction</sender>
         <signal>toggled(bool)</signal>
         <receiver>MainApplicationForm</receiver>
         <slot>optionsSkeleton(bool)</slot>
     </connection>
     <connection>
-        <sender>optionsJointLimitsMenu</sender>
+        <sender>optionsJointLimitsAction</sender>
         <signal>toggled(bool)</signal>
         <receiver>MainApplicationForm</receiver>
         <slot>optionsJointLimits(bool)</slot>
@@ -1560,7 +1560,7 @@
         <slot>keyframeButtonToggled(bool)</slot>
     </connection>
     <connection>
-        <sender>optionsProtect_First_FrameAction</sender>
+        <sender>optionsProtectFirstFrameAction</sender>
         <signal>toggled(bool)</signal>
         <receiver>MainApplicationForm</receiver>
         <slot>optionsProtectFirstFrame(bool)</slot>
@@ -1578,9 +1578,6 @@
         <slot>resetCamera()</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
-</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
