@@ -86,6 +86,7 @@ class Animation : public QObject
 
   signals:
     void currentFrame(int frame);
+    void frameChanged();
 
  private:
   BVHNode *frames;

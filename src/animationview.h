@@ -66,14 +66,17 @@ class AnimationView : public QGLWidget
     void selectPart(const char *part);
     const char *getSelectedPart();
 
-  public slots:
-    void resetCamera();
-    void protectFrame(bool on);
-
   signals:
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
     void partDragged(const QString&,double changeX,double changeY,double changeZ);
     void backgroundClicked();
+
+  public slots:
+    void resetCamera();
+    void protectFrame(bool on);
+
+  protected slots:
+    void draw();
 
   protected:
     bool leftMouseButton;
@@ -91,8 +94,6 @@ class AnimationView : public QGLWidget
     virtual void keyPressEvent(QKeyEvent* event);
     virtual void keyReleaseEvent(QKeyEvent* event);
     virtual void resizeEvent(QResizeEvent* newSize);
-
-    void draw();
 
   private:
     typedef enum

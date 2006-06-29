@@ -477,7 +477,6 @@ void qavimator::cb_FrameSlider(int position)
   emit protectFrame(protect);
 
   updateInputs();
-  animationView->repaint();
 }
 
 void qavimator::figureChanged(int shape)

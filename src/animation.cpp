@@ -33,8 +33,6 @@ Animation::Animation(const char *bvhFile) :
 {
   QString fileName;
 
-  emit currentFrame(0);
-
   execPath=qApp->applicationDirPath();
   // load BVH that defines motion
   if (bvhFile)
@@ -114,7 +112,9 @@ void Animation::setFrame(int frameNumber)
       setIK((IKPartType)i, false);
     }
     frame = frameNumber;
+
     emit currentFrame(frame);
+    emit frameChanged();
   }
 }
 

@@ -63,21 +63,21 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   frameProtected=false;
   modifier=0;
   setFigure(figType);
-  setAnimation(anim);
+  if(anim) setAnimation(anim);
   setMouseTracking(1);
   setFocusPolicy(QWidget::StrongFocus);
 }
 
 AnimationView::~AnimationView()
 {
-  if (animation) delete(animation);
+  if(animation) delete(animation);
 }
 
 void AnimationView::setAnimation(Animation *anim)
 {
-  if (animation) delete animation;
-  animation = anim;
-
+  if(animation) delete animation;
+  animation=anim;
+  connect(animation,SIGNAL(frameChanged()),this,SLOT(repaint()));
   repaint();
 }
 
