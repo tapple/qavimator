@@ -68,6 +68,7 @@ class AnimationView : public QGLWidget
 
   public slots:
     void resetCamera();
+    void protectFrame(bool on);
 
   signals:
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
@@ -76,6 +77,7 @@ class AnimationView : public QGLWidget
 
   protected:
     bool leftMouseButton;
+    bool frameProtected;
     char modifier;
 
     virtual void paintGL();

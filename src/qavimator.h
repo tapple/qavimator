@@ -47,6 +47,7 @@ class qavimator : public MainApplicationForm
     void enableRotation(bool state);
     void enablePosition(bool state);
     void resetCamera();
+    void protectFrame(bool state);
 
   protected:
     void setSliderValue(QSlider* slider,QLineEdit* edit,float value);

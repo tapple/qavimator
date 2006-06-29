@@ -60,6 +60,7 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   }
 
   leftMouseButton=false;
+  frameProtected=false;
   modifier=0;
   setFigure(figType);
   setAnimation(anim);
@@ -91,9 +92,9 @@ void AnimationView::drawFloor()
   for (int i=-10; i<10; i++) {
     for (int j=-10; j<10; j++) {
       if ((i+j) % 2)
-	glColor4f(0.1, 0.1, 0.1, 1);
+	if(frameProtected) glColor4f(0.3, 0.0, 0.0, 1); else glColor4f(0.1, 0.1, 0.1, 1);
       else
-	glColor4f(0.6, 0.6, 0.6, 1);
+	if(frameProtected) glColor4f(0.8, 0.0, 0.0, 1); else glColor4f(0.6, 0.6, 0.6, 1);
       glVertex3f(i*40, 0, j*40); glVertex3f(i*40, 0, (j+1)*40);
       glVertex3f((i+1)*40, 0, (j+1)*40); glVertex3f((i+1)*40, 0, j*40);
     }
@@ -558,4 +559,15 @@ void AnimationView::resizeEvent(QResizeEvent* newSize)
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+}
+
+// set the current frame's visual protection status
+void AnimationView::protectFrame(bool on)
+{
+  // only redraw if we need to
+  if(frameProtected!=on)
+  {
+    frameProtected=on;
+    repaint();
+  }
 }

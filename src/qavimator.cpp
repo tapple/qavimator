@@ -127,6 +127,7 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(&timer,SIGNAL(timeout()),this,SLOT(cb_timeout()));
 
   connect(this,SIGNAL(resetCamera()),animationView,SLOT(resetCamera()));
+  connect(this,SIGNAL(protectFrame(bool)),animationView,SLOT(protectFrame(bool)));
 
   xSlider->setPageStep(10*PRECISION);
   ySlider->setPageStep(10*PRECISION);
@@ -136,11 +137,6 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   zPositionSlider->setPageStep(10*PRECISION);
 
   positionSlider->setPageStep(1);
-
-  // by default protect the first animation frame from being edited, this helps
-  // with Second Life import
-  protectFirstFrame=true;
-  protect=true;
 
   fileNew();
 }
@@ -430,7 +426,9 @@ void qavimator::cb_timeout()
   if (playing) {
     Animation *anim = animationView->getAnimation();
     if (anim) {
-      animationView->repaint();
+
+      // doon't show protected frames on playback to avoid flicker
+      protectFrame(false);
       anim->stepForward();
       //      if (!anim->stepForward())
       //	playing = false;
@@ -438,7 +436,7 @@ void qavimator::cb_timeout()
       if (anim->getFrame() == (anim->getNumberOfFrames() - 1) && !loop)
       {
         timer.stop();
-        playing = false;
+        playing=false;
       }
       else
       {
@@ -455,6 +453,11 @@ void qavimator::cb_PlayBtn()
   playing = !playing;
   if (playing)
     timer.start(animationView->getAnimation()->frameTime()*1000);
+  else
+  {
+    // take care of locks, key frames ...
+    cb_FrameSlider(positionSlider->value());
+  }
 
   updateInputs();
 }
@@ -469,8 +472,10 @@ void qavimator::cb_FrameSlider(int position)
   if(position==0 && protectFirstFrame) protect=true;
   else protect=false;
 
-  playing = false;
+  playing=false;
   animationView->getAnimation()->setFrame(position);
+  emit protectFrame(protect);
+
   updateInputs();
   animationView->repaint();
 }
@@ -510,7 +515,18 @@ void qavimator::fileNew()
 
   editPartCombo->setCurrentItem(1);
 
-  playing = false;
+  playing=false;
+
+  // by default protect the first animation frame from being edited, this helps
+  // with Second Life import
+  protectFirstFrame=true;
+
+  // skip first frame, since it's protected anyway
+  animationView->getAnimation()->setFrame(1);
+  // show next frame as unprotected
+  emit protectFrame(false);
+  protect=false;
+
   updateInputs();
   updateFps();
 }
@@ -622,6 +638,7 @@ void qavimator::optionsProtectFirstFrame(bool on)
   if(on && positionSlider->value()==0) protect=true;
   else protect=false;
 
+  emit protectFrame(protect);
   updateInputs();
 }
 
