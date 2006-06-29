@@ -179,20 +179,14 @@ void AnimationView::initializeGL()
 
 void AnimationView::draw()
 {
-  qDebug("draw()");
-
-  if (!isValid()) {
-    initializeGL();
-  }
+  if (!isValid()) initializeGL();
 
   glClearColor(0.5, 0.5, 0.5, 0.3); /* fog color */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   camera.setModelView();
   drawFloor();
-  if (animation) {
-    drawFigure();
-  }
+  if (animation) drawFigure();
 }
 
 int AnimationView::pickPart(int x, int y)

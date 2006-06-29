@@ -41,16 +41,6 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   loop=true;
   frameDataValid = false;
 
-/* FIXME: char fileName[256];
-  sprintf(fileName, "%s/%s", execPath, PLAY_IMAGE);
-  playImage = new Fl_PNG_Image(fileName);
-  sprintf(fileName, "%s/%s", execPath, PAUSE_IMAGE);
-  pauseImage = new Fl_PNG_Image(fileName);
-  sprintf(fileName, "%s/%s", execPath, KEY_IMAGE);
-  keyImage = new Fl_PNG_Image(fileName);
-  sprintf(fileName, "%s/%s", execPath, NOKEY_IMAGE);
-  nokeyImage = new Fl_PNG_Image(fileName);*/
-
   resize(850,600);
 
   connect(animationView,SIGNAL(partClicked(const QString&,
@@ -374,7 +364,6 @@ void qavimator::updateInputs()
     positionSlider->setMaxValue(anim->getNumberOfFrames()-1);
 
     framesSpin->setValue(anim->getNumberOfFrames());
-// FIXME:    if (anim->useRotationLimits()) w->limits->setonly();
   }
   if (editPartCombo->currentText()=="hip") {
     emit enablePosition(!protect);
@@ -427,11 +416,9 @@ void qavimator::cb_timeout()
     Animation *anim = animationView->getAnimation();
     if (anim) {
 
-      // doon't show protected frames on playback to avoid flicker
+      // don't show protected frames color on playback to avoid flicker
       protectFrame(false);
       anim->stepForward();
-      //      if (!anim->stepForward())
-      //	playing = false;
 
       if (anim->getFrame() == (anim->getNumberOfFrames() - 1) && !loop)
       {
@@ -548,13 +535,6 @@ void qavimator::fileOpen()
     editPartCombo->setCurrentItem(1);
     updateInputs();
     updateFps();
-
-//    playBtn->label("Play");
-//    partChc->clear();
-//    addJoints(w->partChc, w->viewWin->getAnimation()->getJoints());
-//    partChc->value(1);
-//    partChc_cb(w->partChc, w);
-//    playState = STOPPED;
   }
 }
 
