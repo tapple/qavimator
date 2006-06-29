@@ -179,6 +179,8 @@ void AnimationView::initializeGL()
 
 void AnimationView::draw()
 {
+  qDebug("draw()");
+
   if (!isValid()) {
     initializeGL();
   }
@@ -258,12 +260,14 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       else
         camera.rotate(dragY, dragX);
     }
+    repaint();
   }
   else
   {
-    partHighlighted = pickPart(last_x, last_y);
+    int oldPart=partHighlighted;
+    partHighlighted=pickPart(last_x, last_y);
+    if(oldPart!=partHighlighted) repaint();
   }
-  repaint();
 }
 
 void AnimationView::mousePressEvent(QMouseEvent* event)
