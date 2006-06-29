@@ -694,12 +694,17 @@ void qavimator::setSliderValue(QSlider* slider,QLineEdit* edit,float value)
 
 void qavimator::updateFps()
 {
-  // don't send FPS change back to Animation object
-  framesSpin->blockSignals(true);
-  if (animationView->getAnimation()->frameTime() != 0.0)
-    fpsSpin->setValue(1 / (animationView->getAnimation()->frameTime()));
-  // re-enable FPS signal
-  framesSpin->blockSignals(false);
+  double frameTime=animationView->getAnimation()->frameTime();
+
+  // guard against division by zero
+  if(frameTime!=0.0)
+  {
+    // don't send FPS change back to Animation object
+    framesSpin->blockSignals(true);
+    fpsSpin->setValue((int)(1/frameTime));
+    // re-enable FPS signal
+    framesSpin->blockSignals(false);
+  }
 }
 
 // convenience function to set window title in a defined way
