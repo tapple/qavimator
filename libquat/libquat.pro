@@ -3,12 +3,6 @@
 # Unterordner relativ zum Projektordner: ./libquat
 # Das Target ist eine Bibliothek:  
 
-CONFIG += release \
-          warn_on \
-          qt \
-          thread \
-          staticlib 
-TEMPLATE = lib 
 HEADERS += GEN_List.h \
            GEN_Map.h \
            MEM_NonCopyable.h \
@@ -52,3 +46,9 @@ SOURCES += MEM_RefCountedC-Api.cpp \
            MT_Vector2.cpp \
            MT_Vector3.cpp \
            MT_Vector4.cpp 
+CONFIG += release \
+warn_on \
+qt \
+thread \
+staticlib
+TEMPLATE = lib

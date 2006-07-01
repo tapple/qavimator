@@ -13,7 +13,8 @@ HEADERS += qavimator.h \
            bvh.h \
            iktree.h \
            slparts.h \
-           rotation.h 
+           rotation.h \
+           prop.h 
 SOURCES += qavimator.cpp \
            main.cpp \
            animationview.cpp \
@@ -24,19 +25,20 @@ SOURCES += qavimator.cpp \
            bvh.cpp \
            slpartsfemale.cpp \
            slpartsmale.cpp \
-           rotation.cpp 
-mainapplicationform.ui.target = mainapplicationform.ui 
-mainapplicationform.ui.commands = $$IDL_COMPILER 
-QT = qt3support 
-TARGETDEPS += ../libquat/liblibquat.a 
+           rotation.cpp \
+           prop.cpp 
+mainapplicationform.ui.target = mainapplicationform.ui
+mainapplicationform.ui.commands = $$IDL_COMPILER
+QT = qt3support
+TARGETDEPS += ../libquat/liblibquat.a
 LIBS += ../libquat/liblibquat.a \
-        -lGLU 
+-lGLU
 INCLUDEPATH += ../libquat \
-               /usr/include 
-TARGET = ../bin/qavimator 
+/usr/include
+TARGET = ../bin/qavimator
 CONFIG += debug \
-          warn_on \
-          qt \
-          opengl \
-          thread 
-TEMPLATE = app 
+warn_on \
+qt \
+opengl \
+thread
+TEMPLATE = app

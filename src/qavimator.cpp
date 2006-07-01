@@ -32,6 +32,7 @@
 #include "qavimator.h"
 #include "animationview.h"
 #include "rotation.h"
+#include "prop.h"
 
 #define FILTER "Animation Files (*.bvh *.avm)"
 #define PRECISION 100
@@ -127,6 +128,9 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   zPositionSlider->setPageStep(10*PRECISION);
 
   positionSlider->setPageStep(1);
+
+//  animationView->addProp(Prop::Box,60,50,0,40,40,40);
+//  animationView->addProp(Prop::Box,50,30,20,30,20,10);
 
   fileNew();
 }

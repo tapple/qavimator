@@ -36,9 +36,12 @@
 #include "animation.h"
 #include "camera.h"
 #include "rotation.h"
+#include "prop.h"
 
 #define MALE_BVH   "data/SLMale.bvh"
 #define FEMALE_BVH "data/SLFemale.bvh"
+
+class Prop;
 
 class AnimationView : public QGLWidget
 {
@@ -74,6 +77,7 @@ class AnimationView : public QGLWidget
   public slots:
     void resetCamera();
     void protectFrame(bool on);
+    void addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs);
 
   protected slots:
     void draw();
@@ -82,6 +86,8 @@ class AnimationView : public QGLWidget
     bool leftMouseButton;
     bool frameProtected;
     char modifier;
+
+    QPtrList<Prop> propList;
 
     virtual void paintGL();
     virtual void paintOverlayGL();
@@ -94,6 +100,11 @@ class AnimationView : public QGLWidget
     virtual void keyPressEvent(QKeyEvent* event);
     virtual void keyReleaseEvent(QKeyEvent* event);
     virtual void resizeEvent(QResizeEvent* newSize);
+
+    void drawFloor();
+    void drawFigure();
+    void drawPart(int frame, BVHNode *motion, BVHNode *joints, int mode);
+    void drawProps();
 
   private:
     typedef enum
@@ -120,9 +131,6 @@ class AnimationView : public QGLWidget
     bool xSelect, ySelect, zSelect;
     FigureType figType;
 
-    void drawFloor();
-    void drawFigure();
-    void drawPart(int frame, BVHNode *motion, BVHNode *joints, int mode);
     void setProjection();
     void setModelView();
     void setBodyMaterial();

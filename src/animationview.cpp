@@ -95,11 +95,33 @@ void AnimationView::drawFloor()
 	if(frameProtected) glColor4f(0.3, 0.0, 0.0, 1); else glColor4f(0.1, 0.1, 0.1, 1);
       else
 	if(frameProtected) glColor4f(0.8, 0.0, 0.0, 1); else glColor4f(0.6, 0.6, 0.6, 1);
-      glVertex3f(i*40, 0, j*40); glVertex3f(i*40, 0, (j+1)*40);
-      glVertex3f((i+1)*40, 0, (j+1)*40); glVertex3f((i+1)*40, 0, j*40);
+
+      glVertex3f(i*40, 0, j*40);
+      glVertex3f(i*40, 0, (j+1)*40);
+      glVertex3f((i+1)*40, 0, (j+1)*40);
+      glVertex3f((i+1)*40, 0, j*40);
     }
   }
+
   glEnd();
+}
+
+void AnimationView::drawProps()
+{
+  int index;
+
+  for(index=0;index<propList.count();index++)
+    propList.at(index)->draw();
+}
+
+void AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs)
+{
+  Prop* newProp=new Prop(type,"cube");
+
+  newProp->setPosition(x,y,z);
+  newProp->setScale(xs,ys,zs);
+
+  propList.append(newProp);
 }
 
 void AnimationView::setProjection()
@@ -186,6 +208,7 @@ void AnimationView::draw()
 
   camera.setModelView();
   drawFloor();
+  drawProps();
   if (animation) drawFigure();
 }
 
