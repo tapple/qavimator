@@ -150,10 +150,11 @@ void qavimator::readSettings()
   int width=850;
   int height=600;
   int figureType=0;
-  loop=true;
-  protectFirstFrame=true;
   bool skeleton=false;
   bool jointLimits=true;
+  loop=true;
+  protectFirstFrame=true;
+  lastPath=QString::null;
 
   bool settingsFound=settings.readBoolEntry("/settings");
   if(settingsFound)
@@ -165,6 +166,8 @@ void qavimator::readSettings()
 
     int width=settings.readNumEntry("/mainwindow_width");
     int height=settings.readNumEntry("/mainwindow_height");
+
+    lastPath=settings.readEntry("/last_path");
 
     // sanity
     if(width<50) width=50;
@@ -573,7 +576,7 @@ void qavimator::fileNew()
 // Menu action: File / Open ...
 void qavimator::fileOpen()
 {
-  QString file=QFileDialog::getOpenFileName(QString::null,
+  QString file=QFileDialog::getOpenFileName(lastPath,
                                             FILTER,
                                             this,
                                             "file_open_dialog",
@@ -581,13 +584,18 @@ void qavimator::fileOpen()
                                             0,
                                             false);
   if (file) {
-    setCurrentFile(file);
-    animationView->setAnimation(new Animation(file));
-    // FIXME: code duplication
-    connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
-    editPartCombo->setCurrentItem(1);
-    updateInputs();
-    updateFps();
+    QFileInfo fileInfo(file);
+    if(fileInfo.exists())
+    {
+      setCurrentFile(file);
+      lastPath=fileInfo.dirPath(false);
+      animationView->setAnimation(new Animation(file));
+      // FIXME: code duplication
+      connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
+      editPartCombo->setCurrentItem(1);
+      updateInputs();
+      updateFps();
+    }
   }
 }
 
@@ -611,6 +619,8 @@ void qavimator::fileSaveAs()
                                             false);
   if (file) {
     setCurrentFile(file);
+    QFileInfo fileInfo(file);
+    lastPath=fileInfo.dirPath(false);
     animationView->getAnimation()->saveBVH(file);
   }
 }
@@ -634,6 +644,8 @@ void qavimator::fileExit()
   settings.writeEntry("/figure",figureCombo->currentItem());
   settings.writeEntry("/mainwindow_width",size().width());
   settings.writeEntry("/mainwindow_height",size().height());
+
+  settings.writeEntry("/last_path",lastPath);
 
   settings.endGroup();
   qApp->quit();

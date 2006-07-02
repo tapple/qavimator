@@ -116,6 +116,8 @@ class qavimator : public MainApplicationForm
     float getZPos();
 
     QString currentFile;
+    // last path used for open or save
+    QString lastPath;
     QTimer timer;
 
     bool playing;
