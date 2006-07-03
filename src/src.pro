@@ -3,6 +3,22 @@
 # Unterordner relativ zum Projektordner: ./src
 # Das Target ist eine Anwendung:  ../bin/qavimator
 
+mainapplicationform.ui.target = mainapplicationform.ui 
+mainapplicationform.ui.commands = $$IDL_COMPILER 
+QT = qt3support 
+TARGETDEPS += ../libquat/liblibquat.a 
+LIBS += ../libquat/liblibquat.a \
+        -lglut \
+        -lGLU 
+INCLUDEPATH += ../libquat \
+               /usr/include 
+TARGET = ../bin/qavimator 
+CONFIG += debug \
+          warn_on \
+          qt \
+          opengl \
+          thread 
+TEMPLATE = app 
 FORMS += mainapplicationform.ui 
 IDLS += mainapplicationform.ui 
 HEADERS += qavimator.h \
@@ -27,18 +43,3 @@ SOURCES += qavimator.cpp \
            slpartsmale.cpp \
            rotation.cpp \
            prop.cpp 
-mainapplicationform.ui.target = mainapplicationform.ui
-mainapplicationform.ui.commands = $$IDL_COMPILER
-QT = qt3support
-TARGETDEPS += ../libquat/liblibquat.a
-LIBS += ../libquat/liblibquat.a \
--lGLU
-INCLUDEPATH += ../libquat \
-/usr/include
-TARGET = ../bin/qavimator
-CONFIG += debug \
-warn_on \
-qt \
-opengl \
-thread
-TEMPLATE = app

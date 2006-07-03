@@ -22,6 +22,7 @@
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
+#include <GL/glut.h>
 #endif
 
 #include <qapplication.h>
@@ -48,6 +49,11 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   changeX(0), changeY(0), changeZ(0),
   xSelect(false), ySelect(false), zSelect(false)
 {
+  // fake glut initialization
+  int args=1;
+  char* arg[]={"qavimator"};
+  glutInit(&args,arg);
+
   QString execPath=qApp->applicationDirPath();
 
   QString limFile=execPath+"/"+LIMITS_FILE;
@@ -467,9 +473,7 @@ void AnimationView::drawPart(int frame, BVHNode *motion, BVHNode *joints, int mo
       glEnd();
       glColor4f(0, 1, 0, 1);
       if (joints->type != BVH_ROOT)
-
-// FIXME:	glutSolidSphere(1, 16, 16)
-        ;
+        glutSolidSphere(1, 16, 16);
     }
     if (joints->type == BVH_ROOT) {
       for (int i=0; i<motion->numChannels; i++) {
