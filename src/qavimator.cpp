@@ -822,6 +822,10 @@ void qavimator::selectProp(const QString& propName)
     propYPosSpin->setValue(prop->y);
     propZPosSpin->setValue(prop->z);
 
+    propXPosSpin->blockSignals(false);
+    propYPosSpin->blockSignals(false);
+    propZPosSpin->blockSignals(false);
+
     propXScaleSpin->blockSignals(true);
     propYScaleSpin->blockSignals(true);
     propZScaleSpin->blockSignals(true);
@@ -833,10 +837,6 @@ void qavimator::selectProp(const QString& propName)
     propXScaleSpin->blockSignals(false);
     propYScaleSpin->blockSignals(false);
     propZScaleSpin->blockSignals(false);
-
-    propXPosSpin->blockSignals(false);
-    propYPosSpin->blockSignals(false);
-    propZPosSpin->blockSignals(false);
   }
   else
   {

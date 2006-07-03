@@ -2136,6 +2136,30 @@
         <receiver>MainApplicationForm</receiver>
         <slot>selectProp(const QString&amp;)</slot>
     </connection>
+    <connection>
+        <sender>propXScaleSpin</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>propScaleChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>propZScaleSpin</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>propScaleChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>propXRotSpin</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>propRotChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>propZRotSpin</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>propRotChanged(int)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
