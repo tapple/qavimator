@@ -2118,7 +2118,28 @@
         <receiver>MainApplicationForm</receiver>
         <slot>propPosChanged(int)</slot>
     </connection>
+    <connection>
+        <sender>propYScaleSpin</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>propScaleChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>propYRotSpin</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>propRotChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>propNameCombo</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>selectProp(const QString&amp;)</slot>
+    </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
+</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -2155,6 +2176,9 @@
     <slot>propYPosChanged( int )</slot>
     <slot>propZPosChanged( int )</slot>
     <slot>propPosChanged( int )</slot>
+    <slot>propScaleChanged( int )</slot>
+    <slot>propRotChanged( int )</slot>
+    <slot>selectProp( const QString &amp; )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

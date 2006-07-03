@@ -17,12 +17,31 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
+#include <qptrlist.h>
+
 #ifndef PROP_H
 #define PROP_H
 
 /**
   @author Zi Ree
 */
+
+class Vertex
+{
+  public:
+    Vertex(double x,double y,double z);
+    ~Vertex();
+
+    double x();
+    double y();
+    double z();
+
+  protected:
+    double xp;
+    double yp;
+    double zp;
+};
 
 class Prop
 {
@@ -51,6 +70,11 @@ class Prop
     double xr,yr,zr;
 
   protected:
+    const QPtrList<Vertex> getVertices(PropType type);
+    void createVertices();
+
+    QPtrList<Vertex> boxVertices;
+
     QString propName;
 
     PropType type;

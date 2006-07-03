@@ -800,6 +800,7 @@ void qavimator::newPropButtonClicked()
   if(prop)
   {
     propNameCombo->insertItem(prop->name());
+    propNameCombo->setCurrentItem(propNameCombo->count()-1);
     selectProp(prop->name());
   }
 }
@@ -813,13 +814,29 @@ void qavimator::selectProp(const QString& propName)
     propNameCombo->setEnabled(true);
     deletePropButton->setEnabled(true);
 
+    propXPosSpin->blockSignals(true);
+    propYPosSpin->blockSignals(true);
+    propZPosSpin->blockSignals(true);
+
     propXPosSpin->setValue(prop->x);
     propYPosSpin->setValue(prop->y);
     propZPosSpin->setValue(prop->z);
 
+    propXScaleSpin->blockSignals(true);
+    propYScaleSpin->blockSignals(true);
+    propZScaleSpin->blockSignals(true);
+
     propXScaleSpin->setValue(prop->xs);
     propYScaleSpin->setValue(prop->ys);
     propZScaleSpin->setValue(prop->zs);
+
+    propXScaleSpin->blockSignals(false);
+    propYScaleSpin->blockSignals(false);
+    propZScaleSpin->blockSignals(false);
+
+    propXPosSpin->blockSignals(false);
+    propYPosSpin->blockSignals(false);
+    propZPosSpin->blockSignals(false);
   }
   else
   {
@@ -836,6 +853,28 @@ void qavimator::propPosChanged(int dummy)
   if(prop)
   {
     prop->setPosition(propXPosSpin->value(),propYPosSpin->value(),propZPosSpin->value());
+    animationView->repaint();
+  }
+}
+
+void qavimator::propScaleChanged(int dummy)
+{
+  QString propName=propNameCombo->currentText();
+  Prop* prop=animationView->getProp(propName);
+  if(prop)
+  {
+    prop->setScale(propXScaleSpin->value(),propYScaleSpin->value(),propZScaleSpin->value());
+    animationView->repaint();
+  }
+}
+
+void qavimator::propRotChanged(int dummy)
+{
+  QString propName=propNameCombo->currentText();
+  Prop* prop=animationView->getProp(propName);
+  if(prop)
+  {
+    prop->setRotation(propXRotSpin->value(),propYRotSpin->value(),propZRotSpin->value());
     animationView->repaint();
   }
 }

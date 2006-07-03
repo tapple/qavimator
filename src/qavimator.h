@@ -67,6 +67,8 @@ class qavimator : public MainApplicationForm
     void cb_PosValue();
 
     void propPosChanged(int dummy);
+    void propScaleChanged(int dummy);
+    void propRotChanged(int dummy);
 
     void cb_timeout();
     void cb_PlayBtn();
@@ -95,6 +97,7 @@ class qavimator : public MainApplicationForm
     void optionsProtectFirstFrame(bool on);
 
     void newPropButtonClicked();
+    void selectProp(const QString& name);
 
   protected:
     void setCurrentFile(const QString& fileName);
@@ -119,8 +122,6 @@ class qavimator : public MainApplicationForm
     float getXPos();
     float getYPos();
     float getZPos();
-
-    void selectProp(const QString& name);
 
     QString currentFile;
     // last path used for open or save

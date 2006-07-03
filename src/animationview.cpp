@@ -62,6 +62,7 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   leftMouseButton=false;
   frameProtected=false;
   modifier=0;
+  objectNum=0;
   setFigure(figType);
   if(anim) setAnimation(anim);
   setMouseTracking(1);
@@ -116,7 +117,12 @@ void AnimationView::drawProps()
 
 const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs)
 {
-  QString name="cube";
+  QString name;
+
+  do
+  {
+    name="Object "+QString::number(objectNum++);
+  } while(getProp(name));
 
   Prop* newProp=new Prop(type,name);
 
@@ -159,8 +165,6 @@ void AnimationView::setBodyMaterial()
   glMaterialfv(GL_FRONT, GL_SPECULAR, specularA);
   glMaterialf(GL_FRONT, GL_SHININESS, shininessA);
 }
-
-double goalX = 0, goalY = 0;
 
 void AnimationView::paintGL()
 {

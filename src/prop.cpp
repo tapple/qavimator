@@ -32,14 +32,11 @@ Prop::Prop(PropType newType,const QString& newName)
 {
   setType(newType);
   propName=newName;
+  createVertices();
 }
 
 void Prop::draw()
 {
-  double xp=x-xs/2.0;
-  double yp=y-ys/2.0;
-  double zp=z-zs/2.0;
-
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_COLOR_MATERIAL);
   glShadeModel(GL_SMOOTH);
@@ -47,39 +44,21 @@ void Prop::draw()
   glEnable(GL_LIGHT0);
   glEnable(GL_LIGHT1);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
   glBegin(GL_QUADS);
 
   glColor4f(0.3,0.4,1.0, 1);
 
-  glVertex3f(xp,yp,zp);
-  glVertex3f(xp+xs,yp,zp);
-  glVertex3f(xp+xs,yp+ys,zp);
-  glVertex3f(xp,yp+ys,zp);
+  QPtrList<Vertex> vertices=getVertices(type);
 
-  glVertex3f(xp,yp,zp);
-  glVertex3f(xp,yp,zp+zs);
-  glVertex3f(xp,yp+ys,zp+zs);
-  glVertex3f(xp,yp+ys,zp);
+  for(int index=0;index<vertices.count();index++)
+  {
+    Vertex* v=vertices.at(index);
+    glVertex3f(x+v->x()*xs,
+               y+v->y()*ys,
+               z+v->z()*zs);
+  } // for
 
-  glVertex3f(xp+xs,yp,zp);
-  glVertex3f(xp+xs,yp,zp+zs);
-  glVertex3f(xp+xs,yp+ys,zp+zs);
-  glVertex3f(xp+xs,yp+ys,zp);
-
-  glVertex3f(xp,yp,zp+zs);
-  glVertex3f(xp+xs,yp,zp+zs);
-  glVertex3f(xp+xs,yp+ys,zp+zs);
-  glVertex3f(xp,yp+ys,zp+zs);
-
-  glVertex3f(xp,yp,zp);
-  glVertex3f(xp+xs,yp,zp);
-  glVertex3f(xp+xs,yp,zp+zs);
-  glVertex3f(xp,yp,zp+zs);
-
-  glVertex3f(xp,yp+ys,zp);
-  glVertex3f(xp+xs,yp+ys,zp);
-  glVertex3f(xp+xs,yp+ys,zp+zs);
-  glVertex3f(xp,yp+ys,zp+zs);
 
   // TODO: rotation
 
@@ -117,6 +96,75 @@ const QString& Prop::name() const
   return propName;
 }
 
+const QPtrList<Vertex> Prop::getVertices(PropType type)
+{
+  QPtrList<Vertex> vertices;
+  if(type==Box)
+  {
+    vertices=boxVertices;
+  }
+  return vertices;
+}
+
+void Prop::createVertices()
+{
+  boxVertices.append(new Vertex(-0.5,-0.5,-0.5));
+  boxVertices.append(new Vertex( 0.5,-0.5,-0.5));
+  boxVertices.append(new Vertex( 0.5, 0.5,-0.5));
+  boxVertices.append(new Vertex(-0.5, 0.5,-0.5));
+
+  boxVertices.append(new Vertex(-0.5,-0.5,-0.5));
+  boxVertices.append(new Vertex(-0.5,-0.5, 0.5));
+  boxVertices.append(new Vertex(-0.5, 0.5, 0.5));
+  boxVertices.append(new Vertex(-0.5, 0.5,-0.5));
+
+  boxVertices.append(new Vertex( 0.5,-0.5,-0.5));
+  boxVertices.append(new Vertex( 0.5,-0.5, 0.5));
+  boxVertices.append(new Vertex( 0.5, 0.5, 0.5));
+  boxVertices.append(new Vertex( 0.5, 0.5,-0.5));
+
+  boxVertices.append(new Vertex(-0.5,-0.5, 0.5));
+  boxVertices.append(new Vertex( 0.5,-0.5, 0.5));
+  boxVertices.append(new Vertex( 0.5, 0.5, 0.5));
+  boxVertices.append(new Vertex(-0.5, 0.5, 0.5));
+
+  boxVertices.append(new Vertex(-0.5,-0.5,-0.5));
+  boxVertices.append(new Vertex( 0.5,-0.5,-0.5));
+  boxVertices.append(new Vertex( 0.5,-0.5, 0.5));
+  boxVertices.append(new Vertex(-0.5,-0.5, 0.5));
+
+  boxVertices.append(new Vertex(-0.5, 0.5,-0.5));
+  boxVertices.append(new Vertex( 0.5, 0.5,-0.5));
+  boxVertices.append(new Vertex( 0.5, 0.5, 0.5));
+  boxVertices.append(new Vertex(-0.5, 0.5, 0.5));
+}
+
 Prop::~Prop()
 {
+}
+
+Vertex::Vertex(double xc,double yc,double zc)
+{
+  xp=xc;
+  yp=yc;
+  zp=zc;
+}
+
+Vertex::~Vertex()
+{
+}
+
+double Vertex::x()
+{
+  return xp;
+}
+
+double Vertex::y()
+{
+  return yp;
+}
+
+double Vertex::z()
+{
+  return zp;
 }
