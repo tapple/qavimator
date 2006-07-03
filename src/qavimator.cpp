@@ -469,9 +469,6 @@ void qavimator::cb_timeout()
         timer.stop();
         playing=false;
       }
-      else
-      {
-      }
 
       updateInputs();
       return;
