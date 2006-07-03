@@ -28,6 +28,7 @@
 #include <qfiledialog.h>
 #include <qaction.h>
 #include <qsettings.h>
+#include <qgroupbox.h>
 
 #include "qavimator.h"
 #include "animationview.h"
@@ -84,29 +85,8 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(yPositionEdit,SIGNAL(lostFocus()),this,SLOT(cb_PosValue()));
   connect(zPositionEdit,SIGNAL(lostFocus()),this,SLOT(cb_PosValue()));
 
-  connect(this,SIGNAL(enablePosition(bool)),xPositionLabel,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enablePosition(bool)),yPositionLabel,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enablePosition(bool)),zPositionLabel,SLOT(setEnabled(bool)));
-
-  connect(this,SIGNAL(enablePosition(bool)),xPositionSlider,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enablePosition(bool)),yPositionSlider,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enablePosition(bool)),zPositionSlider,SLOT(setEnabled(bool)));
-
-  connect(this,SIGNAL(enablePosition(bool)),xPositionEdit,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enablePosition(bool)),yPositionEdit,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enablePosition(bool)),zPositionEdit,SLOT(setEnabled(bool)));
-
-  connect(this,SIGNAL(enableRotation(bool)),xRotationLabel,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enableRotation(bool)),yRotationLabel,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enableRotation(bool)),zRotationLabel,SLOT(setEnabled(bool)));
-
-  connect(this,SIGNAL(enableRotation(bool)),xSlider,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enableRotation(bool)),ySlider,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enableRotation(bool)),zSlider,SLOT(setEnabled(bool)));
-
-  connect(this,SIGNAL(enableRotation(bool)),xRotationEdit,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enableRotation(bool)),yRotationEdit,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enableRotation(bool)),zRotationEdit,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enablePosition(bool)),positionGroupBox,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableRotation(bool)),rotationGroupBox,SLOT(setEnabled(bool)));
 
   connect(this,SIGNAL(enableRotation(bool)),fpsLabel,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enableRotation(bool)),fpsSpin,SLOT(setEnabled(bool)));
@@ -115,6 +95,11 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   connect(positionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_FrameSlider(int)));
   connect(playButton,SIGNAL(clicked()),this,SLOT(cb_PlayBtn()));
+
+  connect(this,SIGNAL(enableProps(bool)),propPositionGroup,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableProps(bool)),propScaleGroup,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableProps(bool)),propRotationGroup,SLOT(setEnabled(bool)));
+
   connect(&timer,SIGNAL(timeout()),this,SLOT(cb_timeout()));
 
   connect(this,SIGNAL(resetCamera()),animationView,SLOT(resetCamera()));
@@ -128,9 +113,6 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   zPositionSlider->setPageStep(10*PRECISION);
 
   positionSlider->setPageStep(1);
-
-//  animationView->addProp(Prop::Box,60,50,0,40,40,40);
-//  animationView->addProp(Prop::Box,50,30,20,30,20,10);
 
   fileNew();
 }
@@ -445,6 +427,11 @@ void qavimator::updateInputs()
     editPasteAction->setEnabled(true);
   else
     editPasteAction->setEnabled(false);
+
+  if(propNameCombo->count())
+    enableProps(true);
+  else
+    enableProps(false);
 }
 
 void qavimator::updateKeyBtn()
@@ -804,4 +791,51 @@ void qavimator::setCurrentFrame(int frame)
   positionSlider->setValue(frame);
   currentFrameLabel->setText(QString::number(frame+1));
   positionSlider->blockSignals(false);
+}
+
+// this slot gets called when someone clicks the "New Prop" button
+void qavimator::newPropButtonClicked()
+{
+  const Prop* prop=animationView->addProp(Prop::Box,0,50,0,40,40,40);
+  if(prop)
+  {
+    propNameCombo->insertItem(prop->name());
+    selectProp(prop->name());
+  }
+}
+
+void qavimator::selectProp(const QString& propName)
+{
+  const Prop* prop=animationView->getProp(propName);
+  if(prop)
+  {
+    emit enableProps(true);
+    propNameCombo->setEnabled(true);
+    deletePropButton->setEnabled(true);
+
+    propXPosSpin->setValue(prop->x);
+    propYPosSpin->setValue(prop->y);
+    propZPosSpin->setValue(prop->z);
+
+    propXScaleSpin->setValue(prop->xs);
+    propYScaleSpin->setValue(prop->ys);
+    propZScaleSpin->setValue(prop->zs);
+  }
+  else
+  {
+    emit enableProps(false);
+    propNameCombo->setEnabled(false);
+    deletePropButton->setEnabled(false);
+  }
+}
+
+void qavimator::propPosChanged(int dummy)
+{
+  QString propName=propNameCombo->currentText();
+  Prop* prop=animationView->getProp(propName);
+  if(prop)
+  {
+    prop->setPosition(propXPosSpin->value(),propYPosSpin->value(),propZPosSpin->value());
+    animationView->repaint();
+  }
 }

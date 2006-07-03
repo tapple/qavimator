@@ -46,6 +46,7 @@ class qavimator : public MainApplicationForm
   signals:
     void enableRotation(bool state);
     void enablePosition(bool state);
+    void enableProps(bool state);
     void resetCamera();
     void protectFrame(bool state);
 
@@ -64,6 +65,8 @@ class qavimator : public MainApplicationForm
     void cb_RotValue();
     void cb_PosRoller(int dummy);
     void cb_PosValue();
+
+    void propPosChanged(int dummy);
 
     void cb_timeout();
     void cb_PlayBtn();
@@ -91,6 +94,8 @@ class qavimator : public MainApplicationForm
     void optionsLoop(bool on);
     void optionsProtectFirstFrame(bool on);
 
+    void newPropButtonClicked();
+
   protected:
     void setCurrentFile(const QString& fileName);
     void enableInputs(bool state);
@@ -114,6 +119,8 @@ class qavimator : public MainApplicationForm
     float getXPos();
     float getYPos();
     float getZPos();
+
+    void selectProp(const QString& name);
 
     QString currentFile;
     // last path used for open or save

@@ -69,6 +69,9 @@ class AnimationView : public QGLWidget
     void selectPart(const char *part);
     const char *getSelectedPart();
 
+    const Prop* addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs);
+    Prop* getProp(const QString& name);
+
   signals:
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
     void partDragged(const QString&,double changeX,double changeY,double changeZ);
@@ -77,7 +80,6 @@ class AnimationView : public QGLWidget
   public slots:
     void resetCamera();
     void protectFrame(bool on);
-    void addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs);
 
   protected slots:
     void draw();

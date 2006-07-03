@@ -37,18 +37,23 @@ class Prop
     Prop(PropType type,const QString& name);
     ~Prop();
 
-    void draw();
+    void setType(PropType type);
+    const QString& name() const;
+
     void setPosition(double xp,double yp,double zp);
     void setScale(double scx,double scy,double scz);
-    void setType(PropType type);
+    void setRotation(double rx,double ry,double rz);
 
-  protected:
-    QString name;
-
-    PropType type;
+    void draw();
 
     double x,y,z;
     double xs,ys,zs;
+    double xr,yr,zr;
+
+  protected:
+    QString propName;
+
+    PropType type;
 };
 
 #endif

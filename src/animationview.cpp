@@ -114,14 +114,32 @@ void AnimationView::drawProps()
     propList.at(index)->draw();
 }
 
-void AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs)
+const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs)
 {
-  Prop* newProp=new Prop(type,"cube");
+  QString name="cube";
+
+  Prop* newProp=new Prop(type,name);
 
   newProp->setPosition(x,y,z);
   newProp->setScale(xs,ys,zs);
 
   propList.append(newProp);
+  repaint();
+
+  return newProp;
+}
+
+Prop* AnimationView::getProp(const QString& lookName)
+{
+  bool found=false;
+
+  for(int index=0;index<propList.count();index++)
+  {
+    Prop* prop=propList.at(index);
+    if(prop->name()==lookName) return prop;
+  }
+
+  return 0;
 }
 
 void AnimationView::setProjection()

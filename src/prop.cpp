@@ -31,7 +31,7 @@
 Prop::Prop(PropType newType,const QString& newName)
 {
   setType(newType);
-  name=newName;
+  propName=newName;
 }
 
 void Prop::draw()
@@ -81,6 +81,8 @@ void Prop::draw()
   glVertex3f(xp+xs,yp+ys,zp+zs);
   glVertex3f(xp,yp+ys,zp+zs);
 
+  // TODO: rotation
+
   glEnd();
 }
 
@@ -98,9 +100,21 @@ void Prop::setScale(double scx,double scy,double scz)
   zs=scz;
 }
 
+void Prop::setRotation(double rx,double ry,double rz)
+{
+  xr=rx;
+  yr=ry;
+  zr=rz;
+}
+
 void Prop::setType(PropType newType)
 {
   type=newType;
+}
+
+const QString& Prop::name() const
+{
+  return propName;
 }
 
 Prop::~Prop()
