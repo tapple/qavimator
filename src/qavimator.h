@@ -86,6 +86,8 @@ class qavimator : public MainApplicationForm
     void fileOpen();
     void fileSave();
     void fileSaveAs();
+    void fileLoadProps();
+    void fileSaveProps();
     void fileExit();
 
     void editCopy();

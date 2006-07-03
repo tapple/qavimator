@@ -1447,6 +1447,9 @@
         <action name="fileSaveAction"/>
         <action name="fileSaveAsAction"/>
         <separator/>
+        <action name="fileLoad_PropsAction"/>
+        <action name="fileSave_PropsAction"/>
+        <separator/>
         <action name="fileExitAction"/>
     </item>
     <item text="&amp;Edit" name="editMenu">
@@ -1895,6 +1898,28 @@
             <string>Protect First Frame</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>fileSave_PropsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Save Props...</string>
+        </property>
+        <property name="menuText">
+            <string>Save Props...</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileLoad_PropsAction</cstring>
+        </property>
+        <property name="text">
+            <string>Load Props...</string>
+        </property>
+        <property name="menuText">
+            <string>Load Props...</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -2160,6 +2185,18 @@
         <receiver>MainApplicationForm</receiver>
         <slot>propRotChanged(int)</slot>
     </connection>
+    <connection>
+        <sender>fileLoad_PropsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>fileLoadProps()</slot>
+    </connection>
+    <connection>
+        <sender>fileSave_PropsAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>fileSaveProps()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
@@ -2203,6 +2240,9 @@
     <slot>propScaleChanged( int )</slot>
     <slot>propRotChanged( int )</slot>
     <slot>selectProp( const QString &amp; )</slot>
+    <slot>fileLoad_PropsAction_activated()</slot>
+    <slot>fileLoadProps()</slot>
+    <slot>fileSaveProps()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

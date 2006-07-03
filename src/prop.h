@@ -48,10 +48,8 @@ class Prop
   public:
     typedef enum
     {
-      Box=0,
-      Prism=1
+      Box=0
     } PropType;
-
 
     Prop(PropType type,const QString& name);
     ~Prop();
@@ -69,6 +67,8 @@ class Prop
     double xs,ys,zs;
     double xr,yr,zr;
 
+    PropType type;
+
   protected:
     const QPtrList<Vertex> getVertices(PropType type);
     void createVertices();
@@ -76,8 +76,6 @@ class Prop
     QPtrList<Vertex> boxVertices;
 
     QString propName;
-
-    PropType type;
 };
 
 #endif

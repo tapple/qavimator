@@ -35,7 +35,8 @@
 #include "rotation.h"
 #include "prop.h"
 
-#define FILTER "Animation Files (*.bvh *.avm)"
+#define ANIM_FILTER "Animation Files (*.bvh *.avm)"
+#define PROP_FILTER "Props (*.prp)"
 #define PRECISION 100
 
 qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose )
@@ -564,7 +565,7 @@ void qavimator::fileNew()
 void qavimator::fileOpen()
 {
   QString file=QFileDialog::getOpenFileName(lastPath,
-                                            FILTER,
+                                            ANIM_FILTER,
                                             this,
                                             "file_open_dialog",
                                             tr("Select Animation File"),
@@ -598,7 +599,7 @@ void qavimator::fileSave() {
 void qavimator::fileSaveAs()
 {
   QString file=QFileDialog::getSaveFileName(currentFile,
-                                            FILTER,
+                                            ANIM_FILTER,
                                             this,
                                             "file_save_as_dialog",
                                             tr("Save Animation File"),
@@ -611,6 +612,85 @@ void qavimator::fileSaveAs()
     animationView->getAnimation()->saveBVH(file);
   }
 }
+
+// Menu Action: File / Load Props...
+void qavimator::fileLoadProps()
+{
+  QString fileName=QFileDialog::getOpenFileName(lastPath,
+                                                PROP_FILTER,
+                                                this,
+                                                "load_props_dialog",
+                                                tr("Select Props File"),
+                                                0,
+                                                false);
+  if (fileName) {
+    QFileInfo fileInfo(fileName);
+    if(fileInfo.exists())
+    {
+//    clearProps();
+      QFile file(fileName);
+      if(file.open(IO_ReadOnly))
+      {
+        QString line;
+        while(!file.atEnd())
+        {
+          file.readLine(line,2048);
+          QStringList properties=QStringList::split(' ',line);
+          const Prop* prop=animationView->addProp((Prop::PropType) properties[0].toInt(),
+                                            properties[1].toDouble(),
+                                            properties[2].toDouble(),
+                                            properties[3].toDouble(),
+                                            properties[4].toDouble(),
+                                            properties[5].toDouble(),
+                                            properties[6].toDouble()
+                                           );
+          if(prop)
+          {
+            propNameCombo->insertItem(prop->name());
+            propNameCombo->setCurrentItem(propNameCombo->count()-1);
+            selectProp(prop->name());
+          }
+        } // while
+      }
+    }
+  }
+}
+
+// Menu Action: File / Save Props...
+void qavimator::fileSaveProps()
+{
+  QString fileName=QFileDialog::getSaveFileName(currentFile,
+                                                PROP_FILTER,
+                                                this,
+                                                "save_props_dialog",
+                                                tr("Save Props"),
+                                                0,
+                                                false);
+  if (fileName) {
+    QFile file(fileName);
+    if(file.open(IO_WriteOnly))
+    {
+      for(int index=0;index<propNameCombo->count();index++)
+      {
+        Prop* prop=animationView->getProp(propNameCombo->text(index));
+        QStringList properties;
+        properties.append(QString::number(prop->type));
+        properties.append(QString::number(prop->x));
+        properties.append(QString::number(prop->y));
+        properties.append(QString::number(prop->z));
+        properties.append(QString::number(prop->xs));
+        properties.append(QString::number(prop->ys));
+        properties.append(QString::number(prop->zs));
+        properties.append(QString::number(prop->xr));
+        properties.append(QString::number(prop->yr));
+        properties.append(QString::number(prop->zr));
+        QString line=properties.join(" ");
+        file.writeBlock(line+"\n",line.length());
+      } // for
+    }
+  }
+}
+
 
 // Menu Action: File / Exit
 void qavimator::fileExit()
