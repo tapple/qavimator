@@ -100,6 +100,7 @@ class qavimator : public MainApplicationForm
 
     void newPropButtonClicked();
     void selectProp(const QString& name);
+    void clearProps();
 
   protected:
     void setCurrentFile(const QString& fileName);

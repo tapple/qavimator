@@ -69,7 +69,7 @@ class AnimationView : public QGLWidget
     void selectPart(const char *part);
     const char *getSelectedPart();
 
-    const Prop* addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs);
+    const Prop* addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr);
     Prop* getProp(const QString& name);
 
   signals:

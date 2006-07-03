@@ -122,7 +122,7 @@ void AnimationView::drawProps()
     propList.at(index)->draw();
 }
 
-const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs)
+const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr)
 {
   QString name;
 
@@ -134,6 +134,7 @@ const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double 
   Prop* newProp=new Prop(type,name);
 
   newProp->setPosition(x,y,z);
+  newProp->setRotation(xr,yr,zr);
   newProp->setScale(xs,ys,zs);
 
   propList.append(newProp);

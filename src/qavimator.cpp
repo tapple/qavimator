@@ -624,7 +624,7 @@ void qavimator::fileLoadProps()
     QFileInfo fileInfo(fileName);
     if(fileInfo.exists())
     {
-//    clearProps();
+      clearProps();
       QFile file(fileName);
       if(file.open(IO_ReadOnly))
       {
@@ -639,7 +639,10 @@ void qavimator::fileLoadProps()
                                             properties[3].toDouble(),
                                             properties[4].toDouble(),
                                             properties[5].toDouble(),
-                                            properties[6].toDouble()
+                                            properties[6].toDouble(),
+                                            properties[7].toDouble(),
+                                            properties[8].toDouble(),
+                                            properties[9].toDouble()
                                            );
           if(prop)
           {
@@ -873,7 +876,7 @@ void qavimator::setCurrentFrame(int frame)
 // this slot gets called when someone clicks the "New Prop" button
 void qavimator::newPropButtonClicked()
 {
-  const Prop* prop=animationView->addProp(Prop::Box,0,50,0,40,40,40);
+  const Prop* prop=animationView->addProp(Prop::Box,0,50,0,40,40,40,0,0,0);
   if(prop)
   {
     propNameCombo->insertItem(prop->name());
@@ -902,6 +905,18 @@ void qavimator::selectProp(const QString& propName)
     propXPosSpin->blockSignals(false);
     propYPosSpin->blockSignals(false);
     propZPosSpin->blockSignals(false);
+
+    propXRotSpin->blockSignals(true);
+    propYRotSpin->blockSignals(true);
+    propZRotSpin->blockSignals(true);
+
+    propXRotSpin->setValue(prop->xr);
+    propYRotSpin->setValue(prop->yr);
+    propZRotSpin->setValue(prop->zr);
+
+    propXRotSpin->blockSignals(false);
+    propYRotSpin->blockSignals(false);
+    propZRotSpin->blockSignals(false);
 
     propXScaleSpin->blockSignals(true);
     propYScaleSpin->blockSignals(true);
@@ -954,4 +969,8 @@ void qavimator::propRotChanged(int dummy)
     prop->setRotation(propXRotSpin->value(),propYRotSpin->value(),propZRotSpin->value());
     animationView->repaint();
   }
+}
+
+void qavimator::clearProps()
+{
 }

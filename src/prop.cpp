@@ -45,6 +45,14 @@ void Prop::draw()
   glEnable(GL_LIGHT1);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+  glPushMatrix();
+
+  glTranslatef(x,y,z);
+
+  glRotatef(xr, 1, 0, 0);
+  glRotatef(yr, 0, 1, 0);
+  glRotatef(zr, 0, 0, 1);
+
   glBegin(GL_QUADS);
 
   glColor4f(0.3,0.4,1.0, 1);
@@ -54,15 +62,14 @@ void Prop::draw()
   for(int index=0;index<vertices.count();index++)
   {
     Vertex* v=vertices.at(index);
-    glVertex3f(x+v->x()*xs,
-               y+v->y()*ys,
-               z+v->z()*zs);
+    glVertex3f(v->x()*xs,
+               v->y()*ys,
+               v->z()*zs);
   } // for
 
-
-  // TODO: rotation
-
   glEnd();
+
+  glPopMatrix();
 }
 
 void Prop::setPosition(double xp,double yp,double zp)
