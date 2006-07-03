@@ -684,8 +684,8 @@ void qavimator::fileSaveProps()
         properties.append(QString::number(prop->xr));
         properties.append(QString::number(prop->yr));
         properties.append(QString::number(prop->zr));
-        QString line=properties.join(" ");
-        file.writeBlock(line+"\n",line.length());
+        QString line=properties.join(" ")+"\n";
+        file.writeBlock(line,line.length());
       } // for
     }
   }
