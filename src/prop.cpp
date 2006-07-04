@@ -28,14 +28,18 @@
 
 #include "prop.h"
 
+static int propId=1000;
+
 Prop::Prop(PropType newType,const QString& newName)
 {
   setType(newType);
   propName=newName;
+  id=propId;
+  propId++;
   createVertices();
 }
 
-void Prop::draw()
+void Prop::draw(State state)
 {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_COLOR_MATERIAL);
@@ -53,9 +57,17 @@ void Prop::draw()
   glRotatef(yr, 0, 1, 0);
   glRotatef(zr, 0, 0, 1);
 
+  // load prop's id, so we can pick it later
+  glLoadName(id);
+
   glBegin(GL_QUADS);
 
-  glColor4f(0.3,0.4,1.0, 1);
+  if(state==Normal)
+    glColor4f(0.3,0.4,1.0, 1);
+  else if(state==Highlighted)
+    glColor4f(0.4, 0.5, 0.3, 1);
+  else
+    glColor4f(0.6, 0.3, 0.3, 1);
 
   QPtrList<Vertex> vertices=getVertices(type);
 

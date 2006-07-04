@@ -1267,7 +1267,7 @@
                             </sizepolicy>
                         </property>
                         <property name="editable">
-                            <bool>true</bool>
+                            <bool>false</bool>
                         </property>
                     </widget>
                     <widget class="QPushButton" row="0" column="3">
@@ -2198,9 +2198,6 @@
         <slot>fileSaveProps()</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
-</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>

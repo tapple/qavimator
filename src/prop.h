@@ -51,6 +51,13 @@ class Prop
       Box=0
     } PropType;
 
+    typedef enum
+    {
+      Normal=0,
+      Highlighted=1,
+      Selected=2
+    } State;
+
     Prop(PropType type,const QString& name);
     ~Prop();
 
@@ -61,8 +68,9 @@ class Prop
     void setScale(double scx,double scy,double scz);
     void setRotation(double rx,double ry,double rz);
 
-    void draw();
+    void draw(State state);
 
+    int id;
     double x,y,z;
     double xs,ys,zs;
     double xr,yr,zr;

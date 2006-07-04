@@ -60,6 +60,8 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
                      this,SLOT(partDragged(const QString&,
                                            double,double,double)));
 
+  connect(animationView,SIGNAL(propClicked(Prop*)),this,SLOT(propClicked(Prop*)));
+
   connect(animationView,SIGNAL(backgroundClicked()),this,SLOT(backgroundClicked()));
 
   connect(xSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
@@ -257,6 +259,17 @@ void qavimator::partDragged(const QString& partName,double x,double y,double z)
     }
   }
   else qDebug("partDragged(): partName==\"\"!");
+}
+
+// slot gets called by AnimationView::propClicked()
+void qavimator::propClicked(Prop* prop)
+{
+  // update prop name combo box
+  for(unsigned int index=0;index<propNameCombo->count();index++)
+    if(propNameCombo->text(index)==prop->name()) propNameCombo->setCurrentItem(index);
+
+  // update prop value spinboxes
+  selectProp(prop->name());
 }
 
 // slot gets called by AnimationView::mouseButtonClicked()
@@ -678,7 +691,7 @@ void qavimator::fileSaveProps()
     {
       for(int index=0;index<propNameCombo->count();index++)
       {
-        Prop* prop=animationView->getProp(propNameCombo->text(index));
+        Prop* prop=animationView->getPropByName(propNameCombo->text(index));
         QStringList properties;
         properties.append(QString::number(prop->type));
         properties.append(QString::number(prop->x));
@@ -893,7 +906,7 @@ void qavimator::newPropButtonClicked()
 
 void qavimator::selectProp(const QString& propName)
 {
-  const Prop* prop=animationView->getProp(propName);
+  const Prop* prop=animationView->getPropByName(propName);
   if(prop)
   {
     emit enableProps(true);
@@ -935,6 +948,8 @@ void qavimator::selectProp(const QString& propName)
     propXScaleSpin->blockSignals(false);
     propYScaleSpin->blockSignals(false);
     propZScaleSpin->blockSignals(false);
+
+    animationView->selectProp(prop->name());
   }
   else
   {
@@ -947,7 +962,7 @@ void qavimator::selectProp(const QString& propName)
 void qavimator::propPosChanged(int dummy)
 {
   QString propName=propNameCombo->currentText();
-  Prop* prop=animationView->getProp(propName);
+  Prop* prop=animationView->getPropByName(propName);
   if(prop)
   {
     prop->setPosition(propXPosSpin->value(),propYPosSpin->value(),propZPosSpin->value());
@@ -958,7 +973,7 @@ void qavimator::propPosChanged(int dummy)
 void qavimator::propScaleChanged(int dummy)
 {
   QString propName=propNameCombo->currentText();
-  Prop* prop=animationView->getProp(propName);
+  Prop* prop=animationView->getPropByName(propName);
   if(prop)
   {
     prop->setScale(propXScaleSpin->value(),propYScaleSpin->value(),propZScaleSpin->value());
@@ -969,7 +984,7 @@ void qavimator::propScaleChanged(int dummy)
 void qavimator::propRotChanged(int dummy)
 {
   QString propName=propNameCombo->currentText();
-  Prop* prop=animationView->getProp(propName);
+  Prop* prop=animationView->getPropByName(propName);
   if(prop)
   {
     prop->setRotation(propXRotSpin->value(),propYRotSpin->value(),propZRotSpin->value());

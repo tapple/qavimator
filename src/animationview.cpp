@@ -42,18 +42,29 @@ const char AnimationView::figureFiles[NUM_FIGURES][256] = {
 };
 
 AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
- : QGLWidget(parent,name),
-  animation(NULL), figType(FEMALE),
-  skeleton(false), selecting(false),
-  partHighlighted(0), partDragging(0), partSelected(0),
-  dragX(0), dragY(0),
-  changeX(0), changeY(0), changeZ(0),
-  xSelect(false), ySelect(false), zSelect(false)
+ : QGLWidget(parent,name)
 {
   // fake glut initialization
   int args=1;
   char* arg[]={"qavimator"};
   glutInit(&args,arg);
+
+  // init
+  animation=NULL;
+  figType=FEMALE;
+  skeleton=false;
+  selecting=false;
+  partHighlighted=0;
+  partDragging=0;
+  partSelected=0;
+  dragX=0;
+  dragY=0;
+  changeX=0;
+  changeY=0;
+  changeZ=0;
+  xSelect=false;
+  ySelect=false;
+  zSelect=false;
 
   QString execPath=qApp->applicationDirPath();
 
@@ -72,7 +83,7 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   objectNum=0;
   setFigure(figType);
   if(anim) setAnimation(anim);
-//  setMouseTracking(1);
+  setMouseTracking(1);
   setFocusPolicy(QWidget::StrongFocus);
 }
 
@@ -116,10 +127,13 @@ void AnimationView::drawFloor()
 
 void AnimationView::drawProps()
 {
-  int index;
-
-  for(index=0;index<propList.count();index++)
-    propList.at(index)->draw();
+  for(unsigned int index=0;index<propList.count();index++)
+  {
+    Prop::State state=Prop::Normal;
+    if(partSelected==propList.at(index)->id) state=Prop::Selected;
+    else if(partHighlighted==propList.at(index)->id) state=Prop::Highlighted;
+    propList.at(index)->draw(state);
+  }
 }
 
 const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr)
@@ -129,7 +143,7 @@ const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double 
   do
   {
     name="Object "+QString::number(objectNum++);
-  } while(getProp(name));
+  } while(getPropByName(name));
 
   Prop* newProp=new Prop(type,name);
 
@@ -143,14 +157,23 @@ const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double 
   return newProp;
 }
 
-Prop* AnimationView::getProp(const QString& lookName)
+Prop* AnimationView::getPropByName(const QString& lookName)
 {
-  bool found=false;
-
-  for(int index=0;index<propList.count();index++)
+  for(unsigned int index=0;index<propList.count();index++)
   {
     Prop* prop=propList.at(index);
     if(prop->name()==lookName) return prop;
+  }
+
+  return 0;
+}
+
+Prop* AnimationView::getPropById(int id)
+{
+  for(unsigned int index=0;index<propList.count();index++)
+  {
+    Prop* prop=propList.at(index);
+    if(prop->id==id) return prop;
   }
 
   return 0;
@@ -244,7 +267,7 @@ void AnimationView::draw()
 
 int AnimationView::pickPart(int x, int y)
 {
-  static const int bufSize = (Animation::MAX_PARTS + 10) * 4;
+  static const int bufSize = (Animation::MAX_PARTS + 10 + propList.count()) * 4;
   GLuint selectBuf[bufSize];
   GLuint *p, num, name = 0;
   GLint hits;
@@ -263,6 +286,7 @@ int AnimationView::pickPart(int x, int y)
   setProjection();
   camera.setModelView();
   drawFigure();
+  drawProps();
   glMatrixMode (GL_PROJECTION);
   glPopMatrix ();
   glFlush ();
@@ -291,11 +315,20 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
   if(leftMouseButton)
   {
     if (partDragging) {
-      changeX = changeY = changeZ = 0;
-      if (modifier & SHIFT) { changeX = dragY; }
-      if (modifier & ALT)   { changeY = dragX; }
-      else if (modifier & CTRL) { changeZ = -dragX; }
-      emit partDragged(getSelectedPart(),changeX,changeY,changeZ);
+      if(partDragging<1000)
+      {
+        changeX = changeY = changeZ = 0;
+        if (modifier & SHIFT) { changeX = dragY; }
+        if (modifier & ALT)   { changeY = dragX; }
+        else if (modifier & CTRL) { changeZ = -dragX; }
+        emit partDragged(getSelectedPart(),changeX,changeY,changeZ);
+      }
+      else
+      {
+        emit propDragged(getPropById(partDragging),changeX,changeY,changeZ);
+//        emit propRotated(getSelectedProp(),changeX,changeY,changeZ);
+//        emit propScaled(getSelectedProp(),changeX,changeY,changeZ);
+      }
       repaint();
     }
     else {
@@ -331,7 +364,9 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     if (selected != partSelected)
       animation->setMirrored(false);
     partDragging = partSelected = selected;
-    if (selected) {
+    if (!selected)
+      emit backgroundClicked();
+    else if (selected < 1000) {
       QString part=getSelectedPart();
       changeX = changeY = changeZ = 0;
       dragX = dragY = 0;
@@ -341,7 +376,10 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
                        Position(animation->getPosition(part))
                       );
     }
-    else emit backgroundClicked();
+    else
+    {
+      emit propClicked(getPropById(selected));
+    }
 
     repaint();
   }
@@ -361,7 +399,7 @@ void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
   int selected = pickPart(last_x, last_y);
   if (modifier & SHIFT)
     animation->setMirrored(true);
-  else if (selected)
+  else if (selected && selected < 1000)
     animation->setIK(animation->getPartName(selected),
                      !animation->getIK(animation->getPartName(selected)));
   repaint();
@@ -573,6 +611,13 @@ const char *AnimationView::getSelectedPart()
   return animation->getPartName(partSelected);
 }
 
+const QString& AnimationView::getSelectedPropName()
+{
+  for(unsigned int index=0;index<propList.count();index++)
+    if(propList.at(index)->id==partSelected) return propList.at(index)->name();
+  return QString::null;
+}
+
 void AnimationView::selectPart(const char *part)
 {
   partSelected = animation->getPartIndex(part);
@@ -581,6 +626,13 @@ void AnimationView::selectPart(const char *part)
                    animation->getRotationLimits(part),
                    Position(animation->getPosition(part))
                   );
+  repaint();
+}
+
+void AnimationView::selectProp(const QString& propName)
+{
+  Prop* prop=getPropByName(propName);
+  if(prop) partSelected=prop->id;
   repaint();
 }
 

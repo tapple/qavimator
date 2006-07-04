@@ -33,6 +33,8 @@
 #include "mainapplicationform.h"
 #include "rotation.h"
 
+class Prop;
+
 class qavimator : public MainApplicationForm
 {
   Q_OBJECT
@@ -58,6 +60,7 @@ class qavimator : public MainApplicationForm
 
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimits,Position pos);
     void partDragged(const QString& partName,double changeX,double changeY,double changeZ);
+    void propClicked(Prop* prop);
     void backgroundClicked();
 
     void cb_PartChoice();

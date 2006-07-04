@@ -67,14 +67,24 @@ class AnimationView : public QGLWidget
     void showSkeleton() { skeleton = true; }
     void hideSkeleton() { skeleton = false; }
     void selectPart(const char *part);
+    void selectProp(const QString& prop);
     const char *getSelectedPart();
+    const QString& getSelectedPropName();
 
     const Prop* addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr);
-    Prop* getProp(const QString& name);
+    Prop* getPropByName(const QString& name);
+    Prop* getPropById(int id);
 
   signals:
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
+    void propClicked(Prop* prop);
+
     void partDragged(const QString&,double changeX,double changeY,double changeZ);
+
+    void propDragged(Prop* prop,double changeX,double changeY,double changeZ);
+    void propRotated(Prop* prop,double changeX,double changeY,double changeZ);
+    void propScaled(Prop* prop,double changeX,double changeY,double changeZ);
+
     void backgroundClicked();
 
   public slots:
