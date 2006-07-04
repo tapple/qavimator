@@ -220,12 +220,17 @@ void qavimator::partDragged(const QString& partName,double x,double y,double z)
     // check if this frame is protected
     if(!protect)
     {
-      double newX=getX()+x;
-      double newY=getY()+y;
-      double newZ=getZ()+z;
-
+      // get animation object
       Animation *anim = animationView->getAnimation();
+      // get rotation values for selected part
+      Rotation rot=anim->getRotation(partName);
+      // get rotation limits for part
       RotationLimits rotLimits=anim->getRotationLimits(partName);
+
+      // calculate new rotation (x, y, z are the modifiers)
+      double newX=rot.x+x;
+      double newY=rot.y+y;
+      double newZ=rot.z+z;
 
       double xMin=rotLimits.xMin;
       double yMin=rotLimits.yMin;
@@ -280,7 +285,7 @@ void qavimator::cb_RotRoller(int)
   setZ(z);
 
   if (editPartCombo->currentText()) {
-    animationView->getAnimation()->setRotation(editPartCombo->currentText(), x, y, z);
+//    animationView->getAnimation()->setRotation(editPartCombo->currentText(), x, y, z);
     animationView->repaint();
   }
 
@@ -309,7 +314,7 @@ void qavimator::cb_RotValue()
   setZ(z);
 
   if (editPartCombo->currentText()) {
-    animationView->getAnimation()->setRotation(editPartCombo->currentText(), x, y, z);
+//    animationView->getAnimation()->setRotation(editPartCombo->currentText(), x, y, z);
     animationView->repaint();
   }
 
@@ -536,6 +541,7 @@ void qavimator::fileNew()
   setCurrentFile(UNTITLED_NAME);
 
   animationView->setAnimation(new Animation());
+
 
   // FIXME: code duplication
   connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));

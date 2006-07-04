@@ -72,7 +72,7 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   objectNum=0;
   setFigure(figType);
   if(anim) setAnimation(anim);
-  setMouseTracking(1);
+//  setMouseTracking(1);
   setFocusPolicy(QWidget::StrongFocus);
 }
 
@@ -296,6 +296,7 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       if (modifier & ALT)   { changeY = dragX; }
       else if (modifier & CTRL) { changeZ = -dragX; }
       emit partDragged(getSelectedPart(),changeX,changeY,changeZ);
+      repaint();
     }
     else {
       if (modifier & SHIFT)
