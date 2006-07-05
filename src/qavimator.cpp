@@ -204,9 +204,12 @@ void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits 
     {
       enablePosition(false);
 
-      xSlider->setRange(limits.xMin*PRECISION, limits.xMax*PRECISION);
-      ySlider->setRange(limits.yMin*PRECISION, limits.yMax*PRECISION);
-      zSlider->setRange(limits.zMin*PRECISION, limits.zMax*PRECISION);
+      xSlider->setRange((int)(limits.xMin*PRECISION),
+			(int)(limits.xMax*PRECISION));
+      ySlider->setRange((int)(limits.yMin*PRECISION),
+			(int)(limits.yMax*PRECISION));
+      zSlider->setRange((int)(limits.zMin*PRECISION),
+			(int)(limits.zMax*PRECISION));
     }
 
     // show the user if this part has a key frame here
@@ -265,7 +268,7 @@ void qavimator::partDragged(const QString& partName,double x,double y,double z)
 void qavimator::propClicked(Prop* prop)
 {
   // update prop name combo box
-  for(unsigned int index=0;index<propNameCombo->count();index++)
+  for(int index=0;index<propNameCombo->count();index++)
     if(propNameCombo->text(index)==prop->name()) propNameCombo->setCurrentItem(index);
 
   // update prop value spinboxes
@@ -409,9 +412,9 @@ void qavimator::updateInputs()
     }
     else
     {
-      xSlider->setRange(xMin*PRECISION, xMax*PRECISION);
-      ySlider->setRange(yMin*PRECISION, yMax*PRECISION);
-      zSlider->setRange(zMin*PRECISION, zMax*PRECISION);
+      xSlider->setRange((int)(xMin*PRECISION), (int)(xMax*PRECISION));
+      ySlider->setRange((int)(yMin*PRECISION), (int)(yMax*PRECISION));
+      zSlider->setRange((int)(zMin*PRECISION), (int)(zMax*PRECISION));
     }
 
     setX(x);
@@ -855,7 +858,7 @@ void qavimator::setSliderValue(QSlider* slider,QLineEdit* edit,float value)
 {
   slider->blockSignals(true);
   edit->blockSignals(true);
-  slider->setValue(value*PRECISION);
+  slider->setValue((int)(value*PRECISION));
   edit->setText(QString::number(value));
   edit->blockSignals(false);
   slider->blockSignals(false);
@@ -917,9 +920,9 @@ void qavimator::selectProp(const QString& propName)
     propYPosSpin->blockSignals(true);
     propZPosSpin->blockSignals(true);
 
-    propXPosSpin->setValue(prop->x);
-    propYPosSpin->setValue(prop->y);
-    propZPosSpin->setValue(prop->z);
+    propXPosSpin->setValue((int)(prop->x));
+    propYPosSpin->setValue((int)(prop->y));
+    propZPosSpin->setValue((int)(prop->z));
 
     propXPosSpin->blockSignals(false);
     propYPosSpin->blockSignals(false);
@@ -929,9 +932,9 @@ void qavimator::selectProp(const QString& propName)
     propYRotSpin->blockSignals(true);
     propZRotSpin->blockSignals(true);
 
-    propXRotSpin->setValue(prop->xr);
-    propYRotSpin->setValue(prop->yr);
-    propZRotSpin->setValue(prop->zr);
+    propXRotSpin->setValue((int)(prop->xr));
+    propYRotSpin->setValue((int)(prop->yr));
+    propZRotSpin->setValue((int)(prop->zr));
 
     propXRotSpin->blockSignals(false);
     propYRotSpin->blockSignals(false);
@@ -941,9 +944,9 @@ void qavimator::selectProp(const QString& propName)
     propYScaleSpin->blockSignals(true);
     propZScaleSpin->blockSignals(true);
 
-    propXScaleSpin->setValue(prop->xs);
-    propYScaleSpin->setValue(prop->ys);
-    propZScaleSpin->setValue(prop->zs);
+    propXScaleSpin->setValue((int)(prop->xs));
+    propYScaleSpin->setValue((int)(prop->ys));
+    propZScaleSpin->setValue((int)(prop->zs));
 
     propXScaleSpin->blockSignals(false);
     propYScaleSpin->blockSignals(false);
