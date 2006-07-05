@@ -62,6 +62,15 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   connect(animationView,SIGNAL(propClicked(Prop*)),this,SLOT(propClicked(Prop*)));
 
+  connect(animationView,SIGNAL(propDragged(Prop*,double,double,double)),
+                     this,SLOT(propDragged(Prop*,double,double,double)));
+
+  connect(animationView,SIGNAL(propScaled(Prop*,double,double,double)),
+                     this,SLOT(propScaled(Prop*,double,double,double)));
+
+  connect(animationView,SIGNAL(propRotated(Prop*,double,double,double)),
+                     this,SLOT(propRotated(Prop*,double,double,double)));
+
   connect(animationView,SIGNAL(backgroundClicked()),this,SLOT(backgroundClicked()));
 
   connect(xSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
@@ -275,6 +284,33 @@ void qavimator::propClicked(Prop* prop)
   selectProp(prop->name());
 }
 
+// slot gets called by AnimationView::mouseMoveEvent()
+void qavimator::propDragged(Prop* prop,double x,double y,double z)
+{
+  prop->x+=x;
+  prop->y+=y;
+  prop->z+=z;
+  updatePropSpins(prop);
+}
+
+// slot gets called by AnimationView::mouseMoveEvent()
+void qavimator::propScaled(Prop* prop,double x,double y,double z)
+{
+  prop->xs+=x;
+  prop->ys+=y;
+  prop->zs+=z;
+  updatePropSpins(prop);
+}
+
+// slot gets called by AnimationView::mouseMoveEvent()
+void qavimator::propRotated(Prop* prop,double x,double y,double z)
+{
+  prop->xr+=x;
+  prop->yr+=y;
+  prop->zr+=z;
+  updatePropSpins(prop);
+}
+
 // slot gets called by AnimationView::mouseButtonClicked()
 void qavimator::backgroundClicked()
 {
@@ -465,7 +501,7 @@ void qavimator::updateKeyBtn()
   keyframeButton->blockSignals(false);
 }
 
-void qavimator::enableInputs(bool state) 
+void qavimator::enableInputs(bool state)
 {
   if(protect) state=false;
 
@@ -898,7 +934,7 @@ void qavimator::setCurrentFrame(int frame)
 // this slot gets called when someone clicks the "New Prop" button
 void qavimator::newPropButtonClicked()
 {
-  const Prop* prop=animationView->addProp(Prop::Box,0,50,0,40,40,40,0,0,0);
+  const Prop* prop=animationView->addProp(Prop::Box,10,40,10, 10,10,10, 0,0,0);
   if(prop)
   {
     propNameCombo->insertItem(prop->name());
@@ -916,42 +952,7 @@ void qavimator::selectProp(const QString& propName)
     propNameCombo->setEnabled(true);
     deletePropButton->setEnabled(true);
 
-    propXPosSpin->blockSignals(true);
-    propYPosSpin->blockSignals(true);
-    propZPosSpin->blockSignals(true);
-
-    propXPosSpin->setValue((int)(prop->x));
-    propYPosSpin->setValue((int)(prop->y));
-    propZPosSpin->setValue((int)(prop->z));
-
-    propXPosSpin->blockSignals(false);
-    propYPosSpin->blockSignals(false);
-    propZPosSpin->blockSignals(false);
-
-    propXRotSpin->blockSignals(true);
-    propYRotSpin->blockSignals(true);
-    propZRotSpin->blockSignals(true);
-
-    propXRotSpin->setValue((int)(prop->xr));
-    propYRotSpin->setValue((int)(prop->yr));
-    propZRotSpin->setValue((int)(prop->zr));
-
-    propXRotSpin->blockSignals(false);
-    propYRotSpin->blockSignals(false);
-    propZRotSpin->blockSignals(false);
-
-    propXScaleSpin->blockSignals(true);
-    propYScaleSpin->blockSignals(true);
-    propZScaleSpin->blockSignals(true);
-
-    propXScaleSpin->setValue((int)(prop->xs));
-    propYScaleSpin->setValue((int)(prop->ys));
-    propZScaleSpin->setValue((int)(prop->zs));
-
-    propXScaleSpin->blockSignals(false);
-    propYScaleSpin->blockSignals(false);
-    propZScaleSpin->blockSignals(false);
-
+    updatePropSpins(prop);
     animationView->selectProp(prop->name());
   }
   else
@@ -960,6 +961,45 @@ void qavimator::selectProp(const QString& propName)
     propNameCombo->setEnabled(false);
     deletePropButton->setEnabled(false);
   }
+}
+
+void qavimator::updatePropSpins(const Prop* prop)
+{
+  propXPosSpin->blockSignals(true);
+  propYPosSpin->blockSignals(true);
+  propZPosSpin->blockSignals(true);
+
+  propXPosSpin->setValue(prop->x);
+  propYPosSpin->setValue(prop->y);
+  propZPosSpin->setValue(prop->z);
+
+  propXPosSpin->blockSignals(false);
+  propYPosSpin->blockSignals(false);
+  propZPosSpin->blockSignals(false);
+
+  propXRotSpin->blockSignals(true);
+  propYRotSpin->blockSignals(true);
+  propZRotSpin->blockSignals(true);
+
+  propXRotSpin->setValue(prop->xr);
+  propYRotSpin->setValue(prop->yr);
+  propZRotSpin->setValue(prop->zr);
+
+  propXRotSpin->blockSignals(false);
+  propYRotSpin->blockSignals(false);
+  propZRotSpin->blockSignals(false);
+
+  propXScaleSpin->blockSignals(true);
+  propYScaleSpin->blockSignals(true);
+  propZScaleSpin->blockSignals(true);
+
+  propXScaleSpin->setValue(prop->xs);
+  propYScaleSpin->setValue(prop->ys);
+  propZScaleSpin->setValue(prop->zs);
+
+  propXScaleSpin->blockSignals(false);
+  propYScaleSpin->blockSignals(false);
+  propZScaleSpin->blockSignals(false);
 }
 
 void qavimator::propPosChanged(int dummy)

@@ -61,6 +61,9 @@ class qavimator : public MainApplicationForm
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimits,Position pos);
     void partDragged(const QString& partName,double changeX,double changeY,double changeZ);
     void propClicked(Prop* prop);
+    void propDragged(Prop* prop,double x,double y,double z);
+    void propScaled(Prop* prop,double x,double y,double z);
+    void propRotated(Prop* prop,double x,double y,double z);
     void backgroundClicked();
 
     void cb_PartChoice();
@@ -112,6 +115,7 @@ class qavimator : public MainApplicationForm
 
     void updateKeyBtn();
     void updateInputs();
+    void updatePropSpins(const Prop* prop);
 
     void setX(float x);
     void setY(float y);

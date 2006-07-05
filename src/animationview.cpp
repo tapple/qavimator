@@ -28,6 +28,7 @@
 
 #include <qapplication.h>
 #include <qstring.h>
+#include <qcursor.h>
 
 #include "animationview.h"
 #include "slparts.h"
@@ -55,7 +56,8 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   skeleton=false;
   selecting=false;
   partHighlighted=0;
-  partDragging=0;
+//  partDragging=0;
+  propDragging=0;
   partSelected=0;
   dragX=0;
   dragY=0;
@@ -129,10 +131,14 @@ void AnimationView::drawProps()
 {
   for(unsigned int index=0;index<propList.count();index++)
   {
+    Prop* prop=propList.at(index);
     Prop::State state=Prop::Normal;
-    if(partSelected==propList.at(index)->id) state=Prop::Selected;
-    else if(partHighlighted==propList.at(index)->id) state=Prop::Highlighted;
-    propList.at(index)->draw(state);
+    if(propSelected==prop->id)
+      state=Prop::Selected;
+    else if(partHighlighted==prop->id) state=Prop::Highlighted;
+    prop->draw(state);
+    if(propSelected==prop->id)
+      drawDragHandles(prop);
   }
 }
 
@@ -261,8 +267,8 @@ void AnimationView::draw()
 
   camera.setModelView();
   drawFloor();
-  drawProps();
   if (animation) drawFigure();
+  drawProps();
 }
 
 int AnimationView::pickPart(int x, int y)
@@ -306,28 +312,65 @@ int AnimationView::pickPart(int x, int y)
 
 void AnimationView::mouseMoveEvent(QMouseEvent* event)
 {
-  dragX=event->x()-last_x;
-  dragY=event->y()-last_y;
-
-  last_x=event->x();
-  last_y=event->y();
-
   if(leftMouseButton)
   {
-    if (partDragging) {
-      if(partDragging<1000)
+    QPoint dragPos=QCursor::pos();
+    QCursor::setPos(clickPos);
+
+    dragX=dragPos.x()-clickPos.x();
+    dragY=dragPos.y()-clickPos.y();
+
+    if (partSelected) {
+
+      if(partSelected<OBJECT_START)
       {
         changeX = changeY = changeZ = 0;
         if (modifier & SHIFT) { changeX = dragY; }
         if (modifier & ALT)   { changeY = dragX; }
         else if (modifier & CTRL) { changeZ = -dragX; }
         emit partDragged(getSelectedPart(),changeX,changeY,changeZ);
+        repaint();
       }
-      else
+    }
+    else if(propDragging)
+    {
+      Prop* prop=getPropById(propSelected);
+
+      if(propDragging==DRAG_HANDLE_X)
       {
-        emit propDragged(getPropById(partDragging),changeX,changeY,changeZ);
-//        emit propRotated(getSelectedProp(),changeX,changeY,changeZ);
-//        emit propScaled(getSelectedProp(),changeX,changeY,changeZ);
+        emit propDragged(prop,(double) dragX/10.0,0,0);
+      }
+      else if(propDragging==DRAG_HANDLE_Y)
+      {
+        emit propDragged(prop,0,(double) -dragY/10.0,0);
+      }
+      else if(propDragging==DRAG_HANDLE_Z)
+      {
+        emit propDragged(prop,0,0,(double) dragY/10.0);
+      }
+      else if(propDragging==SCALE_HANDLE_X)
+      {
+        emit propScaled(prop,(double) dragX/10.0,0,0);
+      }
+      else if(propDragging==SCALE_HANDLE_Y)
+      {
+        emit propScaled(prop,0,(double) -dragY/10.0,0);
+      }
+      else if(propDragging==SCALE_HANDLE_Z)
+      {
+        emit propScaled(prop,0,0,(double) dragY/10.0);
+      }
+      else if(propDragging==ROTATE_HANDLE_X)
+      {
+        emit propRotated(prop,(double) dragX/5.0,0,0);
+      }
+      else if(propDragging==ROTATE_HANDLE_Y)
+      {
+        emit propRotated(prop,0,(double) -dragY/5.0,0);
+      }
+      else if(propDragging==ROTATE_HANDLE_Z)
+      {
+        emit propRotated(prop,0,0,(double) dragY/5.0);
       }
       repaint();
     }
@@ -340,13 +383,14 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       }
       else
         camera.rotate(dragY, dragX);
+
+      repaint();
     }
-    repaint();
   }
   else
   {
     int oldPart=partHighlighted;
-    partHighlighted=pickPart(last_x, last_y);
+    partHighlighted=pickPart(event->x(),event->y());
     if(oldPart!=partHighlighted) repaint();
   }
 }
@@ -356,17 +400,34 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
   if(event->button()==LeftButton)
   {
     leftMouseButton=true;
+    // hide mouse cursor to avoid confusion
+    setCursor(QCursor(Qt::BlankCursor));
+    // remember old selection, in case we detect a prop drag later
+    int oldSelected=propSelected;
+    // remember mouse position for dragging
+    clickPos=QCursor::pos();
 
-    last_x=event->x();
-    last_y=event->y();
+    // check out which part or prop has been clicked
+    int selected=pickPart(event->x(),event->y());
 
-    int selected = pickPart(last_x, last_y);
-    if (selected != partSelected)
-      animation->setMirrored(false);
-    partDragging = partSelected = selected;
-    if (!selected)
+    // if another part than the current one has been clicked, switch off mirror mode
+    if(selected!=partSelected) animation->setMirrored(false);
+
+    // background clicked, reset all
+    if(!selected)
+    {
+      partSelected=0;
+      propSelected=0;
+      propDragging=0;
       emit backgroundClicked();
-    else if (selected < 1000) {
+    }
+    // body part clicked
+    else if(selected<OBJECT_START)
+    {
+      partSelected=selected;
+      propSelected=0;
+      propDragging=0;
+
       QString part=getSelectedPart();
       changeX = changeY = changeZ = 0;
       dragX = dragY = 0;
@@ -376,11 +437,26 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
                        Position(animation->getPosition(part))
                       );
     }
+    // drag handle clicked
+    else if(selected==DRAG_HANDLE_X ||
+            selected==DRAG_HANDLE_Y ||
+            selected==DRAG_HANDLE_Z ||
+            selected==SCALE_HANDLE_X ||
+            selected==SCALE_HANDLE_Y ||
+            selected==SCALE_HANDLE_Z ||
+            selected==ROTATE_HANDLE_X ||
+            selected==ROTATE_HANDLE_Y ||
+            selected==ROTATE_HANDLE_Z)
+    {
+      propDragging=selected;
+      changeX = changeY = changeZ = 0;
+      dragX = dragY = 0;
+    }
     else
     {
       emit propClicked(getPropById(selected));
+      propSelected=selected;
     }
-
     repaint();
   }
 }
@@ -389,17 +465,23 @@ void AnimationView::mouseReleaseEvent(QMouseEvent* event)
 {
   if(event->button()==LeftButton)
   {
+    // show mouse cursor again
+    setCursor(Qt::ArrowCursor);
     leftMouseButton=false;
-    partDragging = 0;
+    propDragging=0;
   }
 }
 
 void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
 {
-  int selected = pickPart(last_x, last_y);
+  int selected = pickPart(event->x(),event->y());
+
+  // no double clicks for props or drag handles
+  if(selected>=OBJECT_START) return;
+
   if (modifier & SHIFT)
     animation->setMirrored(true);
-  else if (selected && selected < 1000)
+  else if (selected && selected < OBJECT_START)
     animation->setIK(animation->getPartName(selected),
                      !animation->getIK(animation->getPartName(selected)));
   repaint();
@@ -569,6 +651,140 @@ void AnimationView::drawPart(int frame, BVHNode *motion, BVHNode *joints, int mo
   }
 }
 
+void AnimationView::drawDragHandles(const Prop* prop)
+{
+  // get prop's position
+  double x=prop->x;
+  double y=prop->y;
+  double z=prop->z;
+ // get prop's scale
+  double xs=prop->xs/2.0;
+  double ys=prop->ys/2.0;
+  double zs=prop->zs/2.0;
+
+  // remember drawing matrix on stack
+  glPushMatrix();
+  // set matrix origin to our object's center
+  glTranslatef(x,y,z);
+
+  if(modifier & SHIFT)
+  {
+    // now draw the scale cubes with proper depth sorting
+    glEnable(GL_DEPTH_TEST);
+
+    glRotatef(prop->xr,1,0,0);
+    glRotatef(prop->yr,0,1,0);
+    glRotatef(prop->zr,0,0,1);
+
+    glLoadName(SCALE_HANDLE_X);
+    glColor4f(1,0,0,1);
+    glTranslatef(-xs,0,0);
+    glutSolidCube(2);
+    glTranslatef(xs*2,0,0);
+    glutSolidCube(2);
+
+    glLoadName(SCALE_HANDLE_Y);
+    glColor4f(0,1,0,1);
+    glTranslatef(-xs,-ys,0);
+    glutSolidCube(2);
+    glTranslatef(0,ys*2,0);
+    glutSolidCube(2);
+
+    glLoadName(SCALE_HANDLE_Z);
+    glColor4f(0,0,1,1);
+    glTranslatef(0,-ys,-zs);
+    glutSolidCube(2);
+    glTranslatef(0,0,zs*2);
+    glutSolidCube(2);
+  }
+  else if(modifier & CTRL)
+  {
+    // now draw the rotate spheres with proper depth sorting
+    glEnable(GL_DEPTH_TEST);
+
+    glLoadName(ROTATE_HANDLE_X);
+    glColor4f(1,0,0,1);
+    glTranslatef(-xs-5,0,0);
+    glutSolidSphere(1, 16, 16);
+    glTranslatef(2*(xs+5),0,0);
+    glutSolidSphere(1, 16, 16);
+
+    glLoadName(ROTATE_HANDLE_Y);
+    glColor4f(0,1,0,1);
+    glTranslatef(-xs-5,-ys-5,0);
+    glutSolidSphere(1, 16, 16);
+    glTranslatef(0,2*(ys+5),0);
+    glutSolidSphere(1, 16, 16);
+
+    glLoadName(ROTATE_HANDLE_Z);
+    glColor4f(0,0,1,1);
+    glTranslatef(0,-ys-5,-zs-5);
+    glutSolidSphere(1, 16, 16);
+    glTranslatef(0,0,2*(zs+5));
+    glutSolidSphere(1, 16, 16);
+  }
+  else
+  {
+    // first draw the crosshair lines without depth testing, so they are always visible
+    glDisable(GL_DEPTH_TEST);
+    glLineWidth(1);
+
+    glBegin(GL_LINES);
+    glColor4f(1,0,0,1);
+    glVertex3f(-xs-5, 0, 0);
+    glVertex3f( xs+5, 0, 0);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glColor4f(0,1,0,1);
+    glVertex3f(0,-ys-5, 0);
+    glVertex3f(0, ys+5, 0);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glColor4f(0,0,1,1);
+    glVertex3f(0, 0,-zs-5);
+    glVertex3f(0, 0, zs+5);
+    glEnd();
+
+    // now draw the drag handle arrows with proper depth sorting
+    glEnable(GL_DEPTH_TEST);
+
+    glLoadName(DRAG_HANDLE_X);
+    glColor4f(1,0,0,1);
+    glTranslatef(-xs-5,0,0);
+    glRotatef(270,0,1,0);
+    glutSolidCone(1, 3, 16, 16);
+    glRotatef(90,0,1,0);
+    glTranslatef(2*(xs+5),0,0);
+    glRotatef(90,0,1,0);
+    glutSolidCone(1, 3, 16, 16);
+    glRotatef(270,0,1,0);
+
+    glLoadName(DRAG_HANDLE_Y);
+    glColor4f(0,1,0,1);
+    glTranslatef(-xs-5,-ys-5,0);
+    glRotatef(90,1,0,0);
+    glutSolidCone(1, 3, 16, 16);
+    glRotatef(270,1,0,0);
+    glTranslatef(0,2*(ys+5),0);
+    glRotatef(270,1,0,0);
+    glutSolidCone(1, 3, 16, 16);
+    glRotatef(90,1,0,0);
+
+    glLoadName(DRAG_HANDLE_Z);
+    glColor4f(0,0,1,1);
+    glTranslatef(0,-ys-5,-zs-5);
+    glRotatef(180,1,0,0);
+    glutSolidCone(1, 3, 16, 16);
+    glRotatef(180,1,0,0);
+    glTranslatef(0,0,2*(zs+5));
+    glutSolidCone(1, 3, 16, 16);
+  }
+  // restore drawing matrix
+  glPopMatrix();
+}
+
 void AnimationView::drawCircle(int axis, float radius, int width)
 {
   GLint circle_points = 100;
@@ -620,7 +836,10 @@ const QString& AnimationView::getSelectedPropName()
 
 void AnimationView::selectPart(const char *part)
 {
-  partSelected = animation->getPartIndex(part);
+  // make sure no prop is selected anymore
+  propSelected=0;
+  propDragging=0;
+  partSelected=animation->getPartIndex(part);
   emit partClicked(part,
                    Rotation(animation->getRotation(part)),
                    animation->getRotationLimits(part),
@@ -631,8 +850,10 @@ void AnimationView::selectPart(const char *part)
 
 void AnimationView::selectProp(const QString& propName)
 {
+  // make sure no part is selected anymore
+  partSelected=0;
   Prop* prop=getPropByName(propName);
-  if(prop) partSelected=prop->id;
+  if(prop) propSelected=prop->id;
   repaint();
 }
 

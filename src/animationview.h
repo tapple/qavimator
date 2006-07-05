@@ -41,6 +41,18 @@
 #define MALE_BVH   "data/SLMale.bvh"
 #define FEMALE_BVH "data/SLFemale.bvh"
 
+#define OBJECT_START 1000
+
+#define DRAG_HANDLE_X    5000
+#define DRAG_HANDLE_Y    5001
+#define DRAG_HANDLE_Z    5002
+#define SCALE_HANDLE_X   5003
+#define SCALE_HANDLE_Y   5004
+#define SCALE_HANDLE_Z   5005
+#define ROTATE_HANDLE_X  5006
+#define ROTATE_HANDLE_Y  5007
+#define ROTATE_HANDLE_Z  5008
+
 class AnimationView : public QGLWidget
 {
   Q_OBJECT
@@ -98,6 +110,7 @@ class AnimationView : public QGLWidget
     char modifier;
 
     QPtrList<Prop> propList;
+    QPoint clickPos;           // holds the mouse click position for dragging
 
     virtual void paintGL();
     virtual void paintOverlayGL();
@@ -115,6 +128,7 @@ class AnimationView : public QGLWidget
     void drawFigure();
     void drawPart(int frame, BVHNode *motion, BVHNode *joints, int mode);
     void drawProps();
+    void drawDragHandles(const Prop* prop);
 
   private:
     typedef enum
@@ -126,7 +140,6 @@ class AnimationView : public QGLWidget
 
     static const char figureFiles[NUM_FIGURES][256];
     Animation *animation;
-    int last_x, last_y;
     Camera camera;
     double changeX, changeY, changeZ;
     BVHNode *joints[NUM_FIGURES];
@@ -135,7 +148,8 @@ class AnimationView : public QGLWidget
     int selectName;
     int partHighlighted;
     int partSelected;
-    int partDragging;
+    int propSelected;  // needs an own variable, because we will drag the handle, not the prop
+    int propDragging;  // holds the actual drag handle id
     int dragX, dragY;
     int drawMode;
     bool xSelect, ySelect, zSelect;
