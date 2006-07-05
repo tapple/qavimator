@@ -41,8 +41,6 @@
 #define MALE_BVH   "data/SLMale.bvh"
 #define FEMALE_BVH "data/SLFemale.bvh"
 
-class Prop;
-
 class AnimationView : public QGLWidget
 {
   Q_OBJECT
