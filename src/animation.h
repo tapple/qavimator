@@ -80,6 +80,9 @@ class Animation : public QObject
   bool toggleKeyFrame(const char *jointName);
   void setFrameTime(double frameTime);
 
+  const int* keyFrames(const int jointNumber);
+  const int numKeyFrames(const int jointNumber);
+
   static bool isSecondLifeJoint(BVHNode *joint);
 
   enum { MAX_PARTS = 64 };

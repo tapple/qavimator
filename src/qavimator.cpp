@@ -34,6 +34,8 @@
 #include "animationview.h"
 #include "rotation.h"
 #include "prop.h"
+#include "timeline.h"
+#include "timelineview.h"
 
 #define ANIM_FILTER "Animation Files (*.bvh *.avm)"
 #define PROP_FILTER "Props (*.prp)"
@@ -117,6 +119,11 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(this,SIGNAL(resetCamera()),animationView,SLOT(resetCamera()));
   connect(this,SIGNAL(protectFrame(bool)),animationView,SLOT(protectFrame(bool)));
 
+  timeline=new Timeline(timelineView->viewport(),"timeline");
+  timelineView->addChild(timeline);
+
+  connect(timeline,SIGNAL(positionCenter(int)),timelineView,SLOT(scrollTo(int)));
+
   xSlider->setPageStep(10*PRECISION);
   ySlider->setPageStep(10*PRECISION);
   zSlider->setPageStep(10*PRECISION);
@@ -132,6 +139,7 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 qavimator::~qavimator()
 {
   fileExit();
+  if(timeline) delete timeline;
 }
 
 void qavimator::readSettings()
@@ -146,6 +154,7 @@ void qavimator::readSettings()
   int figureType=0;
   bool skeleton=false;
   bool jointLimits=true;
+  bool showTimeline=false;
   loop=true;
   protectFirstFrame=true;
   lastPath=QString::null;
@@ -157,6 +166,7 @@ void qavimator::readSettings()
     skeleton=settings.readBoolEntry("/skeleton");
     jointLimits=settings.readBoolEntry("/joint_limits");
     protectFirstFrame=settings.readBoolEntry("/protect_first_frame");
+    showTimeline=settings.readBoolEntry("/show_timeline");
 
     int width=settings.readNumEntry("/mainwindow_width");
     int height=settings.readNumEntry("/mainwindow_height");
@@ -177,6 +187,8 @@ void qavimator::readSettings()
   optionsLoopAction->setOn(loop);
   optionsSkeletonAction->setOn(skeleton);
   optionsJointLimitsAction->setOn(jointLimits);
+  optionsShowTimelineAction->setOn(showTimeline);
+  if(!showTimeline) timelineView->hide();
   // prevent a signal to be sent to yet uninitialized animation view
   optionsProtectFirstFrameAction->blockSignals(true);
   optionsProtectFirstFrameAction->setOn(protectFirstFrame);
@@ -592,8 +604,10 @@ void qavimator::fileNew()
 {
   setCurrentFile(UNTITLED_NAME);
 
-  animationView->setAnimation(new Animation());
-
+//  Animation* anim=new Animation();
+  Animation* anim=new Animation("bvh/stocks.avm");
+  animationView->setAnimation(anim);
+  timeline->setAnimation(anim);
 
   // FIXME: code duplication
   connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
@@ -630,9 +644,11 @@ void qavimator::fileOpen()
     QFileInfo fileInfo(file);
     if(fileInfo.exists())
     {
+      Animation* anim=new Animation(file);
       setCurrentFile(file);
       lastPath=fileInfo.dirPath(false);
-      animationView->setAnimation(new Animation(file));
+      animationView->setAnimation(anim);
+      timeline->setAnimation(anim);
       // FIXME: code duplication
       connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
       editPartCombo->setCurrentItem(1);
@@ -765,6 +781,7 @@ void qavimator::fileExit()
   settings.writeEntry("/skeleton",optionsSkeletonAction->isOn());
   settings.writeEntry("/joint_limits",optionsJointLimitsAction->isOn());
   settings.writeEntry("/protect_first_frame",optionsProtectFirstFrameAction->isOn());
+  settings.writeEntry("/show_timeline",optionsShowTimelineAction->isOn());
 
   settings.writeEntry("/figure",figureCombo->currentItem());
   settings.writeEntry("/mainwindow_width",size().width());
@@ -827,6 +844,22 @@ void qavimator::optionsProtectFirstFrame(bool on)
 
   emit protectFrame(protect);
   updateInputs();
+}
+
+// Menu Action: Oprions / Show Timeline
+void qavimator::optionsShowTimeline(bool on)
+{
+  if(on)
+    timelineView->show();
+  else
+    timelineView->hide();
+
+  // hack to get 3D view back in shape
+  qApp->processEvents();
+  QSize oldSize=animationView->size();
+  animationView->resize(oldSize.width(),oldSize.height()-1);
+  qApp->processEvents();
+  animationView->resize(oldSize);
 }
 
 void qavimator::setX(float x)
@@ -929,6 +962,7 @@ void qavimator::setCurrentFrame(int frame)
   positionSlider->setValue(frame);
   currentFrameLabel->setText(QString::number(frame+1));
   positionSlider->blockSignals(false);
+  timeline->setCurrentFrame(frame);
 }
 
 // this slot gets called when someone clicks the "New Prop" button

@@ -29,6 +29,7 @@
 #include <qapplication.h>
 #include <qstring.h>
 #include <qcursor.h>
+#include <qtimer.h>
 
 #include "animationview.h"
 #include "slparts.h"
@@ -866,7 +867,6 @@ void AnimationView::resizeEvent(QResizeEvent* newSize)
 {
   int w=newSize->size().width();
   int h=newSize->size().height();
-  float aspect=1.0*w/h;
 
   // reset coordinates
   glMatrixMode(GL_PROJECTION);

@@ -589,3 +589,17 @@ const char *Animation::getPartMirror(const char *name)
   if (index) index = partMirror[index];
   return bvhGetName(frames, index);
 }
+
+const int* Animation::keyFrames(const int jointNumber)
+{
+  const char* jointName=getPartName(jointNumber);
+  BVHNode* node=bvhFindNode(frames,jointName);
+  return node->keyFrames;
+}
+
+const int Animation::numKeyFrames(const int jointNumber)
+{
+  const char* jointName=getPartName(jointNumber);
+  BVHNode* node=bvhFindNode(frames,jointName);
+  return node->numKeyFrames;
+}

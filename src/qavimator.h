@@ -34,6 +34,7 @@
 #include "rotation.h"
 
 class Prop;
+class Timeline;
 
 class qavimator : public MainApplicationForm
 {
@@ -51,9 +52,6 @@ class qavimator : public MainApplicationForm
     void enableProps(bool state);
     void resetCamera();
     void protectFrame(bool state);
-
-  protected:
-    void setSliderValue(QSlider* slider,QLineEdit* edit,float value);
 
   protected slots:
     void readSettings();
@@ -103,12 +101,15 @@ class qavimator : public MainApplicationForm
     void optionsJointLimits(bool on);
     void optionsLoop(bool on);
     void optionsProtectFirstFrame(bool on);
+    void optionsShowTimeline(bool state);
 
     void newPropButtonClicked();
     void selectProp(const QString& name);
     void clearProps();
 
   protected:
+    void setSliderValue(QSlider* slider,QLineEdit* edit,float value);
+
     void setCurrentFile(const QString& fileName);
     void enableInputs(bool state);
     void updateFps();
@@ -137,6 +138,8 @@ class qavimator : public MainApplicationForm
     // last path used for open or save
     QString lastPath;
     QTimer timer;
+
+    Timeline* timeline;
 
     bool playing;
     bool loop;
