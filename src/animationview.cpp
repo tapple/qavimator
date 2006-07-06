@@ -56,7 +56,6 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   skeleton=false;
   selecting=false;
   partHighlighted=0;
-//  partDragging=0;
   propDragging=0;
   partSelected=0;
   dragX=0;
@@ -571,9 +570,8 @@ void AnimationView::drawFigure()
 
 void AnimationView::drawPart(int frame, BVHNode *motion, BVHNode *joints, int mode)
 {
-//  float x, y, z;
   float value, color[4];
-//  int offset = 0;
+
   GLint renderMode;
   bool selecting;
 
