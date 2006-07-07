@@ -18,6 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+/*
+ * features added by Darkside Eldrich
+ */
 
 #ifndef QAVIMATOR_H
 #define QAVIMATOR_H
@@ -79,6 +82,8 @@ class qavimator : public MainApplicationForm
     void cb_fpsValue(int fps);
     void cb_FrameSlider(int position);
 
+    void animationChanged(int which);
+
     void figureChanged(int shape);
     void numFramesChanged(int num);
     void keyframeButtonToggled(bool on);
@@ -88,6 +93,7 @@ class qavimator : public MainApplicationForm
     // ------- Menu Action Slots (Callbacks) --------
     void fileNew();
     void fileOpen();
+    void fileAdd(); // "add" a new file without clearing the old one(s)
     void fileSave();
     void fileSaveAs();
     void fileLoadProps();
@@ -109,6 +115,10 @@ class qavimator : public MainApplicationForm
 
   protected:
     void setSliderValue(QSlider* slider,QLineEdit* edit,float value);
+
+    void addToOpenFiles(const QString& fileName);
+    void removeFromOpenFiles(int which);
+    void clearOpenFiles();
 
     void setCurrentFile(const QString& fileName);
     void enableInputs(bool state);
@@ -135,6 +145,7 @@ class qavimator : public MainApplicationForm
     float getZPos();
 
     QString currentFile;
+    QStringList openFiles;
     // last path used for open or save
     QString lastPath;
     QTimer timer;

@@ -29,6 +29,7 @@
 #include <qaction.h>
 #include <qsettings.h>
 #include <qgroupbox.h>
+#include <qregexp.h>
 
 #include "qavimator.h"
 #include "animationview.h"
@@ -531,7 +532,7 @@ void qavimator::cb_timeout()
 
       // don't show protected frames color on playback to avoid flicker
       protectFrame(false);
-      anim->stepForward();
+      animationView->stepForward();
 
       if (anim->getFrame() == (anim->getNumberOfFrames() - 1) && !loop)
       {
@@ -560,7 +561,7 @@ void qavimator::cb_PlayBtn()
 }
 
 void qavimator::cb_fpsValue(int fps) {
-  animationView->getAnimation()->setFrameTime(1.0/(double) fps);
+  animationView->setFrameTime(1.0/(double) fps);
 }
 
 void qavimator::cb_FrameSlider(int position)
@@ -570,10 +571,17 @@ void qavimator::cb_FrameSlider(int position)
   else protect=false;
 
   playing=false;
-  animationView->getAnimation()->setFrame(position);
+  animationView->setFrame(position);
   emit protectFrame(protect);
 
   updateInputs();
+}
+
+void qavimator::animationChanged(int which)
+{
+    if (which >= openFiles.count()) return;
+    setCurrentFile(*openFiles.at(which));
+    animationView->selectAnimation(which);
 }
 
 void qavimator::figureChanged(int shape)
@@ -604,10 +612,10 @@ void qavimator::fileNew()
 {
   setCurrentFile(UNTITLED_NAME);
 
-//  Animation* anim=new Animation();
-  Animation* anim=new Animation("bvh/stocks.avm");
+  Animation* anim=new Animation();
   animationView->setAnimation(anim);
   timeline->setAnimation(anim);
+  addToOpenFiles(UNTITLED_NAME);
 
   // FIXME: code duplication
   connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
@@ -618,9 +626,9 @@ void qavimator::fileNew()
 
   if(protectFirstFrame)
     // skip first frame, since it's protected anyway
-    animationView->getAnimation()->setFrame(1);
+    animationView->setFrame(1);
   else
-    animationView->getAnimation()->setFrame(0);
+    animationView->setFrame(0);
 
   // show frame as unprotected
   emit protectFrame(false);
@@ -633,6 +641,13 @@ void qavimator::fileNew()
 // Menu action: File / Open ...
 void qavimator::fileOpen()
 {
+    clearOpenFiles();
+    fileAdd();
+}
+
+// Menu action: File / Add New Animation ...
+void qavimator::fileAdd()
+{
   QString file=QFileDialog::getOpenFileName(lastPath,
                                             ANIM_FILTER,
                                             this,
@@ -644,11 +659,13 @@ void qavimator::fileOpen()
     QFileInfo fileInfo(file);
     if(fileInfo.exists())
     {
+      addToOpenFiles(file);
       Animation* anim=new Animation(file);
       setCurrentFile(file);
       lastPath=fileInfo.dirPath(false);
-      animationView->setAnimation(anim);
+      animationView->addAnimation(anim);
       timeline->setAnimation(anim);
+
       // FIXME: code duplication
       connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
       editPartCombo->setCurrentItem(1);
@@ -659,7 +676,8 @@ void qavimator::fileOpen()
 }
 
 // Menu Action: File / Save
-void qavimator::fileSave() {
+void qavimator::fileSave()
+{
   if(currentFile==UNTITLED_NAME)
     fileSaveAs();
   else
@@ -948,6 +966,36 @@ void qavimator::updateFps()
   }
 }
 
+// Adds a file to the open files list, and adds the entry in the combo box
+void qavimator::addToOpenFiles(const QString& fileName)
+{
+    openFiles.append(fileName);
+
+    QString fixedName = fileName;
+    QRegExp pattern(".*/");
+    fixedName.remove(pattern);
+    pattern.setPattern("(\\.bvh|\\.avm)");
+    fixedName.remove(pattern);
+
+    selectAnimationCombo->insertItem(fixedName);
+}
+
+void qavimator::removeFromOpenFiles(int which)
+{
+    if (which >= openFiles.count()) return;
+    openFiles.remove(openFiles.at(which));
+    selectAnimationCombo->removeItem(which);
+}
+
+
+// empty out the open files list
+void qavimator::clearOpenFiles()
+{
+    animationView->clear();
+    openFiles.clear();
+    selectAnimationCombo->clear();
+}
+
 // convenience function to set window title in a defined way
 void qavimator::setCurrentFile(const QString& fileName)
 {
@@ -1003,9 +1051,9 @@ void qavimator::updatePropSpins(const Prop* prop)
   propYPosSpin->blockSignals(true);
   propZPosSpin->blockSignals(true);
 
-  propXPosSpin->setValue(prop->x);
-  propYPosSpin->setValue(prop->y);
-  propZPosSpin->setValue(prop->z);
+  propXPosSpin->setValue((int)(prop->x));
+  propYPosSpin->setValue((int)(prop->y));
+  propZPosSpin->setValue((int)(prop->z));
 
   propXPosSpin->blockSignals(false);
   propYPosSpin->blockSignals(false);
@@ -1015,9 +1063,9 @@ void qavimator::updatePropSpins(const Prop* prop)
   propYRotSpin->blockSignals(true);
   propZRotSpin->blockSignals(true);
 
-  propXRotSpin->setValue(prop->xr);
-  propYRotSpin->setValue(prop->yr);
-  propZRotSpin->setValue(prop->zr);
+  propXRotSpin->setValue((int)(prop->xr));
+  propYRotSpin->setValue((int)(prop->yr));
+  propZRotSpin->setValue((int)(prop->zr));
 
   propXRotSpin->blockSignals(false);
   propYRotSpin->blockSignals(false);
@@ -1027,9 +1075,9 @@ void qavimator::updatePropSpins(const Prop* prop)
   propYScaleSpin->blockSignals(true);
   propZScaleSpin->blockSignals(true);
 
-  propXScaleSpin->setValue(prop->xs);
-  propYScaleSpin->setValue(prop->ys);
-  propZScaleSpin->setValue(prop->zs);
+  propXScaleSpin->setValue((int)(prop->xs));
+  propYScaleSpin->setValue((int)(prop->ys));
+  propZScaleSpin->setValue((int)(prop->zs));
 
   propXScaleSpin->blockSignals(false);
   propYScaleSpin->blockSignals(false);

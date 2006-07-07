@@ -46,13 +46,15 @@ const char AnimationView::figureFiles[NUM_FIGURES][256] = {
 AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
  : QGLWidget(parent,name)
 {
+  // Ptrlist properties
+  animList.setAutoDelete(true);
+
   // fake glut initialization
   int args=1;
   char* arg[]={"qavimator"};
   glutInit(&args,arg);
 
   // init
-  animation=NULL;
   figType=FEMALE;
   skeleton=false;
   selecting=false;
@@ -91,15 +93,27 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
 
 AnimationView::~AnimationView()
 {
-  if(animation) delete(animation);
+    clear();
+    animList.clear();
+}
+
+void AnimationView::selectAnimation(unsigned int index)
+{
+    if (index < animList.count())
+    {
+	animation = animList.at(index);
+	repaint();
+    }
 }
 
 void AnimationView::setAnimation(Animation *anim)
 {
-  if(animation) delete animation;
-  animation=anim;
-  connect(animation,SIGNAL(frameChanged()),this,SLOT(repaint()));
-  repaint();
+    clear();
+
+    animation = anim;
+    animList.append(anim);
+    connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
+    repaint();
 }
 
 void AnimationView::drawFloor()
@@ -140,6 +154,48 @@ void AnimationView::drawProps()
     if(propSelected==prop->id)
       drawDragHandles(prop);
   }
+}
+
+// Adds a new animation without overriding others, and sets it current
+void AnimationView::addAnimation(Animation *anim)
+{
+    if (!inAnimList(anim))
+    {
+	animList.append(anim);
+	animation = anim; // set it as the current one
+	connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
+	repaint();
+    }
+}
+
+void AnimationView::clear()
+{
+    animList.clear();
+    animation = NULL;
+}
+
+void AnimationView::setFrame(int frame)
+{
+    for (unsigned int i = 0; i < animList.count(); i++)
+    {
+	animList.at(i)->setFrame(frame);
+    }
+}
+
+void AnimationView::stepForward()
+{
+    for (unsigned int i = 0; i < animList.count(); i++)
+    {
+	animList.at(i)->stepForward();
+    }
+}
+
+void AnimationView::setFrameTime(double time)
+{
+    for (unsigned int i = 0; i < animList.count(); i++)
+    {
+	animList.at(i)->setFrameTime(time);
+    }
 }
 
 const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr)
@@ -183,6 +239,11 @@ Prop* AnimationView::getPropById(int id)
   }
 
   return 0;
+}
+
+bool AnimationView::inAnimList(Animation *anim)
+{
+    return (animList.find(anim) != -1);
 }
 
 void AnimationView::setProjection()
@@ -267,8 +328,16 @@ void AnimationView::draw()
 
   camera.setModelView();
   drawFloor();
-  if (animation) drawFigure();
+  if (!animList.isEmpty()) drawAnimations();
   drawProps();
+}
+
+void AnimationView::drawAnimations()
+{
+    for (unsigned int index = 0; index < animList.count(); index++)
+    {
+	drawFigure(animList.at(index));
+    }
 }
 
 int AnimationView::pickPart(int x, int y)
@@ -291,7 +360,7 @@ int AnimationView::pickPart(int x, int y)
   gluPickMatrix (x, (viewport[3] - y), 5.0, 5.0, viewport);
   setProjection();
   camera.setModelView();
-  drawFigure();
+  drawAnimations();
   drawProps();
   glMatrixMode (GL_PROJECTION);
   glPopMatrix ();
@@ -545,7 +614,7 @@ void AnimationView::keyReleaseEvent(QKeyEvent* event)
   }
 }
 
-void AnimationView::drawFigure()
+void AnimationView::drawFigure(Animation* anim)
 {
     glShadeModel(GL_SMOOTH);
     setBodyMaterial();
@@ -557,19 +626,19 @@ void AnimationView::drawFigure()
     glTranslatef(0, 2, 0);
     selectName = 0;
     glEnable(GL_DEPTH_TEST);
-    drawPart(animation->getFrame(), animation->getMotion(), joints[figType],
+    drawPart(anim, anim->getFrame(), anim->getMotion(), joints[figType],
 	     MODE_PARTS);
     selectName = 0;
     glEnable(GL_COLOR_MATERIAL);
-    drawPart(animation->getFrame(), animation->getMotion(), joints[figType],
+    drawPart(anim, anim->getFrame(), anim->getMotion(), joints[figType],
 	     MODE_ROT_AXES);
     selectName = 0;
     glDisable(GL_DEPTH_TEST);
-    drawPart(animation->getFrame(), animation->getMotion(), joints[figType],
+    drawPart(anim, anim->getFrame(), anim->getMotion(), joints[figType],
 	     MODE_SKELETON);
 }
 
-void AnimationView::drawPart(int frame, BVHNode *motion, BVHNode *joints, int mode)
+void AnimationView::drawPart(Animation* anim, int frame, BVHNode *motion, BVHNode *joints, int mode)
 {
   float value, color[4];
 
@@ -627,8 +696,8 @@ void AnimationView::drawPart(int frame, BVHNode *motion, BVHNode *joints, int mo
     }
     if (mode == MODE_PARTS) {
       if (selecting) glLoadName(selectName);
-      if (animation->getMirrored() &&
-	  (animation->getPartMirror(partSelected) == selectName ||
+      if (anim->getMirrored() &&
+	  (anim->getPartMirror(partSelected) == selectName ||
 	   partSelected == selectName))
 	glColor4f(1.0, 0.635, 0.059, 1);
       else if (partSelected == selectName)
@@ -637,14 +706,14 @@ void AnimationView::drawPart(int frame, BVHNode *motion, BVHNode *joints, int mo
 	glColor4f(0.4, 0.5, 0.3, 1);
       else
 	glColor4f(0.6, 0.5, 0.5, 1);
-      if (animation->getIK(motion->name)) {
+      if (anim->getIK(motion->name)) {
 	glGetFloatv(GL_CURRENT_COLOR, color);
 	glColor4f(color[0], color[1], color[2]+0.3, color[3]);
       }
       figType==MALE ? drawSLMalePart(motion->name):drawSLFemalePart(motion->name);
     }
     for (int i=0; i<motion->numChildren; i++) {
-      drawPart(frame, motion->child[i], joints->child[i], mode);
+      drawPart(anim, frame, motion->child[i], joints->child[i], mode);
     }
     glPopMatrix();
   }

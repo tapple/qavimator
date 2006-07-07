@@ -42,7 +42,7 @@
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" row="0" column="1" rowspan="2" colspan="1">
+                            <widget class="QLayoutWidget" row="0" column="1" rowspan="3" colspan="1">
                                 <property name="name">
                                     <cstring>layout17</cstring>
                                 </property>
@@ -50,6 +50,19 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
+                                    <widget class="QComboBox">
+                                        <property name="name">
+                                            <cstring>selectAnimationCombo</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>5</hsizetype>
+                                                <vsizetype>0</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                    </widget>
                                     <widget class="QComboBox">
                                         <item>
                                             <property name="text">
@@ -183,7 +196,7 @@
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLabel" row="1" column="0">
+                            <widget class="QLabel" row="2" column="0">
                                 <property name="name">
                                     <cstring>editPartLabel</cstring>
                                 </property>
@@ -199,7 +212,7 @@
                                     <string>Edit Part:</string>
                                 </property>
                             </widget>
-                            <widget class="QLabel" row="0" column="0">
+                            <widget class="QLabel" row="1" column="0">
                                 <property name="name">
                                     <cstring>figureLabel</cstring>
                                 </property>
@@ -213,6 +226,22 @@
                                 </property>
                                 <property name="text">
                                     <string>Figure:</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="0" column="0">
+                                <property name="name">
+                                    <cstring>animationLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Animation:</string>
                                 </property>
                             </widget>
                         </grid>
@@ -1458,6 +1487,7 @@
     <item text="&amp;File" name="fileMenu">
         <action name="fileNewAction"/>
         <action name="fileOpenAction"/>
+        <action name="fileAddAction"/>
         <separator/>
         <action name="fileSaveAction"/>
         <action name="fileSaveAsAction"/>
@@ -1586,6 +1616,23 @@
         </property>
         <property name="accel">
             <string>Ctrl+O</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>fileAddAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image2</iconset>
+        </property>
+        <property name="text">
+            <string>Add Animation</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Add...</string>
+        </property>
+        <property name="accel">
+            <string>Ctrl+A</string>
         </property>
     </action>
     <action>
@@ -2028,6 +2075,12 @@
         <slot>fileOpen()</slot>
     </connection>
     <connection>
+        <sender>fileAddAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>fileAdd()</slot>
+    </connection>
+    <connection>
         <sender>fileSaveAction</sender>
         <signal>activated()</signal>
         <receiver>MainApplicationForm</receiver>
@@ -2086,6 +2139,12 @@
         <signal>activated()</signal>
         <receiver>MainApplicationForm</receiver>
         <slot>editFind()</slot>
+    </connection>
+    <connection>
+        <sender>selectAnimationCombo</sender>
+        <signal>activated(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animationChanged(int)</slot>
     </connection>
     <connection>
         <sender>helpIndexAction</sender>
@@ -2262,6 +2321,7 @@
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
+    <slot>fileAdd()</slot>
     <slot>fileSave()</slot>
     <slot>fileSaveAs()</slot>
     <slot>filePrint()</slot>
@@ -2281,6 +2341,7 @@
     <slot>optionsFigureFemaleAction( bool )</slot>
     <slot>newSlot()</slot>
     <slot>optionsFigureFemale( bool )</slot>
+    <slot>animationChanged(int)</slot>
     <slot>figureChanged( const QString &amp; )</slot>
     <slot>figureChanged( int )</slot>
     <slot>optionsLoopAction_toggled( bool )</slot>

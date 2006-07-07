@@ -20,11 +20,13 @@
 
  * Copyright (C) 2006 by Vinay Pulim.
  * ported to Qt by Zi Ree
+ * features added by Darkside Eldrich
  * All rights reserved.             */
 
 /**
   @author Vinay Pulim
   @author Zi Ree <Zi Ree @ SecondLife>
+  @author Darkside Eldrich
 */
 
 #ifndef ANIMATIONVIEW_H
@@ -69,8 +71,30 @@ class AnimationView : public QGLWidget
     AnimationView(QWidget* parent=0,const char* name=0,Animation* anim=0);
     ~AnimationView();
 
+    // Sets an animation "active"
+    void selectAnimation(unsigned int index);
+
+    // this is for setting a single-pose animation.  It will clear all other
+    // current animations, and become the only active one
     void setAnimation(Animation *anim);
+
+    // this is for adding subsequent animations after the first call to
+    // setAnimation
+    void addAnimation(Animation *anim);
+
+    // This function clears the animations
+    void clear();
+
+    // These functions are re-implemented here so that every animation's
+    // frame data can be changed at once
+    void setFrame(int frame);
+    void stepForward();
+    void setFrameTime(double time);
+
+    // getAnimation returns the *current* animation
     Animation *getAnimation() { return animation; }
+    Animation *getAnimation(unsigned int index) { return animList.at(index); }
+    Animation *getLastAnimation() { return getAnimation(animList.count()-1); }
     bool isSkeletonOn() { return skeleton; }
     FigureType getFigure() { return figType; }
     void setFigure(FigureType type);
@@ -125,8 +149,10 @@ class AnimationView : public QGLWidget
     virtual void resizeEvent(QResizeEvent* newSize);
 
     void drawFloor();
-    void drawFigure();
-    void drawPart(int frame, BVHNode *motion, BVHNode *joints, int mode);
+    void drawAnimations();
+    void drawFigure(Animation* anim);
+    void drawPart(Animation* anim, int frame, BVHNode *motion,
+		  BVHNode *joints, int mode);
     void drawProps();
     void drawDragHandles(const Prop* prop);
 
@@ -139,7 +165,8 @@ class AnimationView : public QGLWidget
     };
 
     static const char figureFiles[NUM_FIGURES][256];
-    Animation *animation;
+    QPtrList<Animation> animList;
+    Animation *animation; // this is the "currently selected" animation
     Camera camera;
     double changeX, changeY, changeZ;
     BVHNode *joints[NUM_FIGURES];
@@ -157,6 +184,7 @@ class AnimationView : public QGLWidget
 
     int objectNum;
 
+    bool inAnimList(Animation *anim);
     void setProjection();
     void setModelView();
     void setBodyMaterial();
