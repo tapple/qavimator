@@ -648,6 +648,7 @@ void qavimator::fileOpen()
 // Menu action: File / Add New Animation ...
 void qavimator::fileAdd()
 {
+  qDebug("-2");
   QString file=QFileDialog::getOpenFileName(lastPath,
                                             ANIM_FILTER,
                                             this,
@@ -655,13 +656,17 @@ void qavimator::fileAdd()
                                             tr("Select Animation File"),
                                             0,
                                             false);
+  qDebug("-1");
   if (file) {
     QFileInfo fileInfo(file);
     if(fileInfo.exists())
     {
       addToOpenFiles(file);
+      qDebug("0");
       Animation* anim=new Animation(file);
+      qDebug("1");
       setCurrentFile(file);
+      qDebug("2");
       lastPath=fileInfo.dirPath(false);
       animationView->addAnimation(anim);
       timeline->setAnimation(anim);
@@ -671,6 +676,7 @@ void qavimator::fileAdd()
       editPartCombo->setCurrentItem(1);
       updateInputs();
       updateFps();
+      qDebug("3");
     }
   }
 }
@@ -991,6 +997,7 @@ void qavimator::removeFromOpenFiles(int which)
 // empty out the open files list
 void qavimator::clearOpenFiles()
 {
+    timeline->setAnimation(0);
     animationView->clear();
     openFiles.clear();
     selectAnimationCombo->clear();
