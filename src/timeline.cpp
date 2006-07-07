@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include <qpainter.h>
+#include <qapplication.h>
 
 #include "timeline.h"
 #include "animation.h"
@@ -36,7 +37,7 @@ Timeline::Timeline(QWidget *parent, const char *name)
 {
   p=new QPainter(this);
 
-  resize(512,10);
+  resize(512,NUM_PARTS*LINE_HEIGHT);
 
   setAnimation(0);
   setCurrentFrame(0);
@@ -54,24 +55,23 @@ void Timeline::paintEvent(QPaintEvent*)
 
 void Timeline::repaint()
 {
+  if(isHidden()) return;
   p->eraseRect(0,0,width(),height());
 
   if(!animation) return;
-  if(isHidden()) return;
 
   p->setPen(QColor("#000000"));
   int numFrames=animation->getNumberOfFrames();
-  resize(numFrames*KEY_WIDTH+LEFT_STRUT,height());
 
   int y=0;
   for(int part=1;part<NUM_PARTS;part++)
   {
     const int numKeyFrames=animation->numKeyFrames(part);
-
     if(numKeyFrames)
     {
       const int* keyFrames=animation->keyFrames(part);
       p->drawText(0,y+KEY_HEIGHT,animation->getPartName(part));
+
       for(int key=0;key<numKeyFrames;key++)
       {
         p->fillRect(keyFrames[key]*KEY_WIDTH+LEFT_STRUT,y,KEY_WIDTH,KEY_HEIGHT,QBrush(QColor("#000000")));
@@ -79,8 +79,9 @@ void Timeline::repaint()
       y+=LINE_HEIGHT;
     }
   } // for
-  if(height()<y) resize(width(),y);
+  resize(numFrames*KEY_WIDTH+LEFT_STRUT,y);
   drawPosition();
+  qDebug("-");
 }
 
 void Timeline::setCurrentFrame(int frame)

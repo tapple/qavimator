@@ -37,6 +37,8 @@ class Timeline : public QWidget
     Timeline(QWidget *parent = 0, const char *name = 0);
     ~Timeline();
 
+    virtual void repaint();
+
     void setAnimation(Animation* anim);
 
   signals:
@@ -47,7 +49,6 @@ class Timeline : public QWidget
 
   protected:
     virtual void paintEvent(QPaintEvent* event);
-    virtual void repaint();
 
     void drawPosition();
 

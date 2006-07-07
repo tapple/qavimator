@@ -377,7 +377,6 @@ void qavimator::cb_RotValue()
   setX(x);
   setY(y);
   setZ(z);
-
   if (editPartCombo->currentText()) {
 //    animationView->getAnimation()->setRotation(editPartCombo->currentText(), x, y, z);
     animationView->repaint();
@@ -512,6 +511,8 @@ void qavimator::updateKeyBtn()
   keyframeButton->setOn(animationView->getAnimation()->isKeyFrame(animationView->getSelectedPart()));
   // re-enable toggle signal
   keyframeButton->blockSignals(false);
+
+  timeline->repaint();
 }
 
 void qavimator::enableInputs(bool state)
@@ -648,7 +649,6 @@ void qavimator::fileOpen()
 // Menu action: File / Add New Animation ...
 void qavimator::fileAdd()
 {
-  qDebug("-2");
   QString file=QFileDialog::getOpenFileName(lastPath,
                                             ANIM_FILTER,
                                             this,
@@ -656,17 +656,13 @@ void qavimator::fileAdd()
                                             tr("Select Animation File"),
                                             0,
                                             false);
-  qDebug("-1");
   if (file) {
     QFileInfo fileInfo(file);
     if(fileInfo.exists())
     {
       addToOpenFiles(file);
-      qDebug("0");
       Animation* anim=new Animation(file);
-      qDebug("1");
       setCurrentFile(file);
-      qDebug("2");
       lastPath=fileInfo.dirPath(false);
       animationView->addAnimation(anim);
       timeline->setAnimation(anim);
@@ -1131,10 +1127,13 @@ void qavimator::animPosChanged(int dummy)
 
 void qavimator::animPosChanged()
 {
-    Animation *anim = animationView->getAnimation();
+  QString part=animationView->getSelectedPart();
+  if(!part) return;
+
+  Animation *anim = animationView->getAnimation();
     if(anim)
     {
-	anim->setPosition(animationView->getSelectedPart(),
+	anim->setPosition(part,
 			  xPositionEdit->text().toInt(),
 			  yPositionEdit->text().toInt(),
 			  zPositionEdit->text().toInt());
@@ -1149,10 +1148,13 @@ void qavimator::animRotChanged(int dummy)
 
 void qavimator::animRotChanged()
 {
+    QString part=animationView->getSelectedPart();
+    if(!part) return;
+
     Animation *anim = animationView->getAnimation();
     if(anim)
     {
-	anim->setRotation(animationView->getSelectedPart(),
+	anim->setRotation(part,
 			  xRotationEdit->text().toInt(),
 			  yRotationEdit->text().toInt(),
 			  zRotationEdit->text().toInt());
