@@ -2314,6 +2314,114 @@
         <receiver>MainApplicationForm</receiver>
         <slot>optionsShowTimeline(bool)</slot>
     </connection>
+    <connection>
+        <sender>xPositionEdit</sender>
+        <signal>lostFocus()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animPosChanged()</slot>
+    </connection>
+    <connection>
+        <sender>yPositionEdit</sender>
+        <signal>lostFocus()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animPosChanged()</slot>
+    </connection>
+    <connection>
+        <sender>zPositionEdit</sender>
+        <signal>lostFocus()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animPosChanged()</slot>
+    </connection>
+    <connection>
+        <sender>xRotationEdit</sender>
+        <signal>lostFocus()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animRotChanged()</slot>
+    </connection>
+    <connection>
+        <sender>yRotationEdit</sender>
+        <signal>lostFocus()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animRotChanged()</slot>
+    </connection>
+    <connection>
+        <sender>zRotationEdit</sender>
+        <signal>lostFocus()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animRotChanged()</slot>
+    </connection>
+    <connection>
+        <sender>xPositionEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animPosChanged()</slot>
+    </connection>
+    <connection>
+        <sender>yPositionEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animPosChanged()</slot>
+    </connection>
+    <connection>
+        <sender>zPositionEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animPosChanged()</slot>
+    </connection>
+    <connection>
+        <sender>xRotationEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animRotChanged()</slot>
+    </connection>
+    <connection>
+        <sender>yRotationEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animRotChanged()</slot>
+    </connection>
+    <connection>
+        <sender>zRotationEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animRotChanged()</slot>
+    </connection>
+    <connection>
+        <sender>xPositionSlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animPosChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>yPositionSlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animPosChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>zPositionSlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animPosChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>xSlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animRotChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>ySlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animRotChanged(int)</slot>
+    </connection>
+    <connection>
+        <sender>zSlider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>animRotChanged(int)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
@@ -2352,6 +2460,10 @@
     <slot>cb_PartChoice()</slot>
     <slot>resetCamera()</slot>
     <slot>newPropButtonClicked()</slot>
+    <slot>animPosChanged()</slot>
+    <slot>animRotChanged()</slot>
+    <slot>animPosChanged( int )</slot>
+    <slot>animRotChanged( int )</slot>
     <slot>propXPosChanged( int )</slot>
     <slot>propYPosChanged( int )</slot>
     <slot>propZPosChanged( int )</slot>

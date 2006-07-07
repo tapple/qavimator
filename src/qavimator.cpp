@@ -1117,6 +1117,42 @@ void qavimator::propRotChanged(int dummy)
   }
 }
 
+void qavimator::animPosChanged(int dummy)
+{
+    animPosChanged();
+}
+
+void qavimator::animPosChanged()
+{
+    Animation *anim = animationView->getAnimation();
+    if(anim)
+    {
+	anim->setPosition(animationView->getSelectedPart(),
+			  xPositionEdit->text().toInt(),
+			  yPositionEdit->text().toInt(),
+			  zPositionEdit->text().toInt());
+	animationView->repaint();
+    }
+}
+
+void qavimator::animRotChanged(int dummy)
+{
+    animRotChanged();
+}
+
+void qavimator::animRotChanged()
+{
+    Animation *anim = animationView->getAnimation();
+    if(anim)
+    {
+	anim->setRotation(animationView->getSelectedPart(),
+			  xRotationEdit->text().toInt(),
+			  yRotationEdit->text().toInt(),
+			  zRotationEdit->text().toInt());
+	animationView->repaint();
+    }
+}
+
 void qavimator::clearProps()
 {
 }

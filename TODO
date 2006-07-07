@@ -1,11 +1,11 @@
 Features:
   * Clicking *save* when working on multiple avs... should it save them all, or only the current one?
   * Warn about closing with unsaved files still open
+  * Ctrl + Q to quit
 
 Bugs:
   * when editing multiple animations, switching between them with a part selected causes both avs to be set to the data for one of them
   * clicking "cancel" in File load dialog, then clicking the view area, causes a segfault
-  * Sliders and value inputs don't seem to affect anything (have to edit in the view area, with the mouse)
 
 Untested:
   * Saving / data integrity when working with multiple avs
