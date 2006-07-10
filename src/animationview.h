@@ -94,7 +94,7 @@ class AnimationView : public QGLWidget
     // getAnimation returns the *current* animation
     Animation *getAnimation() { return animation; }
     Animation *getAnimation(unsigned int index) { return animList.at(index); }
-    Animation *getLastAnimation() { return getAnimation(animList.count()-1); }
+    Animation *getLastAnimation() { return animList.last(); }
     bool isSkeletonOn() { return skeleton; }
     FigureType getFigure() { return figType; }
     void setFigure(FigureType type);

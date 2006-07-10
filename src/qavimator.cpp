@@ -349,9 +349,11 @@ void qavimator::cb_RotRoller(int)
   setY(y);
   setZ(z);
 
-  if (editPartCombo->currentText()) {
-//    animationView->getAnimation()->setRotation(editPartCombo->currentText(), x, y, z);
-    animationView->repaint();
+  Animation *anim = animationView->getAnimation();
+  if (animationView->getSelectedPart())
+  {
+      anim->setRotation(animationView->getSelectedPart(), x, y, z);
+      animationView->repaint();
   }
 
   updateKeyBtn();
@@ -377,9 +379,12 @@ void qavimator::cb_RotValue()
   setX(x);
   setY(y);
   setZ(z);
-  if (editPartCombo->currentText()) {
-//    animationView->getAnimation()->setRotation(editPartCombo->currentText(), x, y, z);
-    animationView->repaint();
+
+  Animation *anim = animationView->getAnimation();
+  if (animationView->getSelectedPart())
+  {
+      anim->setRotation(animationView->getSelectedPart(), x, y, z);
+      animationView->repaint();
   }
 
   updateKeyBtn();
@@ -627,7 +632,7 @@ void qavimator::fileNew()
 
   if(protectFirstFrame)
     // skip first frame, since it's protected anyway
-    animationView->setFrame(1);
+      animationView->setFrame(1);
   else
     animationView->setFrame(0);
 
@@ -662,10 +667,19 @@ void qavimator::fileAdd()
     {
       addToOpenFiles(file);
       Animation* anim=new Animation(file);
+
       setCurrentFile(file);
       lastPath=fileInfo.dirPath(false);
       animationView->addAnimation(anim);
       timeline->setAnimation(anim);
+
+      // set the frame
+      if (animationView->getAnimation(1))
+	  animationView->setFrame(animationView->getAnimation(0)->getFrame());
+      else if (protectFirstFrame)
+	  animationView->setFrame(1);
+      else
+	  animationView->setFrame(0);
 
       // FIXME: code duplication
       connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
@@ -1118,48 +1132,6 @@ void qavimator::propRotChanged(int dummy)
     prop->setRotation(propXRotSpin->value(),propYRotSpin->value(),propZRotSpin->value());
     animationView->repaint();
   }
-}
-
-void qavimator::animPosChanged(int dummy)
-{
-    animPosChanged();
-}
-
-void qavimator::animPosChanged()
-{
-  QString part=animationView->getSelectedPart();
-  if(!part) return;
-
-  Animation *anim = animationView->getAnimation();
-    if(anim)
-    {
-	anim->setPosition(part,
-			  xPositionEdit->text().toInt(),
-			  yPositionEdit->text().toInt(),
-			  zPositionEdit->text().toInt());
-	animationView->repaint();
-    }
-}
-
-void qavimator::animRotChanged(int dummy)
-{
-    animRotChanged();
-}
-
-void qavimator::animRotChanged()
-{
-    QString part=animationView->getSelectedPart();
-    if(!part) return;
-
-    Animation *anim = animationView->getAnimation();
-    if(anim)
-    {
-	anim->setRotation(part,
-			  xRotationEdit->text().toInt(),
-			  yRotationEdit->text().toInt(),
-			  zRotationEdit->text().toInt());
-	animationView->repaint();
-    }
 }
 
 void qavimator::clearProps()

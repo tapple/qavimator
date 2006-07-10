@@ -163,6 +163,8 @@ void AnimationView::addAnimation(Animation *anim)
     {
 	animList.append(anim);
 	animation = anim; // set it as the current one
+	if(animList.count() && anim != animList.first())
+	    anim->setFrame(animList.first()->getFrame());
 	connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
 	repaint();
     }

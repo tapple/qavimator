@@ -77,11 +77,6 @@ class qavimator : public MainApplicationForm
     void propScaleChanged(int dummy);
     void propRotChanged(int dummy);
 
-    void animPosChanged(int dummy);
-    void animRotChanged(int dummy);
-    void animPosChanged();
-    void animRotChanged();
-
     void cb_timeout();
     void cb_PlayBtn();
     void cb_fpsValue(int fps);
