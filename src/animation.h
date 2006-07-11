@@ -88,8 +88,11 @@ class Animation : public QObject
   enum { MAX_PARTS = 64 };
 
   signals:
+    void numberOfFrames(int num);
     void currentFrame(int frame);
     void frameChanged();
+    void keyframeAdded(int partIndex,int frameNumber);
+    void keyframeRemoved(int partIndex,int frameNumber);
 
  private:
   BVHNode *frames;

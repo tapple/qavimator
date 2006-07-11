@@ -23,6 +23,8 @@
 
 #include <qwidget.h>
 
+#include "keyframelist.h"
+
 /**
   @author Zi Ree
 */
@@ -47,15 +49,25 @@ class Timeline : public QWidget
   public slots:
     void setCurrentFrame(int frame);
 
+  protected slots:
+    void addKeyframe(int bodypart,int frame);
+    void removeKeyframe(int track,int frame);
+    void setNumberOfFrames(int frames);
+
   protected:
     virtual void paintEvent(QPaintEvent* event);
 
     void drawPosition();
+    void drawKeyframe(int track,int frame);
+    void drawTrack(int track);
 
     QPainter* p;
     Animation* animation;
+    int numOfFrames;
     int currentFrame;
     bool drawn;
+
+    QMap<int,KeyframeList> tracks;
 };
 
 #endif

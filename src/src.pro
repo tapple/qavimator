@@ -16,7 +16,8 @@ HEADERS += qavimator.h \
            rotation.h \
            prop.h \
            timeline.h \
-           timelineview.h 
+           timelineview.h \
+           keyframelist.h 
 SOURCES += qavimator.cpp \
            main.cpp \
            animationview.cpp \
@@ -30,7 +31,8 @@ SOURCES += qavimator.cpp \
            rotation.cpp \
            prop.cpp \
            timeline.cpp \
-           timelineview.cpp 
+           timelineview.cpp \
+           keyframelist.cpp 
 mainapplicationform.ui.target = mainapplicationform.ui
 mainapplicationform.ui.commands = $$IDL_COMPILER
 QT = qt3support

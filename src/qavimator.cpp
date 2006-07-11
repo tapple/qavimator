@@ -517,7 +517,7 @@ void qavimator::updateKeyBtn()
   // re-enable toggle signal
   keyframeButton->blockSignals(false);
 
-  timeline->repaint();
+//  timeline->repaint();
 }
 
 void qavimator::enableInputs(bool state)
@@ -609,6 +609,7 @@ void qavimator::keyframeButtonToggled(bool on)
 {
   animationView->getAnimation()->toggleKeyFrame(animationView->getSelectedPart());
   animationView->repaint();
+//  timeline->repaint();
 }
 
 // ------ Menu Action Slots (Callbacks) -----------
@@ -686,7 +687,6 @@ void qavimator::fileAdd()
       editPartCombo->setCurrentItem(1);
       updateInputs();
       updateFps();
-      qDebug("3");
     }
   }
 }

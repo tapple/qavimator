@@ -102,6 +102,7 @@ void Animation::setNumberOfFramesHelper(BVHNode *joint, int num)
 void Animation::setNumberOfFrames(int num)
 {
   setNumberOfFramesHelper(frames, num);
+  emit numberOfFrames(num);
 }
 
 void Animation::setFrame(int frameNumber)
@@ -404,6 +405,7 @@ void Animation::addKeyFrame(BVHNode *joint)
     //numKeyFrames++;
   }
 
+  emit keyframeAdded(getPartIndex(joint->name),frame);
   interpolateFrames(joint);
 }
 
@@ -509,6 +511,7 @@ void Animation::delKeyFrame(BVHNode *joint) {
     //numKeyFrames++;
   }
 
+  emit keyframeRemoved(getPartIndex(joint->name),frame);
   interpolateFrames(joint);
 }
 
@@ -601,5 +604,6 @@ const int Animation::numKeyFrames(const int jointNumber)
 {
   const char* jointName=getPartName(jointNumber);
   BVHNode* node=bvhFindNode(frames,jointName);
+//  qDebug(QString("joint number %1 has %2 keyframes").arg(jointNumber).arg(node->numKeyFrames));
   return node->numKeyFrames;
 }

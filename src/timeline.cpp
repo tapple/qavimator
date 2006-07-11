@@ -23,6 +23,7 @@
 
 #include "timeline.h"
 #include "animation.h"
+#include "keyframelist.h"
 
 #define KEY_WIDTH   10
 #define KEY_HEIGHT  10
@@ -37,11 +38,11 @@ Timeline::Timeline(QWidget *parent, const char *name)
 {
   p=new QPainter(this);
 
-  resize(512,NUM_PARTS*LINE_HEIGHT);
-
   setAnimation(0);
   setCurrentFrame(0);
   setCaption(tr("Timeline"));
+
+  tracks.clear();
 }
 
 Timeline::~Timeline()
@@ -60,28 +61,39 @@ void Timeline::repaint()
 
   if(!animation) return;
 
-  p->setPen(QColor("#000000"));
-  int numFrames=animation->getNumberOfFrames();
+  QColor black("#000000");
 
-  int y=0;
+  p->setPen(black);
+
+  resize(numOfFrames*KEY_WIDTH+LEFT_STRUT,NUM_PARTS*LINE_HEIGHT);
+
   for(int part=1;part<NUM_PARTS;part++)
   {
-    const int numKeyFrames=animation->numKeyFrames(part);
-    if(numKeyFrames)
-    {
-      const int* keyFrames=animation->keyFrames(part);
-      p->drawText(0,y+KEY_HEIGHT,animation->getPartName(part));
-
-      for(int key=0;key<numKeyFrames;key++)
-      {
-        p->fillRect(keyFrames[key]*KEY_WIDTH+LEFT_STRUT,y,KEY_WIDTH,KEY_HEIGHT,QBrush(QColor("#000000")));
-      } // for
-      y+=LINE_HEIGHT;
-    }
+    drawTrack(part);
   } // for
-  resize(numFrames*KEY_WIDTH+LEFT_STRUT,y);
+  // TODO: calculate needed height like this, but make it draw too
+  //  resize(numFrames*KEY_WIDTH+LEFT_STRUT,y);
   drawPosition();
-  qDebug("-");
+}
+
+void Timeline::setNumberOfFrames(int frames)
+{
+  // TODO: this works, but the animation class seems not to delete keyframes after maxframe, so
+  //       for now we should keep them around as well
+  /*  if(frames<numOfFrames)
+  {
+    qDebug(QString("new %1, old %2").arg(frames).arg(numOfFrames));
+    QValueList<int> keys=tracks.keys();
+    for(unsigned int index=0;index<keys.count();index++)
+    {
+      for(unsigned int count=frames;count<numOfFrames;count++)
+      {
+        removeKeyframe(keys[index],count);
+      } // for
+    } // for
+  }*/
+  numOfFrames=frames;
+  repaint();
 }
 
 void Timeline::setCurrentFrame(int frame)
@@ -93,7 +105,23 @@ void Timeline::setCurrentFrame(int frame)
 
 void Timeline::setAnimation(Animation* anim)
 {
+  if(animation)
+  {
+    disconnect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
+    disconnect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
+    disconnect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
+    numOfFrames=0;
+  }
   animation=anim;
+
+  if(animation)
+  {
+    connect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
+    connect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
+    connect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
+    numOfFrames=animation->getNumberOfFrames();
+  }
+
   repaint();
 }
 
@@ -106,3 +134,83 @@ void Timeline::drawPosition()
   emit positionCenter(currentFrame*KEY_WIDTH+LEFT_STRUT);
 }
 
+void Timeline::addKeyframe(int track,int frame)
+{
+  if(tracks.find(track)==tracks.end())
+  {
+    tracks[track]=KeyframeList();
+    repaint();
+  }
+  tracks[track][frame]=1;
+
+  drawPosition();
+  drawKeyframe(track,frame);
+  drawPosition();
+}
+
+void Timeline::removeKeyframe(int track,int frame)
+{
+  tracks[track].erase(frame);
+
+  if(!tracks[track].count()) tracks.erase(track);
+  repaint();
+}
+
+void Timeline::drawKeyframe(int track,int frame)
+{
+  QValueList<int> keys=tracks.keys();
+
+  int ypos=(track-1)*LINE_HEIGHT;
+  int previousKey=0;
+  for(unsigned int index=0;index<keys.count();index++)
+  {
+    if(keys[index]==track)
+    {
+      QColor black("#000000");
+      p->setPen(black);
+
+      int xpos=frame*KEY_WIDTH+LEFT_STRUT;
+
+      p->fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(black));
+      p->drawLine(previousKey*KEY_WIDTH+LEFT_STRUT,ypos+KEY_HEIGHT/2,xpos,ypos+KEY_HEIGHT/2);
+    }
+    previousKey=frame;
+  }
+}
+
+void Timeline::drawTrack(int track)
+{
+  int y=(track-1)*LINE_HEIGHT;
+
+  // always draw track name
+  p->drawText(0,y+KEY_HEIGHT,animation->getPartName(track));
+
+  const int numKeyFrames=animation->numKeyFrames(track);
+
+  // TODO: switch over to something like this
+  /*  KeyframeList keyFrames=tracks[track];
+  const int numKeyFrames=keyFrames.count();*/
+  if(numKeyFrames)
+  {
+    int oldKey=LEFT_STRUT;
+    const int* keyFrames=animation->keyFrames(track);
+
+    // first frame is always a key frame
+    p->fillRect(LEFT_STRUT,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(black));
+
+    for(int key=0;key<numKeyFrames;key++)
+    {
+      int frameNum=keyFrames[key];
+      if(frameNum<numOfFrames)
+      {
+        int xpos=frameNum*KEY_WIDTH+LEFT_STRUT;
+        p->drawLine(oldKey,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
+        p->fillRect(xpos,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(black));
+        oldKey=xpos;
+      }
+    } // for
+
+    // last frame is always a key frame
+    p->fillRect((numOfFrames-1)*KEY_WIDTH+LEFT_STRUT,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(black));
+  }
+}
