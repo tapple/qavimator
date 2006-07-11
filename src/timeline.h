@@ -56,6 +56,9 @@ class Timeline : public QWidget
 
   protected:
     virtual void paintEvent(QPaintEvent* event);
+    virtual void mousePressEvent(QMouseEvent* e);
+    virtual void mouseReleaseEvent(QMouseEvent* e);
+    virtual void mouseMoveEvent(QMouseEvent* e);
 
     void drawPosition();
     void drawKeyframe(int track,int frame);
@@ -66,6 +69,9 @@ class Timeline : public QWidget
     int numOfFrames;
     int currentFrame;
     bool drawn;
+    bool leftMouseButton;
+    int trackSelected;
+    int frameSelected;
 
     QMap<int,KeyframeList> tracks;
 };

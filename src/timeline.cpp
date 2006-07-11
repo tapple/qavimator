@@ -41,6 +41,9 @@ Timeline::Timeline(QWidget *parent, const char *name)
   setAnimation(0);
   setCurrentFrame(0);
   setCaption(tr("Timeline"));
+  leftMouseButton=false;
+  trackSelected=0;
+  frameSelected=0;
 
   tracks.clear();
 }
@@ -212,5 +215,29 @@ void Timeline::drawTrack(int track)
 
     // last frame is always a key frame
     p->fillRect((numOfFrames-1)*KEY_WIDTH+LEFT_STRUT,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(black));
+  }
+}
+
+void Timeline::mousePressEvent(QMouseEvent* e)
+{
+  trackSelected=e->y()/LINE_HEIGHT+1;
+  frameSelected=(e->x()-LEFT_STRUT)/KEY_WIDTH;
+
+  animation->setFrame(frameSelected);
+  leftMouseButton=true;
+}
+
+void Timeline::mouseReleaseEvent(QMouseEvent*)
+{
+  leftMouseButton=false;
+}
+
+void Timeline::mouseMoveEvent(QMouseEvent* e)
+{
+  int frame=(e->x()-LEFT_STRUT)/KEY_WIDTH;
+  if(frame!=frameSelected)
+  {
+    animation->moveKeyframe(trackSelected,frameSelected,frame);
+    frameSelected=frame;
   }
 }

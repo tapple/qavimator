@@ -405,8 +405,8 @@ void Animation::addKeyFrame(BVHNode *joint)
     //numKeyFrames++;
   }
 
-  emit keyframeAdded(getPartIndex(joint->name),frame);
   interpolateFrames(joint);
+  emit keyframeAdded(getPartIndex(joint->name),frame);
 }
 
 // Re-calculate intermediate frames based on the values in keyframes
@@ -511,8 +511,8 @@ void Animation::delKeyFrame(BVHNode *joint) {
     //numKeyFrames++;
   }
 
-  emit keyframeRemoved(getPartIndex(joint->name),frame);
   interpolateFrames(joint);
+  emit keyframeRemoved(getPartIndex(joint->name),frame);
 }
 
 void Animation::delKeyFrameHelper(BVHNode *joint) {
@@ -593,17 +593,40 @@ const char *Animation::getPartMirror(const char *name)
   return bvhGetName(frames, index);
 }
 
-const int* Animation::keyFrames(const int jointNumber)
+const int* Animation::keyFrames(int jointNumber)
 {
   const char* jointName=getPartName(jointNumber);
   BVHNode* node=bvhFindNode(frames,jointName);
   return node->keyFrames;
 }
 
-const int Animation::numKeyFrames(const int jointNumber)
+const int Animation::numKeyFrames(int jointNumber)
 {
   const char* jointName=getPartName(jointNumber);
   BVHNode* node=bvhFindNode(frames,jointName);
 //  qDebug(QString("joint number %1 has %2 keyframes").arg(jointNumber).arg(node->numKeyFrames));
   return node->numKeyFrames;
+}
+
+void Animation::moveKeyframe(int jointNumber,int from,int to)
+{
+  setFrame(from);
+
+  const char* jointName=getPartName(jointNumber);
+  BVHNode* joint=bvhFindNode(frames,jointName);
+
+  int numKeyFrames = joint->numKeyFrames;
+  int *kf = joint->keyFrames;
+
+  Rotation rot=getRotation(jointName);
+  Position pos=getPosition(jointName);
+
+  delKeyFrame(joint);
+
+  setFrame(to);
+
+  setRotation(jointName,rot.x,rot.y,rot.z);
+  setPosition(jointName,pos.x,pos.y,pos.z);
+
+  setFrame(to);
 }

@@ -1028,6 +1028,7 @@ void qavimator::setCurrentFrame(int frame)
   currentFrameLabel->setText(QString::number(frame+1));
   positionSlider->blockSignals(false);
   timeline->setCurrentFrame(frame);
+  animationView->setFrame(frame);
 }
 
 // this slot gets called when someone clicks the "New Prop" button

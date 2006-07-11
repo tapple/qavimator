@@ -80,8 +80,9 @@ class Animation : public QObject
   bool toggleKeyFrame(const char *jointName);
   void setFrameTime(double frameTime);
 
-  const int* keyFrames(const int jointNumber);
-  const int numKeyFrames(const int jointNumber);
+  const int* keyFrames(int jointNumber);
+  const int numKeyFrames(int jointNumber);
+  void moveKeyframe(int jointNumber,int from,int to);
 
   static bool isSecondLifeJoint(BVHNode *joint);
 

@@ -178,6 +178,7 @@ void AnimationView::clear()
 
 void AnimationView::setFrame(int frame)
 {
+//  qDebug(QString("animationview->frame now %1").arg(frame));
     for (unsigned int i = 0; i < animList.count(); i++)
     {
 	animList.at(i)->setFrame(frame);
