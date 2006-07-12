@@ -134,7 +134,12 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   positionSlider->setPageStep(1);
 
-  fileNew();
+  if(qApp->argc()>1)
+  {
+    qDebug(qApp->argv()[1]);
+    fileOpen(qApp->argv()[1]);
+  }
+  else fileNew();
 }
 
 qavimator::~qavimator()
@@ -647,20 +652,35 @@ void qavimator::fileNew()
 // Menu action: File / Open ...
 void qavimator::fileOpen()
 {
+  clearOpenFiles();
+  fileAdd();
+}
+
+void qavimator::fileOpen(const QString& name)
+{
     clearOpenFiles();
-    fileAdd();
+    fileAdd(name);
 }
 
 // Menu action: File / Add New Animation ...
 void qavimator::fileAdd()
 {
-  QString file=QFileDialog::getOpenFileName(lastPath,
-                                            ANIM_FILTER,
-                                            this,
-                                            "file_open_dialog",
-                                            tr("Select Animation File"),
-                                            0,
-                                            false);
+  fileAdd(QString::null);
+}
+
+void qavimator::fileAdd(const QString& name)
+{
+  QString file=name;
+  if(!file)
+  {
+    file=QFileDialog::getOpenFileName(lastPath,
+                                      ANIM_FILTER,
+                                      this,
+                                      "file_open_dialog",
+                                      tr("Select Animation File"),
+                                      0,
+                                      false);
+  }
   if (file) {
     QFileInfo fileInfo(file);
     if(fileInfo.exists())
@@ -686,6 +706,12 @@ void qavimator::fileAdd()
       editPartCombo->setCurrentItem(1);
       updateInputs();
       updateFps();
+    }
+    else
+    {
+      // if no files are open, this was called with a nonexisting file name, so
+      // create a new animation
+      if(!openFiles.count()) fileNew();
     }
   }
 }

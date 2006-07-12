@@ -93,7 +93,10 @@ class qavimator : public MainApplicationForm
     // ------- Menu Action Slots (Callbacks) --------
     void fileNew();
     void fileOpen();
-    void fileAdd(); // "add" a new file without clearing the old one(s)
+    void fileOpen(const QString& fileName);
+    // "add" a new file without clearing the old one(s)
+    void fileAdd();
+    void fileAdd(const QString& fileName);
     void fileSave();
     void fileSaveAs();
     void fileLoadProps();
