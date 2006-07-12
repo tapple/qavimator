@@ -72,8 +72,6 @@ void Timeline::repaint()
   {
     drawTrack(part);
   } // for
-  // TODO: calculate needed height like this, but make it draw too
-  //  resize(numFrames*KEY_WIDTH+LEFT_STRUT,y);
 }
 
 void Timeline::setNumberOfFrames(int frames)
@@ -139,8 +137,6 @@ void Timeline::addKeyframe(int track,int frame)
   if(tracks.find(track)==tracks.end())
   {
     tracks[track]=KeyframeList();
-//    drawTrack(track);
-    // repaint();
   }
   tracks[track][frame]=1;
 
@@ -155,7 +151,6 @@ void Timeline::removeKeyframe(int track,int frame)
 
   if(!tracks[track].count()) tracks.erase(track);
   drawTrack(track);
-//  repaint();
 }
 
 void Timeline::drawKeyframe(int track,int frame)
