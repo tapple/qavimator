@@ -38,7 +38,7 @@ Timeline::Timeline(QWidget *parent, const char *name)
 {
   p=new QPainter(this);
 
-  setAnimation(0);
+  animation=0;
   setCurrentFrame(0);
   setCaption(tr("Timeline"));
   leftMouseButton=false;
