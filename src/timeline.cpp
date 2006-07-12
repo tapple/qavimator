@@ -158,6 +158,7 @@ void Timeline::drawKeyframe(int track,int frame)
   p->setPen(Qt::black);
 
   QValueList<int> keys=tracks.keys();
+  drawPosition();
 
   int ypos=(track-1)*LINE_HEIGHT;
   for(unsigned int index=0;index<keys.count();index++)
@@ -168,11 +169,15 @@ void Timeline::drawKeyframe(int track,int frame)
 
       int xpos=frame*KEY_WIDTH+LEFT_STRUT;
 
-      p->fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
+      QColor color(Qt::black);
+      if(dragging) color=Qt::red;
+
+      p->fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
       if(frame>0 && frame!=(numOfFrames-1))
         p->drawLine(LEFT_STRUT,ypos+KEY_HEIGHT/2,xpos,ypos+KEY_HEIGHT/2);
     }
   }
+  drawPosition();
 }
 
 void Timeline::drawTrack(int track)
@@ -227,7 +232,13 @@ void Timeline::mousePressEvent(QMouseEvent* e)
   animation->setFrame(frameSelected);
   // check if we clicked on a key frame which is not the first or last one in animation
   if(animation->isKeyFrame(animation->getPartName(trackSelected)) &&
-     frameSelected>0 && frameSelected<(numOfFrames-1)) dragging=true;
+     frameSelected>0 && frameSelected<(numOfFrames-1))
+  {
+    // first switch on dragging state, so drawKeyframe() will work as expected
+    dragging=true;
+    // highlight keyframe
+    drawKeyframe(trackSelected,frameSelected);
+  }
   // remember mouse button state
   leftMouseButton=true;
 }
@@ -235,7 +246,13 @@ void Timeline::mousePressEvent(QMouseEvent* e)
 void Timeline::mouseReleaseEvent(QMouseEvent*)
 {
   leftMouseButton=false;
-  dragging=false;
+  if(dragging)
+  {
+    // first switch off dragging state, so drawKeyframe() will work as expected
+    dragging=false;
+    // remove highlight from keyframe
+    drawKeyframe(trackSelected,frameSelected);
+  }
 }
 
 void Timeline::mouseMoveEvent(QMouseEvent* e)

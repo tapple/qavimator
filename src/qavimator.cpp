@@ -605,11 +605,10 @@ void qavimator::numFramesChanged(int num)
   updateInputs();
 }
 
-void qavimator::keyframeButtonToggled(bool on)
+void qavimator::keyframeButtonToggled(bool)
 {
   animationView->getAnimation()->toggleKeyFrame(animationView->getSelectedPart());
   animationView->repaint();
-//  timeline->repaint();
 }
 
 // ------ Menu Action Slots (Callbacks) -----------
@@ -1031,6 +1030,10 @@ void qavimator::setCurrentFrame(int frame)
   animationView->setFrame(frame);
   updateInputs();
   updateKeyBtn();
+  // check if we are at the first frame and if it's protected
+  if(frame==0 && protectFirstFrame) protect=true;
+  else protect=false;
+  emit protectFrame(protect);
 }
 
 // this slot gets called when someone clicks the "New Prop" button
