@@ -65,19 +65,15 @@ void Timeline::repaint()
 
   if(!animation) return;
 
-  QColor black("#000000");
+  resize(numOfFrames*KEY_WIDTH+LEFT_STRUT,(NUM_PARTS-1)*LINE_HEIGHT);
 
-  p->setPen(black);
-
-  resize(numOfFrames*KEY_WIDTH+LEFT_STRUT,NUM_PARTS*LINE_HEIGHT);
-
+  drawPosition();
   for(int part=1;part<NUM_PARTS;part++)
   {
     drawTrack(part);
   } // for
   // TODO: calculate needed height like this, but make it draw too
   //  resize(numFrames*KEY_WIDTH+LEFT_STRUT,y);
-  drawPosition();
 }
 
 void Timeline::setNumberOfFrames(int frames)
@@ -143,7 +139,8 @@ void Timeline::addKeyframe(int track,int frame)
   if(tracks.find(track)==tracks.end())
   {
     tracks[track]=KeyframeList();
-    repaint();
+//    drawTrack(track);
+    // repaint();
   }
   tracks[track][frame]=1;
 
@@ -157,34 +154,40 @@ void Timeline::removeKeyframe(int track,int frame)
   tracks[track].erase(frame);
 
   if(!tracks[track].count()) tracks.erase(track);
-  repaint();
+  drawTrack(track);
+//  repaint();
 }
 
 void Timeline::drawKeyframe(int track,int frame)
 {
+  p->setPen(Qt::black);
+
   QValueList<int> keys=tracks.keys();
 
   int ypos=(track-1)*LINE_HEIGHT;
-  int previousKey=0;
   for(unsigned int index=0;index<keys.count();index++)
   {
     if(keys[index]==track)
     {
-      QColor black("#000000");
-      p->setPen(black);
+      p->setPen(Qt::black);
 
       int xpos=frame*KEY_WIDTH+LEFT_STRUT;
 
-      p->fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(black));
-      p->drawLine(previousKey*KEY_WIDTH+LEFT_STRUT,ypos+KEY_HEIGHT/2,xpos,ypos+KEY_HEIGHT/2);
+      p->fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
+      if(frame>0 && frame!=(numOfFrames-1))
+        p->drawLine(LEFT_STRUT,ypos+KEY_HEIGHT/2,xpos,ypos+KEY_HEIGHT/2);
     }
-    previousKey=frame;
   }
 }
 
 void Timeline::drawTrack(int track)
 {
+  drawPosition();
+
   int y=(track-1)*LINE_HEIGHT;
+
+  p->setPen(QColor("#000000"));
+  p->eraseRect(0,y,width(),LINE_HEIGHT);
 
   // always draw track name
   p->drawText(0,y+KEY_HEIGHT,animation->getPartName(track));
@@ -196,11 +199,10 @@ void Timeline::drawTrack(int track)
   const int numKeyFrames=keyFrames.count();*/
   if(numKeyFrames)
   {
-    int oldKey=LEFT_STRUT;
     const int* keyFrames=animation->keyFrames(track);
 
     // first frame is always a key frame
-    p->fillRect(LEFT_STRUT,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(black));
+    p->fillRect(LEFT_STRUT,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
 
     for(int key=0;key<numKeyFrames;key++)
     {
@@ -208,24 +210,30 @@ void Timeline::drawTrack(int track)
       if(frameNum<numOfFrames)
       {
         int xpos=frameNum*KEY_WIDTH+LEFT_STRUT;
-        p->drawLine(oldKey,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
-        p->fillRect(xpos,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(black));
-        oldKey=xpos;
+        p->fillRect(xpos,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
+        if(frameNum>0 && frameNum!=(numOfFrames-1))
+          p->drawLine(LEFT_STRUT,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
       }
     } // for
 
     // last frame is always a key frame
-    p->fillRect((numOfFrames-1)*KEY_WIDTH+LEFT_STRUT,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(black));
+    p->fillRect((numOfFrames-1)*KEY_WIDTH+LEFT_STRUT,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
   }
+  drawPosition();
 }
 
 void Timeline::mousePressEvent(QMouseEvent* e)
 {
+  // get track and frame based on mouse coordinates
   trackSelected=e->y()/LINE_HEIGHT+1;
   frameSelected=(e->x()-LEFT_STRUT)/KEY_WIDTH;
 
+  // set animation frame to where we clicked
   animation->setFrame(frameSelected);
-  if(animation->isKeyFrame(animation->getPartName(trackSelected))) dragging=true;
+  // check if we clicked on a key frame which is not the first or last one in animation
+  if(animation->isKeyFrame(animation->getPartName(trackSelected)) &&
+     frameSelected>0 && frameSelected<(numOfFrames-1)) dragging=true;
+  // remember mouse button state
   leftMouseButton=true;
 }
 
@@ -239,13 +247,22 @@ void Timeline::mouseMoveEvent(QMouseEvent* e)
 {
   // calculate new position (in frames)
   int frame=(e->x()-LEFT_STRUT)/KEY_WIDTH;
-  // check if new position would be oput of bounds or has changed at all
-  if(frame>0 && frame<(numOfFrames-1) && frame!=frameSelected)
+  // special treatment if user is dragging a keyframe
+  if(dragging)
   {
-    // if user is dragging a keyframe, move it
-    if(dragging) animation->moveKeyframe(trackSelected,frameSelected,frame);
-    // if not, just set the new position
-    else animation->setFrame(frame);
+    // if user is dragging a keyframe, move it within more restrictive bounds
+    if(frame>0 && frame<(numOfFrames-1))
+    {
+      animation->moveKeyframe(trackSelected,frameSelected,frame);
+      // remember new position
+      frameSelected=frame;
+    }
+  }
+  // no dragging so check if new position would be out of bounds or has changed at all
+  else if(frame>=0 && frame<numOfFrames && frame!=frameSelected)
+  {
+    // set the new position
+    animation->setFrame(frame);
     // remember new position
     frameSelected=frame;
   }

@@ -407,6 +407,7 @@ void Animation::addKeyFrame(BVHNode *joint)
 
   interpolateFrames(joint);
   emit keyframeAdded(getPartIndex(joint->name),frame);
+  emit frameChanged();
 }
 
 // Re-calculate intermediate frames based on the values in keyframes
@@ -490,7 +491,8 @@ bool Animation::isKeyFrame() {
   return isKeyFrameHelper(frames);
 }
 
-void Animation::delKeyFrame(BVHNode *joint) {
+// if silent is true then only send a signal to the timeline but not to the animation view
+void Animation::delKeyFrame(BVHNode *joint,bool silent) {
   bool found = false;
   int numKeyFrames = joint->numKeyFrames;
   int i, *kf = joint->keyFrames;
@@ -513,6 +515,7 @@ void Animation::delKeyFrame(BVHNode *joint) {
 
   interpolateFrames(joint);
   emit keyframeRemoved(getPartIndex(joint->name),frame);
+  if(!silent) emit frameChanged();
 }
 
 void Animation::delKeyFrameHelper(BVHNode *joint) {
@@ -621,12 +624,16 @@ void Animation::moveKeyframe(int jointNumber,int from,int to)
   Rotation rot=getRotation(jointName);
   Position pos=getPosition(jointName);
 
-  delKeyFrame(joint);
+  // silently (true) delete key frame
+  delKeyFrame(joint,true);
 
+  // block all further signals to avoid flickering
+  blockSignals(true);
   setFrame(to);
-
   setRotation(jointName,rot.x,rot.y,rot.z);
+  blockSignals(false);
+  // now re-enable signals so we get updates on screen
   setPosition(jointName,pos.x,pos.y,pos.z);
-
-  setFrame(to);
+  // tell timeline where we are now
+  emit currentFrame(frame);
 }

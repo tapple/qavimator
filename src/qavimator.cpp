@@ -1029,6 +1029,7 @@ void qavimator::setCurrentFrame(int frame)
   positionSlider->blockSignals(false);
   timeline->setCurrentFrame(frame);
   animationView->setFrame(frame);
+  updateInputs();
   updateKeyBtn();
 }
 

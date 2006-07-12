@@ -75,7 +75,7 @@ class Animation : public QObject
   bool isKeyFrame(BVHNode *joint);
   bool isKeyFrame(const char *jointName);
   void delKeyFrame();
-  void delKeyFrame(BVHNode *joint);
+  void delKeyFrame(BVHNode *joint,bool silent=false); // silent = only send signal to timeline
   bool toggleKeyFrame();
   bool toggleKeyFrame(const char *jointName);
   void setFrameTime(double frameTime);
