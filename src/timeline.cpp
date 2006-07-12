@@ -42,6 +42,7 @@ Timeline::Timeline(QWidget *parent, const char *name)
   setCurrentFrame(0);
   setCaption(tr("Timeline"));
   leftMouseButton=false;
+  dragging=0;
   trackSelected=0;
   frameSelected=0;
 
@@ -224,20 +225,28 @@ void Timeline::mousePressEvent(QMouseEvent* e)
   frameSelected=(e->x()-LEFT_STRUT)/KEY_WIDTH;
 
   animation->setFrame(frameSelected);
+  if(animation->isKeyFrame(animation->getPartName(trackSelected))) dragging=true;
   leftMouseButton=true;
 }
 
 void Timeline::mouseReleaseEvent(QMouseEvent*)
 {
   leftMouseButton=false;
+  dragging=false;
 }
 
 void Timeline::mouseMoveEvent(QMouseEvent* e)
 {
+  // calculate new position (in frames)
   int frame=(e->x()-LEFT_STRUT)/KEY_WIDTH;
-  if(frame!=frameSelected)
+  // check if new position would be oput of bounds or has changed at all
+  if(frame>0 && frame<(numOfFrames-1) && frame!=frameSelected)
   {
-    animation->moveKeyframe(trackSelected,frameSelected,frame);
+    // if user is dragging a keyframe, move it
+    if(dragging) animation->moveKeyframe(trackSelected,frameSelected,frame);
+    // if not, just set the new position
+    else animation->setFrame(frame);
+    // remember new position
     frameSelected=frame;
   }
 }

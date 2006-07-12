@@ -70,6 +70,7 @@ class Timeline : public QWidget
     int currentFrame;
     bool drawn;
     bool leftMouseButton;
+    bool dragging;
     int trackSelected;
     int frameSelected;
 
