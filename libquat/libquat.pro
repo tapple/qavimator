@@ -31,8 +31,7 @@ HEADERS += GEN_List.h \
            MT_Vector2.h \
            MT_Vector3.h \
            MT_Vector4.h \
-           NM_Scalar.h \
-           keyframelist.h 
+           NM_Scalar.h 
 SOURCES += MEM_RefCountedC-Api.cpp \
            MT_Assert.cpp \
            MT_CmMatrix4x4.cpp \
