@@ -1327,6 +1327,9 @@
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
+                    <property name="maxValue">
+                        <number>9999</number>
+                    </property>
                 </widget>
             </hbox>
         </widget>
@@ -1365,6 +1368,9 @@
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
+                    </property>
+                    <property name="maxValue">
+                        <number>500</number>
                     </property>
                 </widget>
             </hbox>
@@ -2312,9 +2318,6 @@
         <slot>optionsShowTimeline(bool)</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
-</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
