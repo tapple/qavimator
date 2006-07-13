@@ -707,13 +707,9 @@ void qavimator::fileAdd(const QString& name)
       updateInputs();
       updateFps();
     }
-    else
-    {
-      // if no files are open, this was called with a nonexisting file name, so
-      // create a new animation
-      if(!openFiles.count()) fileNew();
-    }
   }
+  // if no files are open create a new animation
+  if(!openFiles.count()) fileNew();
 }
 
 // Menu Action: File / Save
