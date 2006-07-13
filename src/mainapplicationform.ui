@@ -2334,7 +2334,7 @@
         <sender>loopSpinBox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainApplicationForm</receiver>
-        <slot>loopPointChanged(int)</slot>
+        <slot>setLoopPoint(int)</slot>
     </connection>
 </connections>
 <includes>
@@ -2385,7 +2385,7 @@
     <slot>fileLoadProps()</slot>
     <slot>fileSaveProps()</slot>
     <slot>optionsShowTimeline( bool )</slot>
-    <slot>loopPointChanged( int )</slot>
+    <slot>setLoopPoint( int )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

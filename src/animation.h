@@ -48,9 +48,9 @@ class Animation : public QObject
   void setNumberOfFrames(int num);
   int getFrame() { return frame; }
   void setFrame(int frameNumber);
-  // if the animation is set to "protect first frame" be sure not to cycle over it
-  // to avoid flicker on loops
-  int stepForward(bool protectFirst);
+  int stepForward();
+  void setLoopPoint(int frame);
+  int loopPoint();
   void setIK(const char *jointName, bool flag);
   bool getIK(const char *jointName);
   const char *getPartName(int index);
@@ -100,6 +100,7 @@ class Animation : public QObject
  private:
   BVHNode *frames;
   int frame;
+  int loopingPoint;
   bool mirrored;
   int partMirror[ MAX_PARTS + 1 ];
   bool limits;

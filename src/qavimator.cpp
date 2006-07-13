@@ -543,8 +543,8 @@ void qavimator::cb_timeout()
 
       // don't show protected frames color on playback to avoid flicker
       protectFrame(false);
-      // cycle through frames, do not show first frame, if protected
-      animationView->stepForward(protectFirstFrame);
+      // cycle through frames, restart at looping point
+      animationView->stepForward();
 
       if (anim->getFrame() == (anim->getNumberOfFrames() - 1) && !loop)
       {
@@ -696,11 +696,17 @@ void qavimator::fileAdd(const QString& name)
 
       // set the frame
       if (animationView->getAnimation(1))
-	  animationView->setFrame(animationView->getAnimation(0)->getFrame());
+        animationView->setFrame(animationView->getAnimation(0)->getFrame());
       else if (protectFirstFrame)
-	  animationView->setFrame(1);
+      {
+        animationView->setFrame(1);
+        setLoopPoint(2);
+      }
       else
-	  animationView->setFrame(0);
+      {
+        animationView->setFrame(0);
+        setLoopPoint(1);
+      }
 
       // FIXME: code duplication
       connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
@@ -1165,4 +1171,19 @@ void qavimator::propRotChanged(int dummy)
 
 void qavimator::clearProps()
 {
+}
+
+void qavimator::setLoopPoint(int frame)
+{
+  Animation* anim=animationView->getAnimation();
+  int numOfFrames=anim->getNumberOfFrames()+1;
+
+  if(frame>numOfFrames) frame=numOfFrames;
+  if(frame<1) frame=1;
+
+  anim->setLoopPoint(frame-1);
+
+  loopSpinBox->blockSignals(true);
+  loopSpinBox->setValue(frame);
+  loopSpinBox->blockSignals(false);
 }

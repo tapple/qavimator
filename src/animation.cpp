@@ -119,17 +119,28 @@ void Animation::setFrame(int frameNumber)
   }
 }
 
-int Animation::stepForward(bool protectFirst)
+int Animation::stepForward()
 {
   if (frames)
   {
     int nextFrame=(frame + 1) % frames->numFrames;
-    if(protectFirst && nextFrame==0) nextFrame=1;
+    if(!nextFrame) nextFrame=loopingPoint;
+//    if(protectFirst && nextFrame==0) nextFrame=1;
     setFrame(nextFrame);
     return nextFrame;
   }
   else
     return 0;
+}
+
+void Animation::setLoopPoint(int frame)
+{
+  loopingPoint=frame;
+}
+
+int Animation::loopPoint()
+{
+  return loopingPoint;
 }
 
 void Animation::applyIK(const char *name)
