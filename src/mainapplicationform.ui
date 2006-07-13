@@ -19,6 +19,122 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
+        <widget class="QLayoutWidget" row="1" column="2">
+            <property name="name">
+                <cstring>fps_layout</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>fpsLabel</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>FPS:</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox">
+                    <property name="name">
+                        <cstring>fpsSpin</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="maxValue">
+                        <number>500</number>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QLayoutWidget" row="1" column="1">
+            <property name="name">
+                <cstring>frameLayout</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>frameLabel</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>Frame</string>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>currentFrameLabel</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>0</string>
+                    </property>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>ofLabel</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>of</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox">
+                    <property name="name">
+                        <cstring>framesSpin</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="maxValue">
+                        <number>9999</number>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
         <widget class="QTabWidget" row="0" column="1" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>avatarPropsTab</cstring>
@@ -1259,125 +1375,9 @@
                 </grid>
             </widget>
         </widget>
-        <widget class="QLayoutWidget" row="1" column="1">
-            <property name="name">
-                <cstring>frameLayout</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>frameLabel</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>0</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>Frame</string>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>currentFrameLabel</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>0</string>
-                    </property>
-                </widget>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>ofLabel</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>0</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>of</string>
-                    </property>
-                </widget>
-                <widget class="QSpinBox">
-                    <property name="name">
-                        <cstring>framesSpin</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="maxValue">
-                        <number>9999</number>
-                    </property>
-                </widget>
-            </hbox>
-        </widget>
-        <widget class="QLayoutWidget" row="1" column="2">
-            <property name="name">
-                <cstring>fps_layout</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>fpsLabel</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>0</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="text">
-                        <string>FPS:</string>
-                    </property>
-                </widget>
-                <widget class="QSpinBox">
-                    <property name="name">
-                        <cstring>fpsSpin</cstring>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>0</vsizetype>
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                        </sizepolicy>
-                    </property>
-                    <property name="maxValue">
-                        <number>500</number>
-                    </property>
-                </widget>
-            </hbox>
-        </widget>
         <widget class="QLayoutWidget" row="0" column="0" rowspan="2" colspan="1">
             <property name="name">
-                <cstring>layout15</cstring>
+                <cstring>layout16</cstring>
             </property>
             <vbox>
                 <property name="name">
@@ -1417,7 +1417,7 @@
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>positionLayout</cstring>
+                        <cstring>layout15</cstring>
                     </property>
                     <hbox>
                         <property name="name">
@@ -1478,6 +1478,19 @@
                             </property>
                             <property name="toggleButton">
                                 <bool>true</bool>
+                            </property>
+                        </widget>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>loopLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Loop:</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>loopSpinBox</cstring>
                             </property>
                         </widget>
                     </hbox>
@@ -2317,7 +2330,16 @@
         <receiver>MainApplicationForm</receiver>
         <slot>optionsShowTimeline(bool)</slot>
     </connection>
+    <connection>
+        <sender>loopSpinBox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>loopPointChanged(int)</slot>
+    </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
+</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -2363,6 +2385,7 @@
     <slot>fileLoadProps()</slot>
     <slot>fileSaveProps()</slot>
     <slot>optionsShowTimeline( bool )</slot>
+    <slot>loopPointChanged( int )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

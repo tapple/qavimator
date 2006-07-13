@@ -543,7 +543,8 @@ void qavimator::cb_timeout()
 
       // don't show protected frames color on playback to avoid flicker
       protectFrame(false);
-      animationView->stepForward();
+      // cycle through frames, do not show first frame, if protected
+      animationView->stepForward(protectFirstFrame);
 
       if (anim->getFrame() == (anim->getNumberOfFrames() - 1) && !loop)
       {

@@ -185,11 +185,11 @@ void AnimationView::setFrame(int frame)
     }
 }
 
-void AnimationView::stepForward()
+void AnimationView::stepForward(bool protect)
 {
     for (unsigned int i = 0; i < animList.count(); i++)
     {
-	animList.at(i)->stepForward();
+	animList.at(i)->stepForward(protect);
     }
 }
 

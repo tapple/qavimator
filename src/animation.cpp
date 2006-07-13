@@ -119,12 +119,14 @@ void Animation::setFrame(int frameNumber)
   }
 }
 
-int Animation::stepForward()
+int Animation::stepForward(bool protectFirst)
 {
   if (frames)
   {
-    setFrame((frame + 1) % frames->numFrames);
-    return frame;
+    int nextFrame=(frame + 1) % frames->numFrames;
+    if(protectFirst && nextFrame==0) nextFrame=1;
+    setFrame(nextFrame);
+    return nextFrame;
   }
   else
     return 0;

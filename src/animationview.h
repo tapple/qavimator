@@ -88,7 +88,7 @@ class AnimationView : public QGLWidget
     // These functions are re-implemented here so that every animation's
     // frame data can be changed at once
     void setFrame(int frame);
-    void stepForward();
+    void stepForward(bool protect);
     void setFrameTime(double time);
 
     // getAnimation returns the *current* animation

@@ -48,7 +48,9 @@ class Animation : public QObject
   void setNumberOfFrames(int num);
   int getFrame() { return frame; }
   void setFrame(int frameNumber);
-  int stepForward();
+  // if the animation is set to "protect first frame" be sure not to cycle over it
+  // to avoid flicker on loops
+  int stepForward(bool protectFirst);
   void setIK(const char *jointName, bool flag);
   bool getIK(const char *jointName);
   const char *getPartName(int index);
