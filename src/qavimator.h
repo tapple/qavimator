@@ -82,7 +82,7 @@ class qavimator : public MainApplicationForm
     void cb_fpsValue(int fps);
     void cb_FrameSlider(int position);
 
-    void animationChanged(int which);
+    void animationChanged(unsigned int which);
 
     void figureChanged(int shape);
     void numFramesChanged(int num);
@@ -122,7 +122,7 @@ class qavimator : public MainApplicationForm
     void setSliderValue(QSlider* slider,QLineEdit* edit,float value);
 
     void addToOpenFiles(const QString& fileName);
-    void removeFromOpenFiles(int which);
+    void removeFromOpenFiles(unsigned int which);
     void clearOpenFiles();
 
     void setCurrentFile(const QString& fileName);

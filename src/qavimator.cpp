@@ -589,7 +589,7 @@ void qavimator::cb_FrameSlider(int position)
   updateInputs();
 }
 
-void qavimator::animationChanged(int which)
+void qavimator::animationChanged(unsigned int which)
 {
     if (which >= openFiles.count()) return;
     setCurrentFile(*openFiles.at(which));
@@ -646,6 +646,7 @@ void qavimator::fileNew()
   emit protectFrame(false);
   protect=false;
 
+  clearProps();
   updateInputs();
   updateFps();
 }
@@ -653,14 +654,14 @@ void qavimator::fileNew()
 // Menu action: File / Open ...
 void qavimator::fileOpen()
 {
-  clearOpenFiles();
-  fileAdd();
+  fileOpen(QString::null);
 }
 
 void qavimator::fileOpen(const QString& name)
 {
-    clearOpenFiles();
-    fileAdd(name);
+  clearProps();
+  clearOpenFiles();
+  fileAdd(name);
 }
 
 // Menu action: File / Add New Animation ...
@@ -1024,7 +1025,7 @@ void qavimator::addToOpenFiles(const QString& fileName)
     selectAnimationCombo->insertItem(fixedName);
 }
 
-void qavimator::removeFromOpenFiles(int which)
+void qavimator::removeFromOpenFiles(unsigned int which)
 {
     if (which >= openFiles.count()) return;
     openFiles.remove(openFiles.at(which));
@@ -1176,7 +1177,7 @@ void qavimator::deletePropButtonClicked()
   if(prop)
   {
     animationView->deleteProp(prop);
-    for(unsigned int index=0;index<propNameCombo->count();index++)
+    for(int index=0;index<propNameCombo->count();index++)
       if(propNameCombo->text(index)==propName)
     {
       propNameCombo->removeItem(index);
@@ -1187,6 +1188,9 @@ void qavimator::deletePropButtonClicked()
 
 void qavimator::clearProps()
 {
+  animationView->clearProps();
+  propNameCombo->clear();
+  selectProp(QString::null);
 }
 
 void qavimator::setLoopPoint(int frame)

@@ -251,6 +251,17 @@ void AnimationView::deleteProp(Prop* prop)
   repaint();
 }
 
+void AnimationView::clearProps()
+{
+  while(propList.count())
+  {
+    Prop* prop=propList.at(0);
+    propList.remove(prop);
+    delete prop;
+  }
+  repaint();
+}
+
 bool AnimationView::inAnimList(Animation *anim)
 {
     return (animList.find(anim) != -1);
