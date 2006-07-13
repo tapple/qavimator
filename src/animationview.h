@@ -106,6 +106,7 @@ class AnimationView : public QGLWidget
     const QString& getSelectedPropName();
 
     const Prop* addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr);
+    void deleteProp(Prop* prop);
     Prop* getPropByName(const QString& name);
     Prop* getPropById(int id);
 

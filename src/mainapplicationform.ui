@@ -1346,6 +1346,9 @@
                         <property name="text">
                             <string>&amp;X</string>
                         </property>
+                        <property name="accel">
+                            <string>Alt+X</string>
+                        </property>
                         <property name="toolTip" stdset="0">
                             <string>Delete this Prop</string>
                         </property>
@@ -2336,6 +2339,12 @@
         <receiver>MainApplicationForm</receiver>
         <slot>setLoopPoint(int)</slot>
     </connection>
+    <connection>
+        <sender>deletePropButton</sender>
+        <signal>clicked()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>deletePropButtonClicked()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
@@ -2386,6 +2395,7 @@
     <slot>fileSaveProps()</slot>
     <slot>optionsShowTimeline( bool )</slot>
     <slot>setLoopPoint( int )</slot>
+    <slot>deletePropButtonClicked()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

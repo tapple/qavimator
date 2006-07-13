@@ -114,6 +114,7 @@ class qavimator : public MainApplicationForm
     void optionsShowTimeline(bool state);
 
     void newPropButtonClicked();
+    void deletePropButtonClicked();
     void selectProp(const QString& name);
     void clearProps();
 

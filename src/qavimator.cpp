@@ -1169,6 +1169,22 @@ void qavimator::propRotChanged(int dummy)
   }
 }
 
+void qavimator::deletePropButtonClicked()
+{
+  QString propName=propNameCombo->currentText();
+  Prop* prop=animationView->getPropByName(propName);
+  if(prop)
+  {
+    animationView->deleteProp(prop);
+    for(unsigned int index=0;index<propNameCombo->count();index++)
+      if(propNameCombo->text(index)==propName)
+    {
+      propNameCombo->removeItem(index);
+      selectProp(propNameCombo->currentText());
+    }
+  }
+}
+
 void qavimator::clearProps()
 {
 }

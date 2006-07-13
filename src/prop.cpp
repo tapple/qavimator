@@ -39,6 +39,10 @@ Prop::Prop(PropType newType,const QString& newName)
   createVertices();
 }
 
+Prop::~Prop()
+{
+}
+
 void Prop::draw(State state)
 {
   glEnable(GL_DEPTH_TEST);
@@ -156,10 +160,6 @@ void Prop::createVertices()
   boxVertices.append(new Vertex( 0.5, 0.5,-0.5));
   boxVertices.append(new Vertex( 0.5, 0.5, 0.5));
   boxVertices.append(new Vertex(-0.5, 0.5, 0.5));
-}
-
-Prop::~Prop()
-{
 }
 
 Vertex::Vertex(double xc,double yc,double zc)
