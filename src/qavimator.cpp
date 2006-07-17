@@ -136,7 +136,6 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   if(qApp->argc()>1)
   {
-    qDebug(qApp->argv()[1]);
     fileOpen(qApp->argv()[1]);
   }
   else fileNew();
@@ -589,9 +588,9 @@ void qavimator::cb_FrameSlider(int position)
   updateInputs();
 }
 
-void qavimator::animationChanged(unsigned int which)
+void qavimator::animationChanged(int which)
 {
-    if (which >= openFiles.count()) return;
+  if ((unsigned int) which >= openFiles.count()) return;
     setCurrentFile(*openFiles.at(which));
     animationView->selectAnimation(which);
 }
