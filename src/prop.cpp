@@ -28,14 +28,11 @@
 
 #include "prop.h"
 
-static int propId=1000;
-
-Prop::Prop(PropType newType,const QString& newName)
+Prop::Prop(unsigned int propId,PropType newType,const QString& newName)
 {
   setType(newType);
   propName=newName;
   id=propId;
-  propId++;
   createVertices();
 }
 

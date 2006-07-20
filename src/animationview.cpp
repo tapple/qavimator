@@ -69,6 +69,7 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   xSelect=false;
   ySelect=false;
   zSelect=false;
+  nextPropId=OBJECT_START;
 
   QString execPath=qApp->applicationDirPath();
 
@@ -102,6 +103,7 @@ void AnimationView::selectAnimation(unsigned int index)
     if (index < animList.count())
     {
 	animation = animList.at(index);
+	emit animationSelected(animation);
 	repaint();
     }
 }
@@ -210,7 +212,9 @@ const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double 
     name="Object "+QString::number(objectNum++);
   } while(getPropByName(name));
 
-  Prop* newProp=new Prop(type,name);
+  Prop* newProp=new Prop(nextPropId,type,name);
+
+  nextPropId++;
 
   newProp->setPosition(x,y,z);
   newProp->setRotation(xr,yr,zr);
@@ -357,14 +361,18 @@ void AnimationView::drawAnimations()
 {
     for (unsigned int index = 0; index < animList.count(); index++)
     {
-	drawFigure(animList.at(index));
+	drawFigure(animList.at(index),index);
     }
 }
 
 int AnimationView::pickPart(int x, int y)
 {
-  static const int bufSize = (Animation::MAX_PARTS + 10 + propList.count()) * 4;
-  GLuint selectBuf[bufSize];
+  int bufSize = ((Animation::MAX_PARTS + 10)*animList.count() + propList.count()) * 4;
+
+  GLuint* selectBuf=(GLuint*) malloc(bufSize);
+
+//  GLuint selectBuf[bufSize];
+
   GLuint *p, num, name = 0;
   GLint hits;
   GLint viewport[4];
@@ -397,6 +405,8 @@ int AnimationView::pickPart(int x, int y)
     p+=2;
     for (int j=0; j < num; j++) { *(p++); }
   }
+
+  free(selectBuf);
   return name;
 }
 
@@ -515,12 +525,14 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     else if(selected<OBJECT_START)
     {
       partSelected=selected;
+      selectAnimation(selected/ANIMATION_INCREMENT);
       propSelected=0;
       propDragging=0;
 
       QString part=getSelectedPart();
       changeX = changeY = changeZ = 0;
       dragX = dragY = 0;
+
       emit partClicked(part,
                        Rotation(animation->getRotation(part)),
                        animation->getRotationLimits(part),
@@ -572,8 +584,8 @@ void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
   if (modifier & SHIFT)
     animation->setMirrored(true);
   else if (selected && selected < OBJECT_START)
-    animation->setIK(animation->getPartName(selected),
-                     !animation->getIK(animation->getPartName(selected)));
+    animation->setIK(getPartName(selected),
+                     !animation->getIK(getPartName(selected)));
   repaint();
 }
 
@@ -635,7 +647,7 @@ void AnimationView::keyReleaseEvent(QKeyEvent* event)
   }
 }
 
-void AnimationView::drawFigure(Animation* anim)
+void AnimationView::drawFigure(Animation* anim,unsigned int index)
 {
     glShadeModel(GL_SMOOTH);
     setBodyMaterial();
@@ -645,21 +657,21 @@ void AnimationView::drawFigure(Animation* anim)
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glTranslatef(0, 2, 0);
-    selectName = 0;
+    selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_DEPTH_TEST);
-    drawPart(anim, anim->getFrame(), anim->getMotion(), joints[figType],
+    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType],
 	     MODE_PARTS);
-    selectName = 0;
+    selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_COLOR_MATERIAL);
-    drawPart(anim, anim->getFrame(), anim->getMotion(), joints[figType],
+    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType],
 	     MODE_ROT_AXES);
-    selectName = 0;
+    selectName = index*ANIMATION_INCREMENT;
     glDisable(GL_DEPTH_TEST);
-    drawPart(anim, anim->getFrame(), anim->getMotion(), joints[figType],
+    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType],
 	     MODE_SKELETON);
 }
 
-void AnimationView::drawPart(Animation* anim, int frame, BVHNode *motion, BVHNode *joints, int mode)
+void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex, int frame, BVHNode *motion, BVHNode *joints, int mode)
 {
   float value, color[4];
 
@@ -734,7 +746,7 @@ void AnimationView::drawPart(Animation* anim, int frame, BVHNode *motion, BVHNod
       figType==MALE ? drawSLMalePart(motion->name):drawSLFemalePart(motion->name);
     }
     for (int i=0; i<motion->numChildren; i++) {
-      drawPart(anim, frame, motion->child[i], joints->child[i], mode);
+      drawPart(anim, currentAnimationIndex, frame, motion->child[i], joints->child[i], mode);
     }
     glPopMatrix();
   }
@@ -913,7 +925,13 @@ void AnimationView::setFigure(FigureType type)
 
 const char *AnimationView::getSelectedPart()
 {
-  return animation->getPartName(partSelected);
+  return getPartName(partSelected);
+}
+
+const char* AnimationView::getPartName(int index)
+{
+  // get part name from animation, with respect to multiple animations in view
+  return animation->getPartName(index % ANIMATION_INCREMENT);
 }
 
 const QString& AnimationView::getSelectedPropName()

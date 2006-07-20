@@ -103,6 +103,9 @@ void Timeline::setCurrentFrame(int frame)
 
 void Timeline::setAnimation(Animation* anim)
 {
+  // don't do anything if this is the same animation as before
+  if(anim==animation) return;
+
   if(animation)
   {
     disconnect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));

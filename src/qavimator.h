@@ -36,6 +36,7 @@
 #include "mainapplicationform.h"
 #include "rotation.h"
 
+class Animation;
 class Prop;
 class Timeline;
 
@@ -116,6 +117,7 @@ class qavimator : public MainApplicationForm
     void newPropButtonClicked();
     void deletePropButtonClicked();
     void selectProp(const QString& name);
+    void selectAnimation(Animation* animation);
     void clearProps();
 
   protected:

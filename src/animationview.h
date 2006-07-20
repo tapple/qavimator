@@ -43,17 +43,21 @@
 #define MALE_BVH   "data/SLMale.bvh"
 #define FEMALE_BVH "data/SLFemale.bvh"
 
-#define OBJECT_START 1000
+// defines where we start counting opengl ids for parts with multiple animations
+// first animation counts 0-ANIMATION_INCREMENT-1, next ANIMATION_INCREMENT++
+#define ANIMATION_INCREMENT 100
 
-#define DRAG_HANDLE_X    5000
-#define DRAG_HANDLE_Y    5001
-#define DRAG_HANDLE_Z    5002
-#define SCALE_HANDLE_X   5003
-#define SCALE_HANDLE_Y   5004
-#define SCALE_HANDLE_Z   5005
-#define ROTATE_HANDLE_X  5006
-#define ROTATE_HANDLE_Y  5007
-#define ROTATE_HANDLE_Z  5008
+#define OBJECT_START     8000
+
+#define DRAG_HANDLE_X    9000
+#define DRAG_HANDLE_Y    9001
+#define DRAG_HANDLE_Z    9002
+#define SCALE_HANDLE_X   9003
+#define SCALE_HANDLE_Y   9004
+#define SCALE_HANDLE_Z   9005
+#define ROTATE_HANDLE_X  9006
+#define ROTATE_HANDLE_Y  9007
+#define ROTATE_HANDLE_Z  9008
 
 class AnimationView : public QGLWidget
 {
@@ -103,6 +107,7 @@ class AnimationView : public QGLWidget
     void selectPart(const char *part);
     void selectProp(const QString& prop);
     const char *getSelectedPart();
+    const char *getPartName(int index);
     const QString& getSelectedPropName();
 
     const Prop* addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr);
@@ -122,6 +127,7 @@ class AnimationView : public QGLWidget
     void propScaled(Prop* prop,double changeX,double changeY,double changeZ);
 
     void backgroundClicked();
+    void animationSelected(Animation* animation);
 
   public slots:
     void resetCamera();
@@ -134,6 +140,7 @@ class AnimationView : public QGLWidget
     bool leftMouseButton;
     bool frameProtected;
     char modifier;
+    unsigned int nextPropId;
 
     QPtrList<Prop> propList;
     QPoint clickPos;           // holds the mouse click position for dragging
@@ -152,8 +159,8 @@ class AnimationView : public QGLWidget
 
     void drawFloor();
     void drawAnimations();
-    void drawFigure(Animation* anim);
-    void drawPart(Animation* anim, int frame, BVHNode *motion,
+    void drawFigure(Animation* anim, unsigned int index);
+    void drawPart(Animation* anim, unsigned int index, int frame, BVHNode *motion,
 		  BVHNode *joints, int mode);
     void drawProps();
     void drawDragHandles(const Prop* prop);

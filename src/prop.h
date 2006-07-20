@@ -58,7 +58,7 @@ class Prop
       Selected=2
     } State;
 
-    Prop(PropType type,const QString& name);
+    Prop(unsigned int propId,PropType type,const QString& name);
     ~Prop();
 
     void setType(PropType type);
@@ -70,7 +70,7 @@ class Prop
 
     void draw(State state);
 
-    int id;
+    unsigned int id;
     double x,y,z;
     double xs,ys,zs;
     double xr,yr,zr;

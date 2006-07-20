@@ -75,6 +75,7 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
                      this,SLOT(propRotated(Prop*,double,double,double)));
 
   connect(animationView,SIGNAL(backgroundClicked()),this,SLOT(backgroundClicked()));
+  connect(animationView,SIGNAL(animationSelected(Animation*)),this,SLOT(selectAnimation(Animation*)));
 
   connect(xSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
   connect(ySlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
@@ -626,6 +627,7 @@ void qavimator::fileNew()
   Animation* anim=new Animation();
   animationView->setAnimation(anim);
   timeline->setAnimation(anim);
+  selectAnimation(anim);
   addToOpenFiles(UNTITLED_NAME);
 
   // FIXME: code duplication
@@ -693,6 +695,7 @@ void qavimator::fileAdd(const QString& name)
       lastPath=fileInfo.dirPath(false);
       animationView->addAnimation(anim);
       timeline->setAnimation(anim);
+      selectAnimation(anim);
 
       // set the frame
       if (animationView->getAnimation(1))
@@ -1190,6 +1193,16 @@ void qavimator::clearProps()
   animationView->clearProps();
   propNameCombo->clear();
   selectProp(QString::null);
+}
+
+void qavimator::selectAnimation(Animation* animation)
+{
+  /* FIXME:
+  for(int index=0;index<selectAnimationCombo->count();index++)
+    if(selectAnimationCombo->text(index)==animation->name())selectAnimationCombo->setCurrentItem(index);
+    */
+  timeline->setAnimation(animation);
+  updateInputs();
 }
 
 void qavimator::setLoopPoint(int frame)
