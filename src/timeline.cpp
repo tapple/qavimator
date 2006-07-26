@@ -129,8 +129,11 @@ void Timeline::setAnimation(Animation* anim)
 void Timeline::drawPosition()
 {
   p->setRasterOp(Qt::XorROP);
-  p->setPen(QColor("#ffffff"));
-  p->fillRect(currentFrame*KEY_WIDTH+LEFT_STRUT+KEY_WIDTH/2,0,1,height(),QBrush(QColor("#00ffff")));
+  p->setPen(QColor("#00ffff"));
+
+  int xpos=currentFrame*KEY_WIDTH+LEFT_STRUT+KEY_WIDTH/2;
+  p->drawLine(xpos,0,xpos,height());
+
   p->setRasterOp(Qt::CopyROP);
   emit positionCenter(currentFrame*KEY_WIDTH+LEFT_STRUT);
 }
