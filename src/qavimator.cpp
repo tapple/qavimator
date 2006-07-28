@@ -30,6 +30,7 @@
 #include <qsettings.h>
 #include <qgroupbox.h>
 #include <qregexp.h>
+#include <qtabwidget.h>
 
 #include "qavimator.h"
 #include "animationview.h"
@@ -206,6 +207,7 @@ void qavimator::readSettings()
 // slot gets called by AnimationView::mousePressEvent()
 void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits limits,Position pos)
 {
+  avatarPropsTab->setCurrentPage(0);
   if(partName)
   {
     for(int index=0;index<editPartCombo->count();index++)
@@ -294,6 +296,8 @@ void qavimator::partDragged(const QString& partName,double x,double y,double z)
 // slot gets called by AnimationView::propClicked()
 void qavimator::propClicked(Prop* prop)
 {
+  avatarPropsTab->setCurrentPage(1);
+
   // update prop name combo box
   for(int index=0;index<propNameCombo->count();index++)
     if(propNameCombo->text(index)==prop->name()) propNameCombo->setCurrentItem(index);
