@@ -206,7 +206,7 @@ void qavimator::readSettings()
 void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits limits,Position pos)
 {
   avatarPropsTab->setCurrentPage(0);
-  enableProps(false);
+  emit enableProps(false);
   if(partName)
   {
     for(int index=0;index<editPartCombo->count();index++)
@@ -218,7 +218,7 @@ void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits 
 
     if(partName=="hip")
     {
-      enablePosition(!protect);
+      emit enablePosition(!protect);
 
       setXPos(pos.x);
       setYPos(pos.y);
@@ -230,7 +230,7 @@ void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits 
     }
     else
     {
-      enablePosition(false);
+      emit enablePosition(false);
 
       xSlider->setRange((int)(limits.xMin*PRECISION),
 			(int)(limits.xMax*PRECISION));
@@ -335,9 +335,9 @@ void qavimator::propRotated(Prop* prop,double x,double y,double z)
 // slot gets called by AnimationView::mouseButtonClicked()
 void qavimator::backgroundClicked()
 {
-  enableRotation(false);
-  enablePosition(false);
-  enableProps(false);
+  emit enableRotation(false);
+  emit enablePosition(false);
+  emit enableProps(false);
   updateKeyBtn();
 }
 
@@ -348,9 +348,9 @@ void qavimator::cb_PartChoice()
   // about updating controls ourselves here
   animationView->selectPart(editPartCombo->currentText());
   animationView->setFocus();
-  enableProps(false);
-  enableRotation(true);
-  enablePosition(true);
+  emit enableProps(false);
+  emit enableRotation(true);
+  emit enablePosition(true);
 }
 
 void qavimator::cb_RotRoller(int)
@@ -508,9 +508,9 @@ void qavimator::updateInputs()
   updateKeyBtn();
 
   if (playing)
-    enableInputs(false);
+    emit enableInputs(false);
   else
-    enableInputs(true);
+    emit enableInputs(true);
 
   if (frameDataValid)
     editPasteAction->setEnabled(true);
@@ -518,9 +518,9 @@ void qavimator::updateInputs()
     editPasteAction->setEnabled(false);
 
   if(propNameCombo->count())
-    enableProps(true);
+    emit enableProps(true);
   else
-    enableProps(false);
+    emit enableProps(false);
 }
 
 void qavimator::updateKeyBtn()
@@ -551,7 +551,7 @@ void qavimator::cb_timeout()
     if (anim) {
 
       // don't show protected frames color on playback to avoid flicker
-      protectFrame(false);
+      emit protectFrame(false);
       // cycle through frames, restart at looping point
       animationView->stepForward();
 
@@ -660,9 +660,9 @@ void qavimator::fileNew()
   updateInputs();
   updateFps();
 
-  enableRotation(false);
-  enablePosition(false);
-  enableProps(false);
+  emit enableRotation(false);
+  emit enablePosition(false);
+  emit enableProps(false);
 }
 
 // Menu action: File / Open ...
