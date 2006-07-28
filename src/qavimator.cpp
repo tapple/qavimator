@@ -108,8 +108,6 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(this,SIGNAL(enableRotation(bool)),fpsLabel,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enableRotation(bool)),fpsSpin,SLOT(setEnabled(bool)));
 
-  connect(fpsSpin,SIGNAL(valueChanged(int)),this,SLOT(cb_fpsValue(int)));
-
   connect(positionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_FrameSlider(int)));
   connect(playButton,SIGNAL(clicked()),this,SLOT(cb_PlayBtn()));
 
@@ -208,6 +206,7 @@ void qavimator::readSettings()
 void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits limits,Position pos)
 {
   avatarPropsTab->setCurrentPage(0);
+  enableProps(false);
   if(partName)
   {
     for(int index=0;index<editPartCombo->count();index++)
@@ -336,6 +335,9 @@ void qavimator::propRotated(Prop* prop,double x,double y,double z)
 // slot gets called by AnimationView::mouseButtonClicked()
 void qavimator::backgroundClicked()
 {
+  enableRotation(false);
+  enablePosition(false);
+  enableProps(false);
   updateKeyBtn();
 }
 
@@ -346,6 +348,9 @@ void qavimator::cb_PartChoice()
   // about updating controls ourselves here
   animationView->selectPart(editPartCombo->currentText());
   animationView->setFocus();
+  enableProps(false);
+  enableRotation(true);
+  enablePosition(true);
 }
 
 void qavimator::cb_RotRoller(int)
@@ -654,6 +659,10 @@ void qavimator::fileNew()
   clearProps();
   updateInputs();
   updateFps();
+
+  enableRotation(false);
+  enablePosition(false);
+  enableProps(false);
 }
 
 // Menu action: File / Open ...
@@ -1090,6 +1099,8 @@ void qavimator::selectProp(const QString& propName)
   if(prop)
   {
     emit enableProps(true);
+    emit enableRotation(false);
+    emit enablePosition(false);
     propNameCombo->setEnabled(true);
     deletePropButton->setEnabled(true);
 
