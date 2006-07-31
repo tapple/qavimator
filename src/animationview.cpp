@@ -221,11 +221,11 @@ const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double 
 
   nextPropId++;
 
+  newProp->attach(attach);
+
   newProp->setPosition(x,y,z);
   newProp->setRotation(xr,yr,zr);
   newProp->setScale(xs,ys,zs);
-
-  newProp->attach(attach);
 
   propList.append(newProp);
   repaint();
