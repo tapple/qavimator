@@ -1122,9 +1122,12 @@ void qavimator::selectProp(const QString& propName)
 
 void qavimator::attachToComboBoxChanged(int attachPoint)
 {
+  // FIXME: find better solution for filtering endpoint for joints
+  if(attachToComboBox->currentText()=="-") attachPoint=0;
   QString propName=propNameCombo->currentText();
   Prop* prop=animationView->getPropByName(propName);
   prop->attach(attachPoint);
+  updatePropSpins(prop);
   animationView->repaint();
 }
 

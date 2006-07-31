@@ -114,7 +114,7 @@ class AnimationView : public QGLWidget
     void deleteProp(Prop* prop);
     void clearProps();
     Prop* getPropByName(const QString& name);
-    Prop* getPropById(int id);
+    Prop* getPropById(unsigned int id);
 
   signals:
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
@@ -182,11 +182,11 @@ class AnimationView : public QGLWidget
     BVHNode *joints[NUM_FIGURES];
     bool skeleton;
     bool selecting;
-    int selectName;
-    int partHighlighted;
-    int partSelected;
-    int propSelected;  // needs an own variable, because we will drag the handle, not the prop
-    int propDragging;  // holds the actual drag handle id
+    unsigned int selectName;
+    unsigned int partHighlighted;
+    unsigned int partSelected;
+    unsigned int propSelected;  // needs an own variable, because we will drag the handle, not the prop
+    unsigned int propDragging;  // holds the actual drag handle id
     int dragX, dragY;
     int drawMode;
     bool xSelect, ySelect, zSelect;

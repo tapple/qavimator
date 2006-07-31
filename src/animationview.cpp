@@ -242,7 +242,7 @@ Prop* AnimationView::getPropByName(const QString& lookName)
   return 0;
 }
 
-Prop* AnimationView::getPropById(int id)
+Prop* AnimationView::getPropById(unsigned int id)
 {
   for(unsigned int index=0;index<propList.count();index++)
   {
@@ -749,7 +749,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
 	glColor4f(color[0], color[1], color[2]+0.3, color[3]);
       }
       figType==MALE ? drawSLMalePart(motion->name):drawSLFemalePart(motion->name);
-
+      qDebug(QString::number(partSelected));
       for(unsigned int index=0;index<propList.count();index++)
       {
         Prop* prop=propList.at(index);
