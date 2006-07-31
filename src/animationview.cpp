@@ -208,7 +208,7 @@ void AnimationView::setFrameTime(double time)
     }
 }
 
-const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr)
+const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr,int attach)
 {
   QString name;
 
@@ -224,6 +224,8 @@ const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double 
   newProp->setPosition(x,y,z);
   newProp->setRotation(xr,yr,zr);
   newProp->setScale(xs,ys,zs);
+
+  newProp->attach(attach);
 
   propList.append(newProp);
   repaint();

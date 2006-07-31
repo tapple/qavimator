@@ -797,8 +797,9 @@ void qavimator::fileLoadProps()
                                             properties[6].toDouble(),
                                             properties[7].toDouble(),
                                             properties[8].toDouble(),
-                                            properties[9].toDouble()
-                                           );
+                                            properties[9].toDouble(),
+                                            properties[10].toInt()
+          );
           if(prop)
           {
             propNameCombo->insertItem(prop->name());
@@ -839,6 +840,7 @@ void qavimator::fileSaveProps()
         properties.append(QString::number(prop->xr));
         properties.append(QString::number(prop->yr));
         properties.append(QString::number(prop->zr));
+        properties.append(QString::number(prop->isAttached()));
         QString line=properties.join(" ")+"\n";
         file.writeBlock(line,line.length());
       } // for
@@ -1087,7 +1089,7 @@ void qavimator::setCurrentFrame(int frame)
 // this slot gets called when someone clicks the "New Prop" button
 void qavimator::newPropButtonClicked()
 {
-  const Prop* prop=animationView->addProp(Prop::Box,10,40,10, 10,10,10, 0,0,0);
+  const Prop* prop=animationView->addProp(Prop::Box,10,40,10, 10,10,10, 0,0,0, 0);
   if(prop)
   {
     propNameCombo->insertItem(prop->name());
