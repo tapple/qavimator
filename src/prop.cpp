@@ -33,6 +33,7 @@ Prop::Prop(unsigned int propId,PropType newType,const QString& newName)
   setType(newType);
   propName=newName;
   id=propId;
+  attachmentPoint=0;
   createVertices();
 }
 
@@ -40,7 +41,7 @@ Prop::~Prop()
 {
 }
 
-void Prop::draw(State state)
+void Prop::draw(State state) const
 {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_COLOR_MATERIAL);
@@ -116,7 +117,7 @@ const QString& Prop::name() const
   return propName;
 }
 
-const QPtrList<Vertex> Prop::getVertices(PropType type)
+const QPtrList<Vertex> Prop::getVertices(PropType type) const
 {
   QPtrList<Vertex> vertices;
   if(type==Box)
@@ -183,4 +184,22 @@ double Vertex::y()
 double Vertex::z()
 {
   return zp;
+}
+
+void Prop::attach(unsigned int where)
+{
+  attachmentPoint=where;
+  if(where)
+  {
+    setPosition(0,0,0);
+  }
+  else
+  {
+    setPosition(10,40,10);
+  }
+}
+
+unsigned int Prop::isAttached() const
+{
+  return attachmentPoint;
 }

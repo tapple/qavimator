@@ -115,6 +115,9 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(this,SIGNAL(enableProps(bool)),propScaleGroup,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enableProps(bool)),propRotationGroup,SLOT(setEnabled(bool)));
 
+  connect(this,SIGNAL(enableProps(bool)),attachToLabel,SLOT(setEnabled(bool)));
+  connect(this,SIGNAL(enableProps(bool)),attachToComboBox,SLOT(setEnabled(bool)));
+
   connect(&timer,SIGNAL(timeout()),this,SLOT(cb_timeout()));
 
   connect(this,SIGNAL(resetCamera()),animationView,SLOT(resetCamera()));
@@ -1090,6 +1093,7 @@ void qavimator::newPropButtonClicked()
     propNameCombo->insertItem(prop->name());
     propNameCombo->setCurrentItem(propNameCombo->count()-1);
     selectProp(prop->name());
+    attachToComboBox->setCurrentItem(0);
   }
 }
 
@@ -1106,6 +1110,7 @@ void qavimator::selectProp(const QString& propName)
 
     updatePropSpins(prop);
     animationView->selectProp(prop->name());
+    attachToComboBox->setCurrentItem(prop->isAttached());
   }
   else
   {
@@ -1113,6 +1118,14 @@ void qavimator::selectProp(const QString& propName)
     propNameCombo->setEnabled(false);
     deletePropButton->setEnabled(false);
   }
+}
+
+void qavimator::attachToComboBoxChanged(int attachPoint)
+{
+  QString propName=propNameCombo->currentText();
+  Prop* prop=animationView->getPropByName(propName);
+  prop->attach(attachPoint);
+  animationView->repaint();
 }
 
 void qavimator::updatePropSpins(const Prop* prop)

@@ -943,7 +943,78 @@
                             <string>Prop:</string>
                         </property>
                     </widget>
-                    <widget class="QGroupBox" row="1" column="0" rowspan="1" colspan="4">
+                    <widget class="QPushButton" row="0" column="4">
+                        <property name="name">
+                            <cstring>deletePropButton</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>0</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="paletteForegroundColor">
+                            <color>
+                                <red>255</red>
+                                <green>0</green>
+                                <blue>4</blue>
+                            </color>
+                        </property>
+                        <property name="text">
+                            <string>&amp;X</string>
+                        </property>
+                        <property name="accel">
+                            <string>Alt+X</string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Delete this Prop</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="0" column="3">
+                        <property name="name">
+                            <cstring>newPropButton</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>0</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>+</string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Create a new Prop</string>
+                        </property>
+                    </widget>
+                    <spacer row="5" column="2">
+                        <property name="name">
+                            <cstring>spacer4</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>130</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QGroupBox" row="2" column="0" rowspan="1" colspan="5">
                         <property name="name">
                             <cstring>propPositionGroup</cstring>
                         </property>
@@ -1070,7 +1141,7 @@
                             </widget>
                         </grid>
                     </widget>
-                    <widget class="QGroupBox" row="2" column="0" rowspan="1" colspan="4">
+                    <widget class="QGroupBox" row="3" column="0" rowspan="1" colspan="5">
                         <property name="name">
                             <cstring>propScaleGroup</cstring>
                         </property>
@@ -1173,7 +1244,7 @@
                             </widget>
                         </grid>
                     </widget>
-                    <widget class="QGroupBox" row="3" column="0" rowspan="1" colspan="4">
+                    <widget class="QGroupBox" row="4" column="0" rowspan="1" colspan="5">
                         <property name="name">
                             <cstring>propRotationGroup</cstring>
                         </property>
@@ -1285,24 +1356,26 @@
                             </widget>
                         </grid>
                     </widget>
-                    <spacer row="4" column="1" rowspan="1" colspan="2">
+                    <widget class="QLabel" row="1" column="0" rowspan="1" colspan="2">
                         <property name="name">
-                            <cstring>spacer4</cstring>
+                            <cstring>attachToLabel</cstring>
                         </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
+                        <property name="enabled">
+                            <bool>false</bool>
                         </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>0</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
                         </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>31</height>
-                            </size>
+                        <property name="text">
+                            <string>Attach to:</string>
                         </property>
-                    </spacer>
-                    <widget class="QComboBox" row="0" column="1">
+                    </widget>
+                    <widget class="QComboBox" row="0" column="1" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>propNameCombo</cstring>
                         </property>
@@ -1321,58 +1394,112 @@
                             <bool>false</bool>
                         </property>
                     </widget>
-                    <widget class="QPushButton" row="0" column="3">
+                    <widget class="QComboBox" row="1" column="2" rowspan="1" colspan="3">
+                        <item>
+                            <property name="text">
+                                <string>* not attached *</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>hip</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>abdomen</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>chest</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>neck</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>head</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lCollar</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lShldr</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lForeArm</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lHand</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rCollar</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rShldr</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rForeArm</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rHand</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lThigh</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lShin</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lFoot</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rThigh</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rShin</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rFoot</string>
+                            </property>
+                        </item>
                         <property name="name">
-                            <cstring>deletePropButton</cstring>
+                            <cstring>attachToComboBox</cstring>
                         </property>
                         <property name="enabled">
                             <bool>false</bool>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>0</hsizetype>
-                                <vsizetype>0</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                        <property name="paletteForegroundColor">
-                            <color>
-                                <red>255</red>
-                                <green>0</green>
-                                <blue>4</blue>
-                            </color>
-                        </property>
-                        <property name="text">
-                            <string>&amp;X</string>
-                        </property>
-                        <property name="accel">
-                            <string>Alt+X</string>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Delete this Prop</string>
-                        </property>
-                    </widget>
-                    <widget class="QPushButton" row="0" column="2">
-                        <property name="name">
-                            <cstring>newPropButton</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>0</hsizetype>
-                                <vsizetype>0</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                        <property name="text">
-                            <string>+</string>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Create a new Prop</string>
                         </property>
                     </widget>
                 </grid>
@@ -2345,10 +2472,13 @@
         <receiver>MainApplicationForm</receiver>
         <slot>deletePropButtonClicked()</slot>
     </connection>
+    <connection>
+        <sender>attachToComboBox</sender>
+        <signal>activated(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>attachToComboBoxChanged(int)</slot>
+    </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
-</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -2396,6 +2526,7 @@
     <slot>optionsShowTimeline( bool )</slot>
     <slot>setLoopPoint( int )</slot>
     <slot>deletePropButtonClicked()</slot>
+    <slot>attachToComboBoxChanged( int )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

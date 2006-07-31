@@ -63,12 +63,15 @@ class Prop
 
     void setType(PropType type);
     const QString& name() const;
+    unsigned int isAttached() const;
 
     void setPosition(double xp,double yp,double zp);
     void setScale(double scx,double scy,double scz);
     void setRotation(double rx,double ry,double rz);
 
-    void draw(State state);
+    void draw(State state) const;
+
+    void attach(unsigned int where);
 
     unsigned int id;
     double x,y,z;
@@ -78,12 +81,14 @@ class Prop
     PropType type;
 
   protected:
-    const QPtrList<Vertex> getVertices(PropType type);
+    const QPtrList<Vertex> getVertices(PropType type) const;
     void createVertices();
 
     QPtrList<Vertex> boxVertices;
 
     QString propName;
+
+    unsigned int attachmentPoint;
 };
 
 #endif

@@ -163,7 +163,8 @@ class AnimationView : public QGLWidget
     void drawPart(Animation* anim, unsigned int index, int frame, BVHNode *motion,
 		  BVHNode *joints, int mode);
     void drawProps();
-    void drawDragHandles(const Prop* prop);
+    void drawProp(const Prop* prop) const;
+    void drawDragHandles(const Prop* prop) const;
 
   private:
     typedef enum

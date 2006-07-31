@@ -143,18 +143,23 @@ void AnimationView::drawFloor()
   glEnd();
 }
 
+void AnimationView::drawProp(const Prop* prop) const
+{
+  Prop::State state=Prop::Normal;
+  if(propSelected==prop->id)
+    state=Prop::Selected;
+  else if(partHighlighted==prop->id) state=Prop::Highlighted;
+  prop->draw(state);
+  if(propSelected==prop->id)
+    drawDragHandles(prop);
+}
+
 void AnimationView::drawProps()
 {
   for(unsigned int index=0;index<propList.count();index++)
   {
     Prop* prop=propList.at(index);
-    Prop::State state=Prop::Normal;
-    if(propSelected==prop->id)
-      state=Prop::Selected;
-    else if(partHighlighted==prop->id) state=Prop::Highlighted;
-    prop->draw(state);
-    if(propSelected==prop->id)
-      drawDragHandles(prop);
+    if(!prop->isAttached()) drawProp(prop);
   }
 }
 
@@ -744,6 +749,12 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
 	glColor4f(color[0], color[1], color[2]+0.3, color[3]);
       }
       figType==MALE ? drawSLMalePart(motion->name):drawSLFemalePart(motion->name);
+
+      for(unsigned int index=0;index<propList.count();index++)
+      {
+        Prop* prop=propList.at(index);
+        if(prop->isAttached()==selectName) drawProp(prop);
+      } // for
     }
     for (int i=0; i<motion->numChildren; i++) {
       drawPart(anim, currentAnimationIndex, frame, motion->child[i], joints->child[i], mode);
@@ -752,7 +763,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
   }
 }
 
-void AnimationView::drawDragHandles(const Prop* prop)
+void AnimationView::drawDragHandles(const Prop* prop) const
 {
   // get prop's position
   double x=prop->x;
