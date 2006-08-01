@@ -188,6 +188,9 @@ void Timeline::drawKeyframe(int track,int frame)
 
 void Timeline::drawTrack(int track)
 {
+  QString trackName=animation->getPartName(track);
+  if(trackName=="Site") return;
+
   drawPosition();
 
   int y=(track-1)*LINE_HEIGHT;
@@ -196,7 +199,7 @@ void Timeline::drawTrack(int track)
   p->eraseRect(0,y,width(),LINE_HEIGHT);
 
   // always draw track name
-  p->drawText(0,y+KEY_HEIGHT,animation->getPartName(track));
+  p->drawText(0,y+KEY_HEIGHT,trackName);
 
   const int numKeyFrames=animation->numKeyFrames(track);
 
