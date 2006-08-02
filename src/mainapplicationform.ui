@@ -1302,6 +1302,9 @@
                                         <verstretch>0</verstretch>
                                     </sizepolicy>
                                 </property>
+                                <property name="wrapping">
+                                    <bool>true</bool>
+                                </property>
                                 <property name="maxValue">
                                     <number>359</number>
                                 </property>
@@ -1318,6 +1321,9 @@
                                         <verstretch>0</verstretch>
                                     </sizepolicy>
                                 </property>
+                                <property name="wrapping">
+                                    <bool>true</bool>
+                                </property>
                                 <property name="maxValue">
                                     <number>359</number>
                                 </property>
@@ -1333,6 +1339,9 @@
                                         <horstretch>0</horstretch>
                                         <verstretch>0</verstretch>
                                     </sizepolicy>
+                                </property>
+                                <property name="wrapping">
+                                    <bool>true</bool>
                                 </property>
                                 <property name="maxValue">
                                     <number>359</number>
