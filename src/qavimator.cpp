@@ -162,8 +162,9 @@ void qavimator::readSettings()
   int height=600;
   int figureType=0;
   bool skeleton=false;
-  bool jointLimits=true;
   bool showTimeline=false;
+
+  jointLimits=true;
   loop=true;
   protectFirstFrame=true;
   lastPath=QString::null;
@@ -642,6 +643,7 @@ void qavimator::fileNew()
   timeline->setAnimation(anim);
   selectAnimation(anim);
   addToOpenFiles(UNTITLED_NAME);
+  anim->useRotationLimits(jointLimits);
 
   // FIXME: code duplication
   connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
@@ -713,6 +715,7 @@ void qavimator::fileAdd(const QString& name)
       animationView->addAnimation(anim);
       timeline->setAnimation(anim);
       selectAnimation(anim);
+      anim->useRotationLimits(jointLimits);
 
       // set the frame
       if (animationView->getAnimation(1))
@@ -914,9 +917,14 @@ void qavimator::optionsLoop(bool on)
 // Menu Action: Options / Joint Limits
 void qavimator::optionsJointLimits(bool on)
 {
-  animationView->getAnimation()->useRotationLimits(on);
-  animationView->repaint();
-  updateInputs();
+  jointLimits=on;
+  Animation* anim=animationView->getAnimation();
+  if(anim)
+  {
+    anim->useRotationLimits(on);
+    animationView->repaint();
+    updateInputs();
+  }
 }
 
 // Menu Action: Oprions / Protect First Frame

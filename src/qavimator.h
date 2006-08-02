@@ -162,6 +162,7 @@ class qavimator : public MainApplicationForm
 
     bool playing;
     bool loop;
+    bool jointLimits;
     bool frameDataValid;
     // if set the first frame of an animation is protected
     bool protectFirstFrame;
