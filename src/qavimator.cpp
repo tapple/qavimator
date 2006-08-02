@@ -127,6 +127,7 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   timelineView->addChild(timeline);
 
   connect(timeline,SIGNAL(positionCenter(int)),timelineView,SLOT(scrollTo(int)));
+  connect(timeline,SIGNAL(trackClicked(int)),animationView,SLOT(selectPart(int)));
 
   xSlider->setPageStep(10*PRECISION);
   ySlider->setPageStep(10*PRECISION);

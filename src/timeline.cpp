@@ -251,6 +251,7 @@ void Timeline::mousePressEvent(QMouseEvent* e)
     dragging=true;
     // highlight keyframe
     drawKeyframe(trackSelected,frameSelected);
+    emit trackClicked(trackSelected);
   }
   // remember mouse button state
   leftMouseButton=true;

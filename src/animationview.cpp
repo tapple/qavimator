@@ -957,6 +957,11 @@ const QString& AnimationView::getSelectedPropName()
   return QString::null;
 }
 
+void AnimationView::selectPart(int partNum)
+{
+  selectPart(getPartName(partNum));
+}
+
 void AnimationView::selectPart(const char *part)
 {
   // make sure no prop is selected anymore

@@ -45,6 +45,7 @@ class Timeline : public QWidget
 
   signals:
     void positionCenter(int pos);
+    void trackClicked(int track);
 
   public slots:
     void setCurrentFrame(int frame);
