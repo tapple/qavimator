@@ -310,8 +310,8 @@ void AnimationView::initializeGL()
 {
   GLfloat position0 [] = { 0.0, 80.0, 100.0, 1.0 };
   GLfloat ambient0[] = { 0.2, 0.2, 0.2, 1 };
-  GLfloat diffuse0[] = { .5, .5, .5, 0.2 };
-  GLfloat specular0[] = { 0.5, 0.5, 0.2, 0.5 };
+//  GLfloat diffuse0[] = { .5, .5, .5, 0.2 };
+//  GLfloat specular0[] = { 0.5, 0.5, 0.2, 0.5 };
 
   GLfloat position1 [] = { 0.0, 80.0, -100.0, 1.0 };
   GLfloat ambient1[] = { 0.2, 0.2, 0.2, 1 };
@@ -383,7 +383,7 @@ int AnimationView::pickPart(int x, int y)
   GLuint *p, num, name = 0;
   GLint hits;
   GLint viewport[4];
-  GLint depth = ~0;
+  GLuint depth = ~0;
 
   glGetIntegerv (GL_VIEWPORT, viewport);
   glSelectBuffer (bufSize, selectBuf);
@@ -410,7 +410,7 @@ int AnimationView::pickPart(int x, int y)
       name = *(p+2);
     }
     p+=2;
-    for (int j=0; j < num; j++) { *(p++); }
+    for (unsigned int j=0; j < num; j++) { *(p++); }
   }
 
   free(selectBuf);
@@ -496,7 +496,7 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
   }
   else
   {
-    int oldPart=partHighlighted;
+    unsigned int oldPart=partHighlighted;
     partHighlighted=pickPart(event->x(),event->y());
     if(oldPart!=partHighlighted) repaint();
   }
@@ -509,13 +509,11 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     leftMouseButton=true;
     // hide mouse cursor to avoid confusion
     setCursor(QCursor(Qt::BlankCursor));
-    // remember old selection, in case we detect a prop drag later
-    int oldSelected=propSelected;
     // remember mouse position for dragging
     clickPos=QCursor::pos();
 
     // check out which part or prop has been clicked
-    int selected=pickPart(event->x(),event->y());
+    unsigned int selected=pickPart(event->x(),event->y());
 
     // if another part than the current one has been clicked, switch off mirror mode
     if(selected!=partSelected) animation->setMirrored(false);
@@ -710,30 +708,33 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
     }
     if (joints->type == BVH_ROOT) {
       for (int i=0; i<motion->numChannels; i++) {
-	value = motion->frame[frame][i];
-	switch(motion->channelType[i]) {
-	case BVH_XPOS: glTranslatef(value, 0, 0); break;
-	case BVH_YPOS: glTranslatef(0, value, 0); break;
-	case BVH_ZPOS: glTranslatef(0, 0, value); break;
-	}
+        value = motion->frame[frame][i];
+        switch(motion->channelType[i]) {
+          case BVH_XPOS: glTranslatef(value, 0, 0); break;
+          case BVH_YPOS: glTranslatef(0, value, 0); break;
+          case BVH_ZPOS: glTranslatef(0, 0, value); break;
+          default: break;
+        }
       }
     }
     for (int i=0; i<motion->numChannels; i++) {
       if (motion->ikOn)
-	value = motion->frame[frame][i] + motion->ikRot[i];
+        value = motion->frame[frame][i] + motion->ikRot[i];
       else
-	value = motion->frame[frame][i];
+        value = motion->frame[frame][i];
       switch(motion->channelType[i]) {
-      case BVH_XROT: glRotatef(value, 1, 0, 0); break;
-      case BVH_YROT: glRotatef(value, 0, 1, 0);	break;
-      case BVH_ZROT: glRotatef(value, 0, 0, 1);	break;
+        case BVH_XROT: glRotatef(value, 1, 0, 0); break;
+        case BVH_YROT: glRotatef(value, 0, 1, 0); break;
+        case BVH_ZROT: glRotatef(value, 0, 0, 1); break;
+        default: break;
       }
       if (mode == MODE_ROT_AXES && !selecting && partSelected == selectName) {
-	switch(motion->channelType[i]) {
-	case BVH_XROT: drawCircle(0, 10, xSelect ? 4 : 1); break;
-	case BVH_YROT: drawCircle(1, 10, ySelect ? 4 : 1); break;
-	case BVH_ZROT: drawCircle(2, 10, zSelect ? 4 : 1); break;
-	}
+        switch(motion->channelType[i]) {
+          case BVH_XROT: drawCircle(0, 10, xSelect ? 4 : 1); break;
+          case BVH_YROT: drawCircle(1, 10, ySelect ? 4 : 1); break;
+          case BVH_ZROT: drawCircle(2, 10, zSelect ? 4 : 1); break;
+          default: break;
+        }
       }
     }
     if (mode == MODE_PARTS) {

@@ -162,26 +162,28 @@ void Animation::setIK(IKPartType part, bool flag)
   ikOn[part] = flag;
   if (flag) {
     switch (part) {
-    case IK_LHAND: ikTree.setGoal(frame, "lHand"); break;
-    case IK_RHAND: ikTree.setGoal(frame, "rHand"); break;
-    case IK_LFOOT: ikTree.setGoal(frame, "lFoot"); break;
-    case IK_RFOOT: ikTree.setGoal(frame, "rFoot"); break;
+      case IK_LHAND: ikTree.setGoal(frame, "lHand"); break;
+      case IK_RHAND: ikTree.setGoal(frame, "rHand"); break;
+      case IK_LFOOT: ikTree.setGoal(frame, "lFoot"); break;
+      case IK_RFOOT: ikTree.setGoal(frame, "rFoot"); break;
+      default: break;
     }
   }
   else {
     switch (part) {
-    case IK_LHAND:
-      applyIK("lHand");applyIK("lForeArm");
-      applyIK("lShldr");applyIK("lCollar");
-      if (!ikOn[IK_RHAND]) { applyIK("chest");applyIK("abdomen"); }
-      break;
-    case IK_RHAND:
-      applyIK("rHand");applyIK("rForeArm");
-      applyIK("rShldr");applyIK("rCollar");
-      if (!ikOn[IK_LHAND]) { applyIK("chest");applyIK("abdomen"); }
-      break;
-    case IK_LFOOT: applyIK("lThigh");applyIK("lShin");applyIK("lFoot");break;
-    case IK_RFOOT: applyIK("rThigh");applyIK("rShin");applyIK("rFoot");break;
+      case IK_LHAND:
+        applyIK("lHand");applyIK("lForeArm");
+        applyIK("lShldr");applyIK("lCollar");
+        if (!ikOn[IK_RHAND]) { applyIK("chest");applyIK("abdomen"); }
+        break;
+      case IK_RHAND:
+        applyIK("rHand");applyIK("rForeArm");
+        applyIK("rShldr");applyIK("rCollar");
+        if (!ikOn[IK_LHAND]) { applyIK("chest");applyIK("abdomen"); }
+        break;
+      case IK_LFOOT: applyIK("lThigh");applyIK("lShin");applyIK("lFoot");break;
+      case IK_RFOOT: applyIK("rThigh");applyIK("rShin");applyIK("rFoot");break;
+      default: break;
     }
   }
 }

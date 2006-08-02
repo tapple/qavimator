@@ -1172,7 +1172,7 @@ void qavimator::updatePropSpins(const Prop* prop)
   propZScaleSpin->blockSignals(false);
 }
 
-void qavimator::propPosChanged(int dummy)
+void qavimator::propPosChanged(int /* dummy */)
 {
   QString propName=propNameCombo->currentText();
   Prop* prop=animationView->getPropByName(propName);
@@ -1183,7 +1183,7 @@ void qavimator::propPosChanged(int dummy)
   }
 }
 
-void qavimator::propScaleChanged(int dummy)
+void qavimator::propScaleChanged(int /* dummy */)
 {
   QString propName=propNameCombo->currentText();
   Prop* prop=animationView->getPropByName(propName);
@@ -1194,7 +1194,7 @@ void qavimator::propScaleChanged(int dummy)
   }
 }
 
-void qavimator::propRotChanged(int dummy)
+void qavimator::propRotChanged(int /* dummy */)
 {
   QString propName=propNameCombo->currentText();
   Prop* prop=animationView->getPropByName(propName);

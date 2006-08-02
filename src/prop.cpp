@@ -73,7 +73,7 @@ void Prop::draw(State state) const
 
   QPtrList<Vertex> vertices=getVertices(type);
 
-  for(int index=0;index<vertices.count();index++)
+  for(unsigned int index=0;index<vertices.count();index++)
   {
     Vertex* v=vertices.at(index);
     glVertex3f(v->x()*xs,

@@ -57,7 +57,7 @@ class Animation : public QObject
   int getPartIndex(const char *part);
   void setMirrored(bool mirror) { mirrored = mirror; }
   bool getMirrored() { return mirrored; }
-  int getPartMirror(int index) { return partMirror[index]; }
+  unsigned int getPartMirror(int index) { return partMirror[index]; }
   const char *getPartMirror(const char *name);
   BVHNode *getMotion() { return frames; }
   BVHNode *getEndSite(const char *siteParentName);
@@ -103,7 +103,7 @@ class Animation : public QObject
   int frame;
   int loopingPoint;
   bool mirrored;
-  int partMirror[ MAX_PARTS + 1 ];
+  unsigned int partMirror[ MAX_PARTS + 1 ];
   bool limits;
   bool ikOn[NUM_IK];
   IKTree ikTree;

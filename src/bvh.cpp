@@ -20,10 +20,16 @@
  */
 
 #include <iostream>
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "bvh.h"
+
+static char bvhTypeName[3][6] = { "ROOT", "JOINT", "End" };
+static char bvhChannelName[6][10] =
+  { "Xposition", "Yposition", "Zposition",
+    "Xrotation", "Yrotation", "Zrotation"};
 
 char tokenBuf[1024];
 int nodeCount;
@@ -34,7 +40,7 @@ char *token(FILE *f)
     fprintf(stderr, "Bad BVH file: Premature EOF\n");
     return "";
   }
-  fscanf(f, "%s", tokenBuf);
+  if(fscanf(f, "%s", tokenBuf)); // fix compiler warning
   return tokenBuf;
 }
 
@@ -159,11 +165,11 @@ void parseLimFile(BVHNode *root, const char *limFile)
 
   while (!feof(f)) {
     int i;
-    fscanf(f, "%s %lf", name, &weight);
+    if(fscanf(f, "%s %lf", name, &weight)); // fix compiler warning
     node = bvhFindNode(root, name);
     node->ikWeight = weight;
     for (i=0; i<3; i++) {
-      fscanf (f, "%s %lf %lf", channel, &min, &max);
+      if(fscanf (f, "%s %lf %lf", channel, &min, &max)); // fix compiler warning
       switch (channel[0]) {
       case 'X': setChannelLimits(node, BVH_XROT, min, max); break;
       case 'Y': setChannelLimits(node, BVH_YROT, min, max); break;
@@ -201,8 +207,9 @@ BVHNode *bvhRead(const char *file)
 {
   FILE *f = fopen(file, "rt");
   BVHNode *root;
-  BVHNode *node[128];
-  int numNodes, numFrames;
+//  BVHNode *node[128];
+//  int numNodes;
+  int numFrames;
   int i;
 
   if (!f) {
@@ -247,8 +254,9 @@ BVHNode *avmRead(const char *file)
 {
   FILE *f = fopen(file, "rt");
   BVHNode *root;
-  BVHNode *node[128];
-  int numNodes, numFrames;
+//  BVHNode *node[128];
+//  int numNodes;
+  int numFrames;
   int i;
 
   if (!f) {

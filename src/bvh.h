@@ -32,11 +32,6 @@ typedef enum { BVH_ROOT=0, BVH_JOINT=1, BVH_END=2 } BVHNodeType;
 typedef enum { BVH_XPOS, BVH_YPOS, BVH_ZPOS, BVH_XROT, BVH_YROT, BVH_ZROT } BVHChannelType;
 typedef enum { BVH_XYZ=1, BVH_ZYX, BVH_XZY, BVH_YZX, BVH_YXZ, BVH_ZXY} BVHOrderType;
 
-static char bvhTypeName[3][6] = { "ROOT", "JOINT", "End" };
-static char bvhChannelName[6][10] = 
-  { "Xposition", "Yposition", "Zposition", 
-    "Xrotation", "Yrotation", "Zrotation"};
-
 typedef struct _BVHNode {
   char name[64];
   BVHNodeType type;
@@ -56,8 +51,8 @@ typedef struct _BVHNode {
   int numKeyFrames;
   int keyFrames[MAX_FRAMES];
   double frameTime;
-  int numChildren;  
-  struct _BVHNode *child[16];  
+  int numChildren;
+  struct _BVHNode *child[16];
 } BVHNode;
 
 BVHNode *bvhRead(const char *file);
@@ -65,7 +60,7 @@ void bvhWrite(BVHNode *root, const char *file);
 BVHNode *bvhFindNode(BVHNode *root, const char *name);
 void bvhSetChannel(BVHNode *node, int frame, BVHChannelType type, double val);
 double bvhGetChannel(BVHNode *node, int frame, BVHChannelType type);
-void bvhGetChannelLimits(BVHNode *node, BVHChannelType type, 
+void bvhGetChannelLimits(BVHNode *node, BVHChannelType type,
 			 double *min, double *max);
 void bvhResetIK(BVHNode *root);
 //double bvhGetOffset(BVHNode *node, double *x, double *y, double *z);
