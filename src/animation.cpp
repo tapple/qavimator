@@ -625,14 +625,14 @@ const int Animation::numKeyFrames(int jointNumber)
 }
 
 // copies the position and rotation data of one body part to another key frame position
-void Animation::copyKeyframe(int jointNumber,int from,int to)
+void Animation::copyKeyFrame(int jointNumber,int from,int to)
 {
   // move keyframe in copy mode
-  moveKeyframe(jointNumber,from,to,true);
+  moveKeyFrame(jointNumber,from,to,true);
 }
 
 // moves the position and rotation data of one body part to another key frame position
-void Animation::moveKeyframe(int jointNumber,int from,int to,bool copy)
+void Animation::moveKeyFrame(int jointNumber,int from,int to,bool copy)
 {
   // set frame pointer to source frame position
   setFrame(from);

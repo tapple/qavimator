@@ -285,10 +285,10 @@ void Timeline::mouseMoveEvent(QMouseEvent* e)
       if(shift)
       {
         shift=false;
-        animation->copyKeyframe(trackSelected,frameSelected,frame);
+        animation->copyKeyFrame(trackSelected,frameSelected,frame);
       }
       else
-        animation->moveKeyframe(trackSelected,frameSelected,frame);
+        animation->moveKeyFrame(trackSelected,frameSelected,frame);
 
       // remember new position
       frameSelected=frame;

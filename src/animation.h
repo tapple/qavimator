@@ -84,8 +84,8 @@ class Animation : public QObject
 
   const int* keyFrames(int jointNumber);
   const int numKeyFrames(int jointNumber);
-  void copyKeyframe(int jointNumber,int from,int to);
-  void moveKeyframe(int jointNumber,int from,int to,bool copy=false);
+  void copyKeyFrame(int jointNumber,int from,int to);
+  void moveKeyFrame(int jointNumber,int from,int to,bool copy=false);
 
   static bool isSecondLifeJoint(BVHNode *joint);
 
