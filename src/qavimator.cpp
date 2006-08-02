@@ -1151,9 +1151,9 @@ void qavimator::updatePropSpins(const Prop* prop)
   propYRotSpin->blockSignals(true);
   propZRotSpin->blockSignals(true);
 
-  propXRotSpin->setValue((int)(prop->xr));
-  propYRotSpin->setValue((int)(prop->yr));
-  propZRotSpin->setValue((int)(prop->zr));
+  propXRotSpin->setValue((int)(360+prop->xr) % 360);
+  propYRotSpin->setValue((int)(360+prop->yr) % 360);
+  propZRotSpin->setValue((int)(360+prop->zr) % 360);
 
   propXRotSpin->blockSignals(false);
   propYRotSpin->blockSignals(false);
