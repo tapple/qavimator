@@ -41,12 +41,16 @@ Timeline::Timeline(QWidget *parent, const char *name)
   animation=0;
   setCurrentFrame(0);
   setCaption(tr("Timeline"));
+
   leftMouseButton=false;
+  shift=false;
+
   dragging=0;
   trackSelected=0;
   frameSelected=0;
 
   tracks.clear();
+  setFocusPolicy(QWidget::StrongFocus);
 }
 
 Timeline::~Timeline()
@@ -268,23 +272,46 @@ void Timeline::mouseMoveEvent(QMouseEvent* e)
 {
   // calculate new position (in frames)
   int frame=(e->x()-LEFT_STRUT)/KEY_WIDTH;
+
+  // if frame position has not changed, do nothing
+  if(frame==frameSelected) return;
+
   // special treatment if user is dragging a keyframe
   if(dragging)
   {
     // if user is dragging a keyframe, move it within more restrictive bounds
     if(frame>0 && frame<(numOfFrames-1))
     {
-      animation->moveKeyframe(trackSelected,frameSelected,frame);
+      if(shift)
+      {
+        shift=false;
+        animation->copyKeyframe(trackSelected,frameSelected,frame);
+      }
+      else
+        animation->moveKeyframe(trackSelected,frameSelected,frame);
+
       // remember new position
       frameSelected=frame;
     }
   }
-  // no dragging so check if new position would be out of bounds or has changed at all
-  else if(frame>=0 && frame<numOfFrames && frame!=frameSelected)
+  // no dragging so check if new position would be out of bounds
+  else if(frame>=0 && frame<numOfFrames)
   {
     // set the new position
     animation->setFrame(frame);
     // remember new position
     frameSelected=frame;
   }
+}
+
+void Timeline::keyPressEvent(QKeyEvent* e)
+{
+  if(e->key()==Qt::Key_Shift) shift=true;
+  e->ignore();
+}
+
+void Timeline::keyReleaseEvent(QKeyEvent* e)
+{
+  if(e->key()==Qt::Key_Shift) shift=false;
+  e->ignore();
 }

@@ -88,7 +88,7 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   objectNum=0;
   setFigure(figType);
   if(anim) setAnimation(anim);
-  setMouseTracking(1);
+  setMouseTracking(true);
   setFocusPolicy(QWidget::StrongFocus);
 }
 
@@ -630,6 +630,7 @@ void AnimationView::keyPressEvent(QKeyEvent* event)
       repaint();
       break;
   }
+  event->ignore();
 }
 
 void AnimationView::keyReleaseEvent(QKeyEvent* event)
@@ -652,6 +653,7 @@ void AnimationView::keyReleaseEvent(QKeyEvent* event)
       repaint();
       break;
   }
+  event->ignore();
 }
 
 void AnimationView::drawFigure(Animation* anim,unsigned int index)
