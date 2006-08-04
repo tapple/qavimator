@@ -280,7 +280,7 @@ bool AnimationView::inAnimList(Animation *anim)
 
 void AnimationView::setProjection()
 {
-  gluPerspective(60.0, ((float)width())/height(), 0.01, 2000);
+  gluPerspective(60.0, ((float)width())/height(), 1, 2000);
 }
 
 void AnimationView::setBodyMaterial()
