@@ -2514,6 +2514,45 @@
         <slot>attachToComboBoxChanged(int)</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>animationView</tabstop>
+    <tabstop>avatarPropsTab</tabstop>
+    <tabstop>selectAnimationCombo</tabstop>
+    <tabstop>figureCombo</tabstop>
+    <tabstop>editPartCombo</tabstop>
+    <tabstop>xRotationEdit</tabstop>
+    <tabstop>xSlider</tabstop>
+    <tabstop>yRotationEdit</tabstop>
+    <tabstop>ySlider</tabstop>
+    <tabstop>zRotationEdit</tabstop>
+    <tabstop>zSlider</tabstop>
+    <tabstop>xPositionEdit</tabstop>
+    <tabstop>xPositionSlider</tabstop>
+    <tabstop>yPositionEdit</tabstop>
+    <tabstop>yPositionSlider</tabstop>
+    <tabstop>zPositionEdit</tabstop>
+    <tabstop>zPositionSlider</tabstop>
+    <tabstop>timelineView</tabstop>
+    <tabstop>positionSlider</tabstop>
+    <tabstop>playButton</tabstop>
+    <tabstop>keyframeButton</tabstop>
+    <tabstop>loopSpinBox</tabstop>
+    <tabstop>framesSpin</tabstop>
+    <tabstop>fpsSpin</tabstop>
+    <tabstop>propNameCombo</tabstop>
+    <tabstop>newPropButton</tabstop>
+    <tabstop>deletePropButton</tabstop>
+    <tabstop>attachToComboBox</tabstop>
+    <tabstop>propXPosSpin</tabstop>
+    <tabstop>propYPosSpin</tabstop>
+    <tabstop>propZPosSpin</tabstop>
+    <tabstop>propXScaleSpin</tabstop>
+    <tabstop>propYScaleSpin</tabstop>
+    <tabstop>propZScaleSpin</tabstop>
+    <tabstop>propXRotSpin</tabstop>
+    <tabstop>propYRotSpin</tabstop>
+    <tabstop>propZRotSpin</tabstop>
+</tabstops>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
