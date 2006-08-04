@@ -441,10 +441,12 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
     }
     else if(propDragging)
     {
+      float rot=camera.yRotation();
       Prop* prop=getPropById(propSelected);
 
       if(propDragging==DRAG_HANDLE_X)
       {
+        if(rot > 90 && rot < 270) dragX=-dragX;
         emit propDragged(prop,(double) dragX/10.0,0,0);
       }
       else if(propDragging==DRAG_HANDLE_Y)
@@ -453,14 +455,17 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       }
       else if(propDragging==DRAG_HANDLE_Z)
       {
+        if(rot > 90 && rot < 270) dragY=-dragY;
         emit propDragged(prop,0,0,(double) dragY/10.0);
       }
       else if(propDragging==SCALE_HANDLE_X)
       {
+        if(rot > 90 && rot < 270) dragX=-dragX;
         emit propScaled(prop,(double) dragX/10.0,0,0);
       }
       else if(propDragging==SCALE_HANDLE_Y)
       {
+        if(rot > 90 && rot < 270) dragY=-dragY;
         emit propScaled(prop,0,(double) -dragY/10.0,0);
       }
       else if(propDragging==SCALE_HANDLE_Z)

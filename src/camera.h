@@ -34,6 +34,9 @@ public:
   void setModelView();
   void reset();
 
+  float xRotation() const;
+  float yRotation() const;
+
  private:
   float rotX, rotY;
   float panX, panY, panZ;

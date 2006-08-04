@@ -38,6 +38,8 @@ void Camera::rotate(float x, float y)
   if (rotX < 2) rotX = 2;
   if (rotX > 80) rotX = 80;
   rotY += y;
+  if (rotY < 0) rotY += 360;
+  if (rotY > 360) rotY -= 360;
 }
 
 void Camera::pan(float x, float y, float z)
@@ -69,4 +71,14 @@ void Camera::reset()
   panX = 0;
   panY = 40;
   panZ = 100;
+}
+
+float Camera::xRotation() const
+{
+  return rotX;
+}
+
+float Camera::yRotation() const
+{
+  return rotY;
 }
