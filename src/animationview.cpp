@@ -422,10 +422,27 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
   if(leftMouseButton)
   {
     QPoint dragPos=QCursor::pos();
-    QCursor::setPos(clickPos);
 
-    dragX=dragPos.x()-clickPos.x();
-    dragY=dragPos.y()-clickPos.y();
+    // since MacOSX doesn't like the old "drag and snap back" solution, we're going for a
+    // more elaborate solution
+
+    // calculate drag distance from last dragging point
+    dragX=dragPos.x()-oldDragX;
+    dragY=dragPos.y()-oldDragY;
+
+    // remember the current position as last dragging point
+    oldDragX=dragPos.x();
+    oldDragY=dragPos.y();
+
+    // if mouse has moved sufficiently far enough from first clicking position ...
+    if(abs(clickPos.x()-dragPos.x())>100 || abs(clickPos.y()-dragPos.y())>100)
+    {
+      // set remembered drag position back to first click position
+      oldDragX=clickPos.x();
+      oldDragY=clickPos.y();
+      // set mouse cursor back to first click position
+      QCursor::setPos(clickPos);
+    }
 
     if (partSelected) {
 
@@ -514,9 +531,18 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     leftMouseButton=true;
     // hide mouse cursor to avoid confusion
     setCursor(QCursor(Qt::BlankCursor));
-    // remember mouse position for dragging
-    clickPos=QCursor::pos();
 
+    // MacOSX didn't like our old "move and snap back" solution, so here goes another
+
+    // remember mouse position to return to
+    returnPos=QCursor::pos();
+    // place mouse in the center of our view to avoid slamming against the screen border
+    QCursor::setPos(mapToGlobal(QPoint(width()/2,height()/2)));
+    // remember new mouse position for dragging
+    clickPos=QCursor::pos();
+    // put in position for distance calculation
+    oldDragX=clickPos.x();
+    oldDragY=clickPos.y();
     // check out which part or prop has been clicked
     unsigned int selected=pickPart(event->x(),event->y());
 
@@ -577,6 +603,8 @@ void AnimationView::mouseReleaseEvent(QMouseEvent* event)
 {
   if(event->button()==LeftButton)
   {
+    // move mouse cursor back to the beginning of the dragging process
+    QCursor::setPos(returnPos);
     // show mouse cursor again
     setCursor(Qt::ArrowCursor);
     leftMouseButton=false;

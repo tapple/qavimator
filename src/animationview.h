@@ -145,6 +145,7 @@ class AnimationView : public QGLWidget
 
     QPtrList<Prop> propList;
     QPoint clickPos;           // holds the mouse click position for dragging
+    QPoint returnPos;          // holds the mouse position to return to after dragging
 
     virtual void paintGL();
     virtual void paintOverlayGL();
@@ -188,7 +189,10 @@ class AnimationView : public QGLWidget
     unsigned int partSelected;
     unsigned int propSelected;  // needs an own variable, because we will drag the handle, not the prop
     unsigned int propDragging;  // holds the actual drag handle id
-    int dragX, dragY;
+
+    int dragX, dragY;           // holds the last mouse drag offset
+    int oldDragX, oldDragY;     // holds the mouse position before the last drag
+
     int drawMode;
     bool xSelect, ySelect, zSelect;
     FigureType figType;
