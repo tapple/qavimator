@@ -19,8 +19,8 @@
  ***************************************************************************/
 
 #ifdef MACOSX
-#include <OpenGL/glu.h>
-#include <OpenGL/glut.h>
+#include <glu.h>
+#include <glut.h>
 #else
 #include <GL/glu.h>
 #include <GL/glut.h>

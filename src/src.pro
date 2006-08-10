@@ -48,4 +48,13 @@ warn_on \
 qt \
 opengl \
 thread
+
+macx {
+DEFINES += MACOSX
+LIBS += -framework OpenGL -framework AGL -framework GLUT -bind_at_load
+LIBS -= -lGLU -lglut
+INCLUDEPATH += /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers
+QMAKE_POST_LINK += sh fixbundle.sh
+}
+
 TEMPLATE = app

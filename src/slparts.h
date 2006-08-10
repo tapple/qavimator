@@ -23,7 +23,7 @@
 #define SLPARTS_H
 
 #ifdef MACOSX
-#include <OpenGL/glu.h>
+#include <glu.h>
 #else
 #include <GL/glu.h>
 #endif
