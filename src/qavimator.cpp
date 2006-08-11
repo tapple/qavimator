@@ -643,6 +643,8 @@ void qavimator::fileNew()
   timeline->setAnimation(anim);
   selectAnimation(anim);
   addToOpenFiles(UNTITLED_NAME);
+  animationIds.append((unsigned long) anim);
+
   anim->useRotationLimits(jointLimits);
 
   // FIXME: code duplication
@@ -709,6 +711,7 @@ void qavimator::fileAdd(const QString& name)
     {
       addToOpenFiles(file);
       Animation* anim=new Animation(file);
+      animationIds.append((unsigned long) anim);
 
       setCurrentFile(file);
       lastPath=fileInfo.dirPath(false);
@@ -1069,6 +1072,7 @@ void qavimator::clearOpenFiles()
     animationView->clear();
     openFiles.clear();
     selectAnimationCombo->clear();
+    animationIds.clear();
 }
 
 // convenience function to set window title in a defined way
@@ -1237,12 +1241,12 @@ void qavimator::clearProps()
   selectProp(QString::null);
 }
 
+// gets called from AnimationView::animationSelected()
 void qavimator::selectAnimation(Animation* animation)
 {
-  /* FIXME:
-  for(int index=0;index<selectAnimationCombo->count();index++)
-    if(selectAnimationCombo->text(index)==animation->name())selectAnimationCombo->setCurrentItem(index);
-    */
+  for(unsigned int index=0;index<animationIds.count();index++)
+    if(animationIds[index]==(unsigned long) animation) selectAnimationCombo->setCurrentItem(index);
+
   timeline->setAnimation(animation);
   updateInputs();
 }

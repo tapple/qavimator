@@ -157,6 +157,8 @@ class qavimator : public MainApplicationForm
     // last path used for open or save
     QString lastPath;
     QTimer timer;
+    // list of animation ids mapped to combo box indexes
+    QValueList<unsigned long> animationIds;
 
     Timeline* timeline;
 
