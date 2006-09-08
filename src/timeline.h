@@ -25,6 +25,14 @@
 
 #include "keyframelist.h"
 
+#define KEY_WIDTH   10
+#define KEY_HEIGHT  10
+#define LINE_HEIGHT 11
+#define LEFT_STRUT  55
+
+// FIXME: find out at runtime
+#define NUM_PARTS 25
+
 /**
   @author Zi Ree
 */
@@ -46,6 +54,8 @@ class Timeline : public QWidget
   signals:
     void positionCenter(int pos);
     void trackClicked(int track);
+    void resized(const QSize& newSize);
+    void animationChanged(Animation* anim);
 
   public slots:
     void setCurrentFrame(int frame);

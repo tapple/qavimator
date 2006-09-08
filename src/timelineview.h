@@ -21,13 +21,41 @@
 #ifndef TIMELINEVIEW_H
 #define TIMELINEVIEW_H
 
-#include <qscrollview.h>
+#include <qframe.h>
 
 /**
   @author Zi Ree
 */
 
-class TimelineView : public QScrollView
+class QScrollView;
+class Timeline;
+class Animation;
+
+class TimelineTracks : public QWidget
+{
+  public:
+    TimelineTracks(QWidget* parent=0,const char* name=0,WFlags f=0);
+    ~TimelineTracks();
+
+    virtual void repaint();
+    virtual QSize sizeHint() const;
+
+    void drawTrack(const QString& name,int num);
+    void setAnimation(Animation* anim);
+
+  protected:
+    Animation* animation;
+    virtual void paintEvent(QPaintEvent* event);
+};
+
+class TimelineMarker : public QWidget
+{
+  public:
+    TimelineMarker(QWidget* parent=0,const char* name=0,WFlags f=0);
+    ~TimelineMarker();
+};
+
+class TimelineView : public QFrame
 {
   Q_OBJECT
 
@@ -35,8 +63,18 @@ class TimelineView : public QScrollView
     TimelineView(QWidget* parent=0,const char* name=0,WFlags f=0);
     ~TimelineView();
 
-  public slots:
+    Timeline* getTimeline() const;
+
+  protected slots:
     void scrollTo(int x);
+    void doResize(const QSize& newSize);
+    void setAnimation(Animation* anim);
+
+  protected:
+    QScrollView* view;
+    Timeline* timeline;
+    TimelineTracks* timelineTracks;
+    TimelineMarker* marker;
 };
 
 #endif

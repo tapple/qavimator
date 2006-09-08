@@ -1,10 +1,10 @@
-# Diese Datei wurde mit dem qmake-Manager von KDevelop erstellt. 
-# ------------------------------------------- 
+# Diese Datei wurde mit dem qmake-Manager von KDevelop erstellt.
+# -------------------------------------------
 # Unterordner relativ zum Projektordner: ./src
 # Das Target ist eine Anwendung:  ../bin/qavimator
 
-FORMS += mainapplicationform.ui 
-IDLS += mainapplicationform.ui 
+FORMS += mainapplicationform.ui
+IDLS += mainapplicationform.ui
 HEADERS += qavimator.h \
            animationview.h \
            animation.h \
@@ -17,7 +17,7 @@ HEADERS += qavimator.h \
            prop.h \
            timeline.h \
            timelineview.h \
-           keyframelist.h 
+           keyframelist.h
 SOURCES += qavimator.cpp \
            main.cpp \
            animationview.cpp \
@@ -32,7 +32,7 @@ SOURCES += qavimator.cpp \
            prop.cpp \
            timeline.cpp \
            timelineview.cpp \
-           keyframelist.cpp 
+           keyframelist.cpp
 mainapplicationform.ui.target = mainapplicationform.ui
 mainapplicationform.ui.commands = $$IDL_COMPILER
 QT = qt3support

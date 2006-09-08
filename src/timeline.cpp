@@ -25,14 +25,6 @@
 #include "animation.h"
 #include "keyframelist.h"
 
-#define KEY_WIDTH   10
-#define KEY_HEIGHT  10
-#define LINE_HEIGHT 11
-#define LEFT_STRUT  55
-
-// FIXME: find out at runtime
-#define NUM_PARTS 25
-
 Timeline::Timeline(QWidget *parent, const char *name)
  : QWidget(parent, name)
 {
@@ -69,13 +61,16 @@ void Timeline::repaint()
 
   if(!animation) return;
 
-  resize(numOfFrames*KEY_WIDTH+LEFT_STRUT,(NUM_PARTS-1)*LINE_HEIGHT);
+  QSize newSize=QSize(numOfFrames*KEY_WIDTH,(NUM_PARTS-1)*LINE_HEIGHT);
 
-  drawPosition();
+  resize(newSize);
+  emit resized(newSize);
+
   for(int part=1;part<NUM_PARTS;part++)
   {
     drawTrack(part);
   } // for
+  drawPosition();
 }
 
 void Timeline::setNumberOfFrames(int frames)
@@ -100,7 +95,7 @@ void Timeline::setNumberOfFrames(int frames)
 
 void Timeline::setCurrentFrame(int frame)
 {
-  drawPosition();
+//  drawPosition();
   currentFrame=frame;
   drawPosition();
 }
@@ -127,19 +122,28 @@ void Timeline::setAnimation(Animation* anim)
     numOfFrames=animation->getNumberOfFrames();
   }
 
+  emit animationChanged(anim);
+
   repaint();
 }
 
 void Timeline::drawPosition()
 {
+  emit positionCenter(currentFrame*KEY_WIDTH);
+/*
   p->setRasterOp(Qt::XorROP);
-  p->setPen(QColor("#00ffff"));
+//if(v)  p->setPen(QColor("#ff0000"));
+//else
+   p->setPen(QColor("#00ffff"));
 
-  int xpos=currentFrame*KEY_WIDTH+LEFT_STRUT+KEY_WIDTH/2;
+  int xpos=currentFrame*KEY_WIDTH+KEY_WIDTH/2;
   p->drawLine(xpos,0,xpos,height());
 
   p->setRasterOp(Qt::CopyROP);
-  emit positionCenter(currentFrame*KEY_WIDTH+LEFT_STRUT);
+QString xx=QString::number(xpos);
+if(v) qDebug("Vis "+xx);
+else qDebug("Invis "+xx);
+*/
 }
 
 void Timeline::addKeyframe(int track,int frame)
@@ -150,7 +154,7 @@ void Timeline::addKeyframe(int track,int frame)
   }
   tracks[track][frame]=1;
 
-  drawPosition();
+//  drawPosition();
   drawKeyframe(track,frame);
   drawPosition();
 }
@@ -160,7 +164,9 @@ void Timeline::removeKeyframe(int track,int frame)
   tracks[track].erase(frame);
 
   if(!tracks[track].count()) tracks.erase(track);
+//  drawPosition();
   drawTrack(track);
+  drawPosition();
 }
 
 void Timeline::drawKeyframe(int track,int frame)
@@ -168,7 +174,7 @@ void Timeline::drawKeyframe(int track,int frame)
   p->setPen(Qt::black);
 
   QValueList<int> keys=tracks.keys();
-  drawPosition();
+//  drawPosition();
 
   int ypos=(track-1)*LINE_HEIGHT;
   for(unsigned int index=0;index<keys.count();index++)
@@ -177,14 +183,14 @@ void Timeline::drawKeyframe(int track,int frame)
     {
       p->setPen(Qt::black);
 
-      int xpos=frame*KEY_WIDTH+LEFT_STRUT;
+      int xpos=frame*KEY_WIDTH;
 
       QColor color(Qt::black);
       if(dragging) color=Qt::red;
 
       p->fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
       if(frame>0 && frame!=(numOfFrames-1))
-        p->drawLine(LEFT_STRUT,ypos+KEY_HEIGHT/2,xpos,ypos+KEY_HEIGHT/2);
+        p->drawLine(0,ypos+KEY_HEIGHT/2,xpos,ypos+KEY_HEIGHT/2);
     }
   }
   drawPosition();
@@ -195,15 +201,14 @@ void Timeline::drawTrack(int track)
   QString trackName=animation->getPartName(track);
   if(trackName=="Site") return;
 
-  drawPosition();
+//  drawPosition();
+
+//  emit trackDrawn(trackName,track);
 
   int y=(track-1)*LINE_HEIGHT;
 
   p->setPen(QColor("#000000"));
   p->eraseRect(0,y,width(),LINE_HEIGHT);
-
-  // always draw track name
-  p->drawText(0,y+KEY_HEIGHT,trackName);
 
   const int numKeyFrames=animation->numKeyFrames(track);
 
@@ -215,31 +220,31 @@ void Timeline::drawTrack(int track)
     const int* keyFrames=animation->keyFrames(track);
 
     // first frame is always a key frame
-    p->fillRect(LEFT_STRUT,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
+    p->fillRect(0,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
 
     for(int key=0;key<numKeyFrames;key++)
     {
       int frameNum=keyFrames[key];
       if(frameNum<numOfFrames)
       {
-        int xpos=frameNum*KEY_WIDTH+LEFT_STRUT;
+        int xpos=frameNum*KEY_WIDTH;
         p->fillRect(xpos,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
         if(frameNum>0 && frameNum!=(numOfFrames-1))
-          p->drawLine(LEFT_STRUT,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
+          p->drawLine(0,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
       }
     } // for
 
     // last frame is always a key frame
-    p->fillRect((numOfFrames-1)*KEY_WIDTH+LEFT_STRUT,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
+    p->fillRect((numOfFrames-1)*KEY_WIDTH,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
   }
-  drawPosition();
+//  drawPosition();
 }
 
 void Timeline::mousePressEvent(QMouseEvent* e)
 {
   // get track and frame based on mouse coordinates
   trackSelected=e->y()/LINE_HEIGHT+1;
-  frameSelected=(e->x()-LEFT_STRUT)/KEY_WIDTH;
+  frameSelected=e->x()/KEY_WIDTH;
 
   // set animation frame to where we clicked
   animation->setFrame(frameSelected);
@@ -272,7 +277,7 @@ void Timeline::mouseReleaseEvent(QMouseEvent*)
 void Timeline::mouseMoveEvent(QMouseEvent* e)
 {
   // calculate new position (in frames)
-  int frame=(e->x()-LEFT_STRUT)/KEY_WIDTH;
+  int frame=e->x()/KEY_WIDTH;
 
   // if frame position has not changed, do nothing
   if(frame==frameSelected) return;
