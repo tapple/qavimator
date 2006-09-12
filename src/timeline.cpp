@@ -198,23 +198,35 @@ void Timeline::drawKeyframe(int track,int frame)
 
 void Timeline::drawTrack(int track)
 {
-  QString trackName=animation->getPartName(track);
-  if(trackName=="Site") return;
-
 //  drawPosition();
 
 //  emit trackDrawn(trackName,track);
 
+  int light=0;
   int y=(track-1)*LINE_HEIGHT;
+  for(int x=0;x<width();x+=10*KEY_WIDTH)
+  {
+    QColorGroup::ColorRole cr;
 
-  p->setPen(QColor("#000000"));
-  p->eraseRect(0,y,width(),LINE_HEIGHT);
+    if(light) cr=QColorGroup::Base;
+    else cr=QColorGroup::Background;
+
+    p->fillRect(x,y,x+10*KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,QColorGroup::Background).dark(100+5*light));
+    light=1-light;
+  }
+
+  QString trackName=animation->getPartName(track);
+  if(trackName=="Site") return;
+
+  p->fillRect(0,y+LINE_HEIGHT/2,width(),1,palette().color(QPalette::Active,QColorGroup::Background).dark(115));
+//  p->eraseRect(0,y,width(),LINE_HEIGHT);
 
   const int numKeyFrames=animation->numKeyFrames(track);
 
   // TODO: switch over to something like this
   /*  KeyframeList keyFrames=tracks[track];
   const int numKeyFrames=keyFrames.count();*/
+  p->setPen(QColor("#000000"));
   if(numKeyFrames)
   {
     const int* keyFrames=animation->keyFrames(track);
@@ -222,6 +234,7 @@ void Timeline::drawTrack(int track)
     // first frame is always a key frame
     p->fillRect(0,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
 
+    int oldFrame=0;
     for(int key=0;key<numKeyFrames;key++)
     {
       int frameNum=keyFrames[key];
@@ -230,8 +243,12 @@ void Timeline::drawTrack(int track)
         int xpos=frameNum*KEY_WIDTH;
         p->fillRect(xpos,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
         if(frameNum>0 && frameNum!=(numOfFrames-1))
-          p->drawLine(0,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
+        {
+          if(!animation->compareFrames(trackName,frameNum,oldFrame))
+            p->drawLine(0,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
+        }
       }
+      oldFrame=frameNum;
     } // for
 
     // last frame is always a key frame

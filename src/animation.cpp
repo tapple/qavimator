@@ -661,3 +661,37 @@ void Animation::moveKeyFrame(int jointNumber,int from,int to,bool copy)
   // tell timeline where we are now
   emit currentFrame(frame);
 }
+
+bool Animation::compareFrames(const char* jointName,int key1,int key2)
+{
+  double x1,y1,z1;
+  double x2,y2,z2;
+
+  BVHNode *node=bvhFindNode(frames,jointName);
+  if(node)
+  {
+    x1=bvhGetChannel(node,key1,BVH_XROT);
+    y1=bvhGetChannel(node,key1,BVH_YROT);
+    z1=bvhGetChannel(node,key1,BVH_ZROT);
+    x2=bvhGetChannel(node,key2,BVH_XROT);
+    y2=bvhGetChannel(node,key2,BVH_YROT);
+    z2=bvhGetChannel(node,key2,BVH_ZROT);
+
+    if(x1!=x2) return false;
+    if(y1!=y2) return false;
+    if(z1!=z2) return false;
+
+    x1=bvhGetChannel(node,key1,BVH_XPOS);
+    y1=bvhGetChannel(node,key1,BVH_YPOS);
+    z1=bvhGetChannel(node,key1,BVH_ZPOS);
+    x2=bvhGetChannel(node,key2,BVH_XPOS);
+    y2=bvhGetChannel(node,key2,BVH_YPOS);
+    z2=bvhGetChannel(node,key2,BVH_ZPOS);
+
+    if(x1!=x2) return false;
+    if(y1!=y2) return false;
+    if(z1!=z2) return false;
+  }
+
+  return true;
+}

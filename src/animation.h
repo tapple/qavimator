@@ -87,6 +87,8 @@ class Animation : public QObject
   void copyKeyFrame(int jointNumber,int from,int to);
   void moveKeyFrame(int jointNumber,int from,int to,bool copy=false);
 
+  bool compareFrames(const char* jointName,int key1,int key2);
+
   static bool isSecondLifeJoint(BVHNode *joint);
 
   enum { MAX_PARTS = 64 };
