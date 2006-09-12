@@ -155,7 +155,7 @@ void Timeline::addKeyframe(int track,int frame)
   tracks[track][frame]=1;
 
 //  drawPosition();
-  drawKeyframe(track,frame);
+  drawTrack(track);
   drawPosition();
 }
 
@@ -189,10 +189,8 @@ void Timeline::drawKeyframe(int track,int frame)
       if(dragging) color=Qt::red;
 
       p->fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
-      if(frame>0 && frame!=(numOfFrames-1))
-        p->drawLine(0,ypos+KEY_HEIGHT/2,xpos,ypos+KEY_HEIGHT/2);
     }
-  }
+  } // for
   drawPosition();
 }
 
@@ -245,7 +243,7 @@ void Timeline::drawTrack(int track)
         if(frameNum>0 && frameNum!=(numOfFrames-1))
         {
           if(!animation->compareFrames(trackName,frameNum,oldFrame))
-            p->drawLine(0,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
+            p->drawLine(oldFrame*KEY_WIDTH,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
         }
       }
       oldFrame=frameNum;
