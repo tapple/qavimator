@@ -41,9 +41,6 @@ TimelineView::TimelineView(QWidget* parent,const char* name,WFlags f) : QFrame(p
   view->enableClipper(TRUE);
   timeline=new Timeline(view->viewport(),"timeline");
 
-//  layout->addWidget(timelineTracks);
-//  layout->addWidget(view);
-
   connect(timeline,SIGNAL(resized(const QSize&)),this,SLOT(doResize(const QSize&)));
   connect(timeline,SIGNAL(animationChanged(Animation*)),this,SLOT(setAnimation(Animation*)));
 
@@ -60,13 +57,12 @@ TimelineView::~TimelineView()
 void TimelineView::scrollTo(int x)
 {
   int currX=x-view->contentsX();
+  int offset=0;
 
-  if(currX < (view->width()/4))
-//    view->center(x-view->width()/4,view->contentsY());
-    view->scrollBy(-KEY_WIDTH,0);
-  else if(currX > (view->width()*3/4))
-//    view->center(x+view->width()*3/4,view->contentsY());
-    view->scrollBy(KEY_WIDTH,0);
+  if(currX < (view->width()/4))        offset=currX-view->width()/4;
+  else if(currX > (view->width()*3/4)) offset=currX-view->width()*3/4;
+
+  if(offset) view->scrollBy(offset,0);
 
   view->moveChild(marker,x+KEY_WIDTH/2,0);
 }
@@ -91,7 +87,7 @@ Timeline* TimelineView::getTimeline() const
 
 TimelineTracks::TimelineTracks(QWidget* parent,const char* name,WFlags f) : QWidget(parent,name,f)
 {
-  resize(LEFT_STRUT,(NUM_PARTS-1)*LINE_HEIGHT);
+  resize(sizeHint());
 }
 
 TimelineTracks::~TimelineTracks()
@@ -100,7 +96,7 @@ TimelineTracks::~TimelineTracks()
 
 QSize TimelineTracks::sizeHint() const
 {
-  return QSize(LEFT_STRUT,(NUM_PARTS-1)*LINE_HEIGHT);
+  return QSize(LEFT_STRUT,(NUM_PARTS-2)*LINE_HEIGHT+2);
 }
 
 void TimelineTracks::paintEvent(QPaintEvent*)
@@ -110,7 +106,7 @@ void TimelineTracks::paintEvent(QPaintEvent*)
 
 void TimelineTracks::repaint()
 {
-  resize(LEFT_STRUT,(NUM_PARTS-1)*LINE_HEIGHT);
+  resize(sizeHint());
   QPainter p(this);
 
   for(int part=1;part<NUM_PARTS;part++)

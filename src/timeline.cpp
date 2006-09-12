@@ -61,7 +61,7 @@ void Timeline::repaint()
 
   if(!animation) return;
 
-  QSize newSize=QSize(numOfFrames*KEY_WIDTH,(NUM_PARTS-1)*LINE_HEIGHT);
+  QSize newSize=QSize(numOfFrames*KEY_WIDTH,(NUM_PARTS-2)*LINE_HEIGHT);
 
   resize(newSize);
   emit resized(newSize);
