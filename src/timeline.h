@@ -77,7 +77,6 @@ class Timeline : public QWidget
     void drawKeyframe(int track,int frame);
     void drawTrack(int track);
 
-    QPainter* p;
     Animation* animation;
     int numOfFrames;
     int currentFrame;
@@ -85,11 +84,11 @@ class Timeline : public QWidget
     bool drawn;
 
     bool leftMouseButton;
-    bool dragging;
     bool shift;
 
     int trackSelected;
     int frameSelected;
+    int dragging;         // contains the current animation frame where dragging occurs
 
     QMap<int,KeyframeList> tracks;
 };

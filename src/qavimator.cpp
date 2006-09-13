@@ -149,8 +149,8 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
 qavimator::~qavimator()
 {
-  fileExit();
   if(timeline) delete timeline;
+  fileExit();
 }
 
 void qavimator::readSettings()

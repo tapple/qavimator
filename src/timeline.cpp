@@ -28,8 +28,6 @@
 Timeline::Timeline(QWidget *parent, const char *name)
  : QWidget(parent, name)
 {
-  p=new QPainter(this);
-
   animation=0;
   setCurrentFrame(0);
   setCaption(tr("Timeline"));
@@ -57,7 +55,7 @@ void Timeline::paintEvent(QPaintEvent*)
 void Timeline::repaint()
 {
   if(isHidden()) return;
-  p->eraseRect(0,0,width(),height());
+//  p->eraseRect(0,0,width(),height());
 
   if(!animation) return;
 
@@ -171,7 +169,8 @@ void Timeline::removeKeyframe(int track,int frame)
 
 void Timeline::drawKeyframe(int track,int frame)
 {
-  p->setPen(Qt::black);
+  QPainter p(this);
+  p.setPen(Qt::black);
 
   QValueList<int> keys=tracks.keys();
 //  drawPosition();
@@ -181,14 +180,14 @@ void Timeline::drawKeyframe(int track,int frame)
   {
     if(keys[index]==track)
     {
-      p->setPen(Qt::black);
+      p.setPen(Qt::black);
 
       int xpos=frame*KEY_WIDTH;
 
       QColor color(Qt::black);
       if(dragging) color=Qt::red;
 
-      p->fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
+      p.fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
     }
   } // for
   drawPosition();
@@ -196,61 +195,77 @@ void Timeline::drawKeyframe(int track,int frame)
 
 void Timeline::drawTrack(int track)
 {
+  QPainter p(this);
 //  drawPosition();
 
 //  emit trackDrawn(trackName,track);
 
   int light=0;
   int y=(track-1)*LINE_HEIGHT;
+
+  // draw alternatingly light / dark background
   for(int x=0;x<width();x+=10*KEY_WIDTH)
   {
-    QColorGroup::ColorRole cr;
-
-    if(light) cr=QColorGroup::Base;
-    else cr=QColorGroup::Background;
-
-    p->fillRect(x,y,x+10*KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,QColorGroup::Background).dark(100+5*light));
+    // draw a filled rectangle in background color, alternatingly darkened by 5 %
+    p.fillRect(x,y,x+10*KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,QColorGroup::Background).dark(100+5*light));
     light=1-light;
   }
 
+  // if this is a "Site end" marker (end of group of limbs) do nothing more
   QString trackName=animation->getPartName(track);
   if(trackName=="Site") return;
 
-  p->fillRect(0,y+LINE_HEIGHT/2,width(),1,palette().color(QPalette::Active,QColorGroup::Background).dark(115));
-//  p->eraseRect(0,y,width(),LINE_HEIGHT);
+  // draw straight line as track marker
+  p.fillRect(0,y+LINE_HEIGHT/2,width(),1,palette().color(QPalette::Active,QColorGroup::Background).dark(115));
 
+  // get number of key frames in this track
   const int numKeyFrames=animation->numKeyFrames(track);
 
   // TODO: switch over to something like this
   /*  KeyframeList keyFrames=tracks[track];
   const int numKeyFrames=keyFrames.count();*/
-  p->setPen(QColor("#000000"));
+
+  // first frame is always a key frame
+  p.setPen(QColor("#000000"));
+  p.fillRect(0,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
+
+  // start drawing rest of key frames
   if(numKeyFrames)
   {
+    // get the list of key frames
     const int* keyFrames=animation->keyFrames(track);
 
-    // first frame is always a key frame
-    p->fillRect(0,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
-
+    // reset previous frame marker
     int oldFrame=0;
+    // iterate through list of key frames
     for(int key=0;key<numKeyFrames;key++)
     {
+      // get frame number of key frame
       int frameNum=keyFrames[key];
+      // if key frame is not out of animation length
       if(frameNum<numOfFrames)
       {
+        // calculate x position
         int xpos=frameNum*KEY_WIDTH;
-        p->fillRect(xpos,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
-        if(frameNum>0 && frameNum!=(numOfFrames-1))
+        // draw key frame
+        QColor color(Qt::black);
+        if(dragging==frameNum) color=Qt::red;
+
+        p.fillRect(xpos,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
+        // if this key frame is not at the first animation frame
+        if(frameNum>0)
         {
+          // check if it differs from the previous frame, if it does, draw a line there
           if(!animation->compareFrames(trackName,frameNum,oldFrame))
-            p->drawLine(oldFrame*KEY_WIDTH,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
+            p.drawLine(oldFrame*KEY_WIDTH,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
         }
       }
+      // remember this frame number as previous key frame
       oldFrame=frameNum;
     } // for
 
     // last frame is always a key frame
-    p->fillRect((numOfFrames-1)*KEY_WIDTH,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
+    p.fillRect((numOfFrames-1)*KEY_WIDTH,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
   }
 //  drawPosition();
 }
@@ -268,11 +283,11 @@ void Timeline::mousePressEvent(QMouseEvent* e)
      frameSelected>0 && frameSelected<(numOfFrames-1))
   {
     // first switch on dragging state, so drawKeyframe() will work as expected
-    dragging=true;
+    dragging=frameSelected;
     // highlight keyframe
     drawKeyframe(trackSelected,frameSelected);
-    emit trackClicked(trackSelected);
   }
+  emit trackClicked(trackSelected);
   // remember mouse button state
   leftMouseButton=true;
 }
@@ -283,7 +298,7 @@ void Timeline::mouseReleaseEvent(QMouseEvent*)
   if(dragging)
   {
     // first switch off dragging state, so drawKeyframe() will work as expected
-    dragging=false;
+    dragging=0;
     // remove highlight from keyframe
     drawKeyframe(trackSelected,frameSelected);
   }
@@ -303,6 +318,9 @@ void Timeline::mouseMoveEvent(QMouseEvent* e)
     // if user is dragging a keyframe, move it within more restrictive bounds
     if(frame>0 && frame<(numOfFrames-1))
     {
+      // update dragging position
+      dragging=frame;
+
       if(shift)
       {
         shift=false;
