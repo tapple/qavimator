@@ -37,7 +37,6 @@ Timeline::Timeline(QWidget *parent, const char *name)
 
   dragging=0;
   trackSelected=0;
-  frameSelected=0;
 
   tracks.clear();
   setFocusPolicy(QWidget::StrongFocus);
@@ -94,7 +93,8 @@ void Timeline::setNumberOfFrames(int frames)
 void Timeline::setCurrentFrame(int frame)
 {
 //  drawPosition();
-  currentFrame=frame;
+//  currentFrame=frame;
+  frameSelected=frame;
   drawPosition();
 }
 
@@ -127,7 +127,8 @@ void Timeline::setAnimation(Animation* anim)
 
 void Timeline::drawPosition()
 {
-  emit positionCenter(currentFrame*KEY_WIDTH);
+//  emit positionCenter(currentFrame*KEY_WIDTH);
+  emit positionCenter(frameSelected*KEY_WIDTH);
 /*
   p->setRasterOp(Qt::XorROP);
 //if(v)  p->setPen(QColor("#ff0000"));
@@ -249,7 +250,7 @@ void Timeline::drawTrack(int track)
         int xpos=frameNum*KEY_WIDTH;
         // draw key frame
         QColor color(Qt::black);
-        if(dragging==frameNum) color=Qt::red;
+        if(dragging==frameNum && trackSelected==track) color=Qt::red;
 
         p.fillRect(xpos,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
         // if this key frame is not at the first animation frame
@@ -341,6 +342,25 @@ void Timeline::mouseMoveEvent(QMouseEvent* e)
     // remember new position
     frameSelected=frame;
   }
+}
+
+void Timeline::wheelEvent(QWheelEvent* e)
+{
+  // get curernt frame position
+  int newFrame=frameSelected;
+
+  // check if we should move forward or backwards
+  if(e->delta()>0) newFrame-=5;
+  else newFrame+=5;
+
+  // check if new position would be out of bounds
+  if(newFrame>=numOfFrames) newFrame=numOfFrames-1;
+  else if(newFrame<0) newFrame=0;
+
+  // set the new position
+  animation->setFrame(newFrame);
+  // remember new position
+  frameSelected=newFrame;
 }
 
 void Timeline::keyPressEvent(QKeyEvent* e)
