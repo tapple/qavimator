@@ -46,7 +46,7 @@ Timeline::~Timeline()
 {
 }
 
-void Timeline::paintEvent(QPaintEvent* e)
+void Timeline::paintEvent(QPaintEvent*)
 {
 //  qDebug(QString("repaint %1").arg(e->rect().x()));
   repaint();
@@ -201,12 +201,52 @@ void Timeline::drawKeyframe(int track,int frame)
   // calculate x position
   int xpos=frame*KEY_WIDTH;
 
-  // find out if we should paint in highlight or normal color
   QColor color(Qt::black);
-  if(frame && dragging==frame && trackSelected==track) color=Qt::red;
 
   // draw the key frame
-  p.fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
+  if(frame==0)
+  {
+    p.fillRect(xpos,ypos,KEY_WIDTH/2,KEY_HEIGHT,QBrush(color));
+    p.fillRect(xpos,ypos+LINE_HEIGHT/2-2,KEY_WIDTH,4,QBrush(color));
+  }
+  else if(frame==(numOfFrames-1))
+  {
+    p.fillRect(xpos+KEY_WIDTH/2,ypos,KEY_WIDTH/2,KEY_HEIGHT,QBrush(color));
+    p.fillRect(xpos,ypos+LINE_HEIGHT/2-2,KEY_WIDTH,4,QBrush(color));
+  }
+  else
+  {
+    // find out if we should paint in highlight or normal color
+    if(frame && dragging==frame && trackSelected==track) color=Qt::red;
+
+    QString trackName=animation->getPartName(track);
+
+    bool ps=animation->compareFrames(trackName,previousKeyFrame(track,frame),frame);
+    bool ns=animation->compareFrames(trackName,nextKeyFrame(track,frame),frame);
+
+    p.setPen(color);
+    p.setBrush(QBrush(color));
+
+    if(ps && ns)
+      p.drawEllipse(xpos,ypos,KEY_WIDTH,LINE_HEIGHT);
+
+    else if(ns)
+    {
+      QPointArray triangle(3);
+      triangle.putPoints(0,3, xpos,ypos+(LINE_HEIGHT-1)/2, xpos+KEY_WIDTH-1,ypos, xpos+KEY_WIDTH-1,ypos+LINE_HEIGHT-1);
+
+      p.drawPolygon(triangle);
+    }
+    else if(ps)
+    {
+      QPointArray triangle(3);
+      triangle.putPoints(0,3, xpos+KEY_WIDTH-1,ypos+(LINE_HEIGHT-1)/2, xpos,ypos, xpos,ypos+LINE_HEIGHT-1);
+
+      p.drawPolygon(triangle);
+    }
+    else
+      p.fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
+  }
 }
 
 int Timeline::isKeyFrame(int track,int frame)
@@ -280,12 +320,12 @@ void Timeline::drawTrack(int track)
   const int numKeyFrames=keyFrames.count();*/
 
   // first frame is always a key frame
-  p.setPen(QColor("#000000"));
-  p.fillRect(0,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
+  drawKeyframe(track,0);
 
   // start drawing rest of key frames
   if(numKeyFrames)
   {
+    p.setPen(palette().color(QPalette::Active,QColorGroup::Foreground));
     // get the list of key frames
     const int* keyFrames=animation->keyFrames(track);
 
@@ -299,24 +339,23 @@ void Timeline::drawTrack(int track)
       // if key frame is not out of animation length
       if(frameNum<numOfFrames)
       {
-        // draw the key frame
-        drawKeyframe(track,frameNum);
         // if this key frame is not at the first animation frame
         if(frameNum>0)
         {
           // check if it differs from the previous frame, if it does, draw a line there
           if(!animation->compareFrames(trackName,frameNum,oldFrame))
-            p.drawLine(oldFrame*KEY_WIDTH,y+KEY_HEIGHT/2,frameNum*KEY_WIDTH,y+KEY_HEIGHT/2);
+            p.drawLine(oldFrame*KEY_WIDTH+KEY_WIDTH-1,y+KEY_HEIGHT/2,frameNum*KEY_WIDTH,y+KEY_HEIGHT/2);
         }
+        // draw the key frame
+        drawKeyframe(track,frameNum);
       }
       // remember this frame number as previous key frame
       oldFrame=frameNum;
     } // for
 
     // last frame is always a key frame
-    p.fillRect((numOfFrames-1)*KEY_WIDTH,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(Qt::black));
+    drawKeyframe(track,numOfFrames-1);
   }
-//  drawPosition();
 }
 
 void Timeline::mousePressEvent(QMouseEvent* e)
