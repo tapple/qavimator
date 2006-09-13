@@ -44,10 +44,7 @@ TimelineView::TimelineView(QWidget* parent,const char* name,WFlags f) : QFrame(p
   connect(timeline,SIGNAL(resized(const QSize&)),this,SLOT(doResize(const QSize&)));
   connect(timeline,SIGNAL(animationChanged(Animation*)),this,SLOT(setAnimation(Animation*)));
 
-  marker=new TimelineMarker(view->viewport(),"timeline_marker");
-
   view->addChild(timeline);
-  view->addChild(marker);
 }
 
 TimelineView::~TimelineView()
@@ -63,14 +60,11 @@ void TimelineView::scrollTo(int x)
   else if(currX > (view->width()*3/4)) offset=currX-view->width()*3/4;
 
   if(offset) view->scrollBy(offset,0);
-
-  view->moveChild(marker,x+KEY_WIDTH/2,0);
 }
 
 void TimelineView::doResize(const QSize& newSize)
 {
   view->resizeContents(newSize.width(),newSize.height());
-  marker->resize(1,view->height());
 }
 
 void TimelineView::setAnimation(Animation* anim)
@@ -127,15 +121,4 @@ void TimelineTracks::repaint()
 void TimelineTracks::setAnimation(Animation* anim)
 {
   animation=anim;
-}
-
-// --------------
-
-TimelineMarker::TimelineMarker(QWidget* parent,const char* name,WFlags f) : QWidget(parent,name,f)
-{
-  setPaletteBackgroundColor(QColor("#ff0000"));
-}
-
-TimelineMarker::~TimelineMarker()
-{
 }

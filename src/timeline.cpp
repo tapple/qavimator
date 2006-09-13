@@ -46,8 +46,9 @@ Timeline::~Timeline()
 {
 }
 
-void Timeline::paintEvent(QPaintEvent*)
+void Timeline::paintEvent(QPaintEvent* e)
 {
+//  qDebug(QString("repaint %1").arg(e->rect().x()));
   repaint();
 }
 
@@ -90,6 +91,7 @@ void Timeline::setNumberOfFrames(int frames)
 
 void Timeline::setCurrentFrame(int frame)
 {
+  clearPosition();
   frameSelected=frame;
   drawPosition();
 }
@@ -121,23 +123,52 @@ void Timeline::setAnimation(Animation* anim)
   repaint();
 }
 
+void Timeline::clearPosition()
+{
+  if(!animation) return;
+
+  QPainter p(this);
+
+  for(int track=1;track<NUM_PARTS;track++)
+  {
+    int x=frameSelected*KEY_WIDTH;
+    int y=(track-1)*LINE_HEIGHT;
+    int light=(frameSelected/10) % 2;
+
+    p.fillRect(x,y,KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,QColorGroup::Background).dark(100+5*light));
+
+    QString trackName=animation->getPartName(track);
+    if(trackName!="Site")
+    {
+      if(isKeyFrame(track,frameSelected)) drawKeyframe(track,frameSelected);
+      else
+      {
+        QColor pen;
+        if(!animation->compareFrames(trackName,previousKeyFrame(track,frameSelected),nextKeyFrame(track,frameSelected)))
+          pen=palette().color(QPalette::Active,QColorGroup::Foreground);
+        else
+          pen=palette().color(QPalette::Active,QColorGroup::Background).dark(115);
+
+        p.setPen(pen);
+        p.drawLine(x,y+LINE_HEIGHT/2,x+KEY_WIDTH-1,y+LINE_HEIGHT/2);
+      }
+    }
+  } // for
+}
+
 void Timeline::drawPosition()
 {
   emit positionCenter(frameSelected*KEY_WIDTH);
-/*
-  p->setRasterOp(Qt::XorROP);
-//if(v)  p->setPen(QColor("#ff0000"));
-//else
-   p->setPen(QColor("#00ffff"));
 
-  int xpos=currentFrame*KEY_WIDTH+KEY_WIDTH/2;
-  p->drawLine(xpos,0,xpos,height());
+  QPainter p(this);
+//  p->setRasterOp(Qt::XorROP);
+  p.setPen(QColor("#ff0000"));
+//  p->setPen(QColor("#00ffff"));
 
-  p->setRasterOp(Qt::CopyROP);
-QString xx=QString::number(xpos);
-if(v) qDebug("Vis "+xx);
-else qDebug("Invis "+xx);
-*/
+  int xpos=frameSelected*KEY_WIDTH+KEY_WIDTH/2;
+  p.drawLine(xpos,0,xpos,height());
+
+//  p->setRasterOp(Qt::CopyROP);
 }
 
 void Timeline::addKeyframe(int track,int frame)
@@ -172,10 +203,51 @@ void Timeline::drawKeyframe(int track,int frame)
 
   // find out if we should paint in highlight or normal color
   QColor color(Qt::black);
-  if(dragging==frame && trackSelected==track) color=Qt::red;
+  if(frame && dragging==frame && trackSelected==track) color=Qt::red;
 
   // draw the key frame
   p.fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
+}
+
+int Timeline::isKeyFrame(int track,int frame)
+{
+  // first and last frames are always key frames
+  if(frame==0 || frame==(numOfFrames-1)) return true;
+
+  const int* keyFrames=animation->keyFrames(track);
+  int numOfKeyFrames=animation->numKeyFrames(track);
+  for(int index=0;index<numOfKeyFrames;index++)
+  {
+    int lookFrame=keyFrames[index];
+    if(lookFrame==frame) return true;
+  }
+  return false;
+}
+
+int Timeline::previousKeyFrame(int track,int frame)
+{
+  int previous=0;
+  const int* keyFrames=animation->keyFrames(track);
+  int numOfKeyFrames=animation->numKeyFrames(track);
+  for(int index=0;index<numOfKeyFrames;index++)
+  {
+    int lookFrame=keyFrames[index];
+    if(lookFrame>=frame) return previous;
+    previous=lookFrame;
+  }
+  return previous;
+}
+
+int Timeline::nextKeyFrame(int track,int frame)
+{
+  const int* keyFrames=animation->keyFrames(track);
+  int numOfKeyFrames=animation->numKeyFrames(track);
+  for(int index=0;index<numOfKeyFrames;index++)
+  {
+    int lookFrame=keyFrames[index];
+    if(lookFrame>frame && index!=numOfKeyFrames) return keyFrames[index];
+  }
+  return numOfFrames-1;
 }
 
 void Timeline::drawTrack(int track)
@@ -249,6 +321,8 @@ void Timeline::drawTrack(int track)
 
 void Timeline::mousePressEvent(QMouseEvent* e)
 {
+  clearPosition();
+
   // get track and frame based on mouse coordinates
   trackSelected=e->y()/LINE_HEIGHT+1;
   frameSelected=e->x()/KEY_WIDTH;
@@ -256,8 +330,7 @@ void Timeline::mousePressEvent(QMouseEvent* e)
   // set animation frame to where we clicked
   animation->setFrame(frameSelected);
   // check if we clicked on a key frame which is not the first or last one in animation
-  if(animation->isKeyFrame(animation->getPartName(trackSelected)) &&
-     frameSelected>0 && frameSelected<(numOfFrames-1))
+  if(frameSelected>0 && frameSelected<(numOfFrames-1) && isKeyFrame(trackSelected,frameSelected))
   {
     // first switch on dragging state, so drawKeyframe() will work as expected
     dragging=frameSelected;
@@ -267,6 +340,14 @@ void Timeline::mousePressEvent(QMouseEvent* e)
   emit trackClicked(trackSelected);
   // remember mouse button state
   leftMouseButton=true;
+  drawPosition();
+/*
+  int p=previousKeyFrame(trackSelected,frameSelected);
+  int n=nextKeyFrame(trackSelected,frameSelected);
+  int k=isKeyFrame(trackSelected,frameSelected);
+  qDebug(QString("prev of %1 is %2 (%3)").arg(frameSelected).arg(p).arg(k));
+  qDebug(QString("next of %1 is %2 (%3)").arg(frameSelected).arg(n).arg(k));
+*/
 }
 
 void Timeline::mouseReleaseEvent(QMouseEvent*)
@@ -278,6 +359,7 @@ void Timeline::mouseReleaseEvent(QMouseEvent*)
     dragging=0;
     // remove highlight from keyframe
     drawKeyframe(trackSelected,frameSelected);
+    drawPosition();
   }
 }
 

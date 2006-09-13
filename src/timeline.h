@@ -74,9 +74,14 @@ class Timeline : public QWidget
     virtual void keyPressEvent(QKeyEvent* event);
     virtual void keyReleaseEvent(QKeyEvent* event);
 
+    void clearPosition();
     void drawPosition();
     void drawKeyframe(int track,int frame);
     void drawTrack(int track);
+
+    int isKeyFrame(int track,int frame);
+    int previousKeyFrame(int track,int frame);
+    int nextKeyFrame(int track,int frame);
 
     Animation* animation;
     int numOfFrames;

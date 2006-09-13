@@ -48,13 +48,6 @@ class TimelineTracks : public QWidget
     virtual void paintEvent(QPaintEvent* event);
 };
 
-class TimelineMarker : public QWidget
-{
-  public:
-    TimelineMarker(QWidget* parent=0,const char* name=0,WFlags f=0);
-    ~TimelineMarker();
-};
-
 class TimelineView : public QFrame
 {
   Q_OBJECT
@@ -74,7 +67,6 @@ class TimelineView : public QFrame
     QScrollView* view;
     Timeline* timeline;
     TimelineTracks* timelineTracks;
-    TimelineMarker* marker;
 };
 
 #endif
