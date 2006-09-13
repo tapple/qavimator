@@ -992,7 +992,16 @@ const QString& AnimationView::getSelectedPropName()
 
 void AnimationView::selectPart(int partNum)
 {
-  selectPart(getPartName(partNum));
+  QString partName=getPartName(partNum);
+  if(partName=="Site")
+  {
+    partSelected=0;
+    propSelected=0;
+    propDragging=0;
+    emit backgroundClicked();
+    repaint();
+  }
+  else selectPart(partName);
 }
 
 void AnimationView::selectPart(const char *part)

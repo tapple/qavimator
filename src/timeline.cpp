@@ -54,8 +54,6 @@ void Timeline::paintEvent(QPaintEvent*)
 void Timeline::repaint()
 {
   if(isHidden()) return;
-//  p->eraseRect(0,0,width(),height());
-
   if(!animation) return;
 
   QSize newSize=QSize(numOfFrames*KEY_WIDTH,(NUM_PARTS-2)*LINE_HEIGHT);
@@ -92,8 +90,6 @@ void Timeline::setNumberOfFrames(int frames)
 
 void Timeline::setCurrentFrame(int frame)
 {
-//  drawPosition();
-//  currentFrame=frame;
   frameSelected=frame;
   drawPosition();
 }
@@ -127,7 +123,6 @@ void Timeline::setAnimation(Animation* anim)
 
 void Timeline::drawPosition()
 {
-//  emit positionCenter(currentFrame*KEY_WIDTH);
   emit positionCenter(frameSelected*KEY_WIDTH);
 /*
   p->setRasterOp(Qt::XorROP);
@@ -153,7 +148,6 @@ void Timeline::addKeyframe(int track,int frame)
   }
   tracks[track][frame]=1;
 
-//  drawPosition();
   drawTrack(track);
   drawPosition();
 }
@@ -163,43 +157,30 @@ void Timeline::removeKeyframe(int track,int frame)
   tracks[track].erase(frame);
 
   if(!tracks[track].count()) tracks.erase(track);
-//  drawPosition();
+
   drawTrack(track);
   drawPosition();
 }
 
 void Timeline::drawKeyframe(int track,int frame)
 {
-  QPainter p(this);
-  p.setPen(Qt::black);
-
-  QValueList<int> keys=tracks.keys();
-//  drawPosition();
-
   int ypos=(track-1)*LINE_HEIGHT;
-  for(unsigned int index=0;index<keys.count();index++)
-  {
-    if(keys[index]==track)
-    {
-      p.setPen(Qt::black);
 
-      int xpos=frame*KEY_WIDTH;
+  QPainter p(this);
+  // calculate x position
+  int xpos=frame*KEY_WIDTH;
 
-      QColor color(Qt::black);
-      if(dragging) color=Qt::red;
+  // find out if we should paint in highlight or normal color
+  QColor color(Qt::black);
+  if(dragging==frame && trackSelected==track) color=Qt::red;
 
-      p.fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
-    }
-  } // for
-  drawPosition();
+  // draw the key frame
+  p.fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
 }
 
 void Timeline::drawTrack(int track)
 {
   QPainter p(this);
-//  drawPosition();
-
-//  emit trackDrawn(trackName,track);
 
   int light=0;
   int y=(track-1)*LINE_HEIGHT;
@@ -246,19 +227,14 @@ void Timeline::drawTrack(int track)
       // if key frame is not out of animation length
       if(frameNum<numOfFrames)
       {
-        // calculate x position
-        int xpos=frameNum*KEY_WIDTH;
-        // draw key frame
-        QColor color(Qt::black);
-        if(dragging==frameNum && trackSelected==track) color=Qt::red;
-
-        p.fillRect(xpos,y,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
+        // draw the key frame
+        drawKeyframe(track,frameNum);
         // if this key frame is not at the first animation frame
         if(frameNum>0)
         {
           // check if it differs from the previous frame, if it does, draw a line there
           if(!animation->compareFrames(trackName,frameNum,oldFrame))
-            p.drawLine(oldFrame*KEY_WIDTH,y+KEY_HEIGHT/2,xpos,y+KEY_HEIGHT/2);
+            p.drawLine(oldFrame*KEY_WIDTH,y+KEY_HEIGHT/2,frameNum*KEY_WIDTH,y+KEY_HEIGHT/2);
         }
       }
       // remember this frame number as previous key frame

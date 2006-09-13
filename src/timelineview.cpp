@@ -114,12 +114,10 @@ void TimelineTracks::repaint()
     QString trackName=animation->getPartName(part);
     if(trackName!="Site")
     {
-//qDebug(trackName);
-
       int y=(part-1)*LINE_HEIGHT+2;
       p.eraseRect(0,y,width(),LINE_HEIGHT);
 
-      // always draw track name
+      // draw track name
       p.setPen(palette().color(QPalette::Active,QColorGroup::Foreground));
       p.drawText(0,y+KEY_HEIGHT,trackName);
     }
