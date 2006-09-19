@@ -149,8 +149,9 @@ void Timeline::clearPosition()
         else
           pen=palette().color(QPalette::Active,QColorGroup::Background).dark(115);
 
-        p.setPen(pen);
-        p.drawLine(x,y+LINE_HEIGHT/2,x+KEY_WIDTH-1,y+LINE_HEIGHT/2);
+        // using fillRect instead of drawLine here, because the windows build seems to
+        // have problems with lines
+        p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen));
       }
     }
   } // for
@@ -201,8 +202,8 @@ void Timeline::drawKeyframe(int track,int frame)
   // calculate x position
   int xpos=frame*KEY_WIDTH;
 
-  QColor color(Qt::black);
-
+//  QColor color(Qt::black);
+  QColor color(palette().color(QPalette::Active,QColorGroup::Foreground));
   // draw the key frame
   if(frame==0)
   {
@@ -325,7 +326,10 @@ void Timeline::drawTrack(int track)
   // start drawing rest of key frames
   if(numKeyFrames)
   {
-    p.setPen(palette().color(QPalette::Active,QColorGroup::Foreground));
+    // get foreground color
+    QColor color(palette().color(QPalette::Active,QColorGroup::Foreground));
+    // set drawing pen to foreground color
+    p.setPen(color);
     // get the list of key frames
     const int* keyFrames=animation->keyFrames(track);
 
@@ -344,7 +348,14 @@ void Timeline::drawTrack(int track)
         {
           // check if it differs from the previous frame, if it does, draw a line there
           if(!animation->compareFrames(trackName,frameNum,oldFrame))
-            p.drawLine(oldFrame*KEY_WIDTH+KEY_WIDTH-1,y+KEY_HEIGHT/2,frameNum*KEY_WIDTH,y+KEY_HEIGHT/2);
+          {
+            // we use fillRect instead of drawLine because for some reason the windows
+            // version did not draw properly
+            p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
+                       y+KEY_HEIGHT/2,
+                       (frameNum-oldFrame)*KEY_WIDTH,
+                       1,QBrush(color));
+          }
         }
         // draw the key frame
         drawKeyframe(track,frameNum);
