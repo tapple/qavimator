@@ -140,30 +140,29 @@ void Timeline::clearPosition()
     QString trackName=animation->getPartName(track);
     if(trackName!="Site")
     {
-      if(isKeyFrame(track,frameSelected)) drawKeyframe(track,frameSelected);
+      // draw track lines first, according to keyframe interpolation position
+      QColor pen1;
+      QColor pen2;
+      if(!animation->compareFrames(trackName,previousKeyFrame(track,frameSelected),nextKeyFrame(track,frameSelected)))
+      {
+        pen1=palette().color(QPalette::Active,QColorGroup::Foreground);
+        pen2=palette().color(QPalette::Active,QColorGroup::Background).light(115);
+        // using fillRect instead of drawLine here, because the windows build seems to
+        // have problems with lines
+        p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen1));
+        p.fillRect(x,y+LINE_HEIGHT/2+1,KEY_WIDTH,1,QColor(pen2));
+      }
       else
       {
-        QColor pen1;
-        QColor pen2;
-        if(!animation->compareFrames(trackName,previousKeyFrame(track,frameSelected),nextKeyFrame(track,frameSelected)))
-        {
-          pen1=palette().color(QPalette::Active,QColorGroup::Background).light(115);
-          pen2=palette().color(QPalette::Active,QColorGroup::Foreground);
-          // using fillRect instead of drawLine here, because the windows build seems to
-          // have problems with lines
-          p.fillRect(x,y+LINE_HEIGHT/2-1,KEY_WIDTH,1,QColor(pen1));
-          p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen2));
-        }
-        else
-        {
-          pen1=palette().color(QPalette::Active,QColorGroup::Background).dark(115);
-          pen2=palette().color(QPalette::Active,QColorGroup::Background).light(115);
-          // using fillRect instead of drawLine here, because the windows build seems to
-          // have problems with lines
-          p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen1));
-          p.fillRect(x,y+LINE_HEIGHT/2+1,KEY_WIDTH,1,QColor(pen2));
-        }
+        pen1=palette().color(QPalette::Active,QColorGroup::Background).dark(115);
+        pen2=palette().color(QPalette::Active,QColorGroup::Background).light(115);
+        // using fillRect instead of drawLine here, because the windows build seems to
+        // have problems with lines
+        p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen1));
+        p.fillRect(x,y+LINE_HEIGHT/2+1,KEY_WIDTH,1,QColor(pen2));
       }
+      // if applicable, draw keyframe next
+      if(isKeyFrame(track,frameSelected)) drawKeyframe(track,frameSelected);
     }
   } // for
 }
@@ -361,17 +360,16 @@ void Timeline::drawTrack(int track)
           // check if it differs from the previous frame, if it does, draw a line there
           if(!animation->compareFrames(trackName,frameNum,oldFrame))
           {
-            QColor pen1=palette().color(QPalette::Active,QColorGroup::Background).light(115);
-            QColor pen2=palette().color(QPalette::Active,QColorGroup::Foreground);
-
+            QColor pen1(palette().color(QPalette::Active,QColorGroup::Foreground));
+            QColor pen2(palette().color(QPalette::Active,QColorGroup::Background).light(115));
             // we use fillRect instead of drawLine because for some reason the windows
             // version did not draw properly
             p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
-                       y+KEY_HEIGHT/2-1,
+                       y+KEY_HEIGHT/2,
                        (frameNum-oldFrame)*KEY_WIDTH,
                        1,QBrush(pen1));
             p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
-                       y+KEY_HEIGHT/2,
+                       y+KEY_HEIGHT/2+1,
                        (frameNum-oldFrame)*KEY_WIDTH,
                        1,QBrush(pen2));
           }
