@@ -143,15 +143,26 @@ void Timeline::clearPosition()
       if(isKeyFrame(track,frameSelected)) drawKeyframe(track,frameSelected);
       else
       {
-        QColor pen;
+        QColor pen1;
+        QColor pen2;
         if(!animation->compareFrames(trackName,previousKeyFrame(track,frameSelected),nextKeyFrame(track,frameSelected)))
-          pen=palette().color(QPalette::Active,QColorGroup::Foreground);
+        {
+          pen1=palette().color(QPalette::Active,QColorGroup::Background).light(115);
+          pen2=palette().color(QPalette::Active,QColorGroup::Foreground);
+          // using fillRect instead of drawLine here, because the windows build seems to
+          // have problems with lines
+          p.fillRect(x,y+LINE_HEIGHT/2-1,KEY_WIDTH,1,QColor(pen1));
+          p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen2));
+        }
         else
-          pen=palette().color(QPalette::Active,QColorGroup::Background).dark(115);
-
-        // using fillRect instead of drawLine here, because the windows build seems to
-        // have problems with lines
-        p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen));
+        {
+          pen1=palette().color(QPalette::Active,QColorGroup::Background).dark(115);
+          pen2=palette().color(QPalette::Active,QColorGroup::Background).light(115);
+          // using fillRect instead of drawLine here, because the windows build seems to
+          // have problems with lines
+          p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen1));
+          p.fillRect(x,y+LINE_HEIGHT/2+1,KEY_WIDTH,1,QColor(pen2));
+        }
       }
     }
   } // for
@@ -312,6 +323,7 @@ void Timeline::drawTrack(int track)
 
   // draw straight line as track marker
   p.fillRect(0,y+LINE_HEIGHT/2,width(),1,palette().color(QPalette::Active,QColorGroup::Background).dark(115));
+  p.fillRect(0,y+LINE_HEIGHT/2+1,width(),1,palette().color(QPalette::Active,QColorGroup::Background).light(115));
 
   // get number of key frames in this track
   const int numKeyFrames=animation->numKeyFrames(track);
@@ -349,12 +361,19 @@ void Timeline::drawTrack(int track)
           // check if it differs from the previous frame, if it does, draw a line there
           if(!animation->compareFrames(trackName,frameNum,oldFrame))
           {
+            QColor pen1=palette().color(QPalette::Active,QColorGroup::Background).light(115);
+            QColor pen2=palette().color(QPalette::Active,QColorGroup::Foreground);
+
             // we use fillRect instead of drawLine because for some reason the windows
             // version did not draw properly
             p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
+                       y+KEY_HEIGHT/2-1,
+                       (frameNum-oldFrame)*KEY_WIDTH,
+                       1,QBrush(pen1));
+            p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
                        y+KEY_HEIGHT/2,
                        (frameNum-oldFrame)*KEY_WIDTH,
-                       1,QBrush(color));
+                       1,QBrush(pen2));
           }
         }
         // draw the key frame
