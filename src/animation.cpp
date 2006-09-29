@@ -19,6 +19,8 @@
  *
  */
 
+#define SINE_INTERPOLATION 0
+
 #include <qapplication.h>
 
 #include <stdio.h>
@@ -447,11 +449,24 @@ void Animation::interpolateFrames(BVHNode *joint) {
 	len = *kf - last - 1;
       }
       if (len > 0) {
-	step = (end - start) / (len + 1);
-	for (int j = last + 1; j <= last + len; j++) {
-	  start += step;
-	  joint->frame[j][c] = start;
-	}
+
+#if SINE_INTERPOLATION == 1
+        step=3.1415/(len+1);
+        double diff=end-start;
+        double increment=4.71+step;
+
+        for (int j = last + 1; j <= last + len; j++) {
+          joint->frame[j][c] = start+(sin(increment)/2+0.5)*diff;
+          increment+=step;
+        }
+#else
+        step = (end - start) / (len + 1);
+        for (int j = last + 1; j <= last + len; j++) {
+          start += step;
+          joint->frame[j][c] = start;
+        }
+#endif
+
       }
       start = joint->frame[*kf][c];
       last = *kf;
