@@ -38,7 +38,7 @@ TimelineView::TimelineView(QWidget* parent,const char* name,WFlags f) : QFrame(p
 
   view->setVScrollBarMode(QScrollView::AlwaysOff);
   view->setHScrollBarMode(QScrollView::AlwaysOff);
-  view->enableClipper(TRUE);
+
   timeline=new Timeline(view->viewport(),"timeline");
 
   connect(timeline,SIGNAL(resized(const QSize&)),this,SLOT(doResize(const QSize&)));
@@ -101,6 +101,8 @@ void TimelineTracks::paintEvent(QPaintEvent*)
 void TimelineTracks::repaint()
 {
   resize(sizeHint());
+  if(!animation) return;
+
   QPainter p(this);
 
   for(int part=1;part<NUM_PARTS;part++)
