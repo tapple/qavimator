@@ -21,7 +21,13 @@
 #ifndef TIMELINE_H
 #define TIMELINE_H
 
+#define NEW_TIMELINE_BAR 0
+
 #include <qwidget.h>
+
+#if NEW_TIMELINE_BAR == 1
+#include <qpixmap.h>
+#endif
 
 #include "keyframelist.h"
 
@@ -84,6 +90,7 @@ class Timeline : public QWidget
     int nextKeyFrame(int track,int frame);
 
     Animation* animation;
+
     int numOfFrames;
     int currentFrame;
 
@@ -91,6 +98,12 @@ class Timeline : public QWidget
 
     bool leftMouseButton;
     bool shift;
+
+#if NEW_TIMELINE_BAR == 1
+    bool positionSync;    // debugging
+    int positionBarX;     // debugging
+    QPixmap* backgroundBuffer;
+#endif
 
     int trackSelected;
     int frameSelected;

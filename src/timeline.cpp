@@ -28,6 +28,12 @@
 Timeline::Timeline(QWidget *parent, const char *name)
  : QWidget(parent, name)
 {
+#if NEW_TIMELINE_BAR == 1
+  backgroundBuffer=new QPixmap();
+  positionSync=false;
+  positionBarX=0;
+#endif
+
   animation=0;
   setCurrentFrame(0);
   setCaption(tr("Timeline"));
@@ -44,6 +50,9 @@ Timeline::Timeline(QWidget *parent, const char *name)
 
 Timeline::~Timeline()
 {
+#if NEW_TIMELINE_BAR == 1
+  if(backgroundBuffer) delete backgroundBuffer;
+#endif
 }
 
 void Timeline::paintEvent(QPaintEvent*)
@@ -57,15 +66,32 @@ void Timeline::repaint()
   if(isHidden()) return;
   if(!animation) return;
 
+#if NEW_TIMELINE_BAR == 1
+  qDebug("repaint()");
+  positionSync=false;    // debug
+#endif
+
   QSize newSize=QSize(numOfFrames*KEY_WIDTH,(NUM_PARTS-2)*LINE_HEIGHT);
 
-  resize(newSize);
-  emit resized(newSize);
+  if(newSize!=size())
+  {
+    qDebug("resizing timeline widget");
+    resize(newSize);
+    emit resized(newSize);
+#if NEW_TIMELINE_BAR == 1
+    backgroundBuffer->resize(KEY_WIDTH,height());
+#endif
+  }
 
   for(int part=1;part<NUM_PARTS;part++)
   {
     drawTrack(part);
   } // for
+
+#if NEW_TIMELINE_BAR == 1
+  return;
+#endif
+
   drawPosition();
 }
 
@@ -129,6 +155,21 @@ void Timeline::clearPosition()
 
   QPainter p(this);
 
+#if NEW_TIMELINE_BAR == 1
+  qDebug("clearPosition()");
+  if(!positionSync)
+  {
+    qDebug("position bar has not be drawn, but asked to clear it!");
+    return;
+  }
+  positionSync=false;    // debug
+
+  int x=frameSelected*KEY_WIDTH;
+//  bitBlt(this,x,0,backgroundBuffer,0,0,KEY_WIDTH,height());
+  bitBlt(this,positionBarX,0,backgroundBuffer,0,0,KEY_WIDTH,height());
+  return;
+#endif
+
   for(int track=1;track<NUM_PARTS;track++)
   {
     int x=frameSelected*KEY_WIDTH;
@@ -169,6 +210,16 @@ void Timeline::clearPosition()
 
 void Timeline::drawPosition()
 {
+#if NEW_TIMELINE_BAR == 1
+  qDebug("drawPosition()");
+  if(positionSync)
+  {
+    qDebug("position bar has not be cleared, but asked to draw it!");
+    return;
+  }
+  positionSync=true;    // debug
+#endif
+
   emit positionCenter(frameSelected*KEY_WIDTH);
 
   QPainter p(this);
@@ -176,7 +227,15 @@ void Timeline::drawPosition()
   p.setPen(QColor("#ff0000"));
 //  p->setPen(QColor("#00ffff"));
 
-  int xpos=frameSelected*KEY_WIDTH+KEY_WIDTH/2;
+  int xpos=frameSelected*KEY_WIDTH;
+
+#if NEW_TIMELINE_BAR == 1
+  bitBlt(backgroundBuffer,0,0,this,xpos,0,KEY_WIDTH,height());
+  positionBarX=xpos;
+#endif
+
+  xpos+=KEY_WIDTH/2;
+
   p.drawLine(xpos,0,xpos,height());
 
 //  p->setRasterOp(Qt::CopyROP);
@@ -190,6 +249,7 @@ void Timeline::addKeyframe(int track,int frame)
   }
   tracks[track][frame]=1;
 
+  clearPosition();
   drawTrack(track);
   drawPosition();
 }
@@ -200,6 +260,7 @@ void Timeline::removeKeyframe(int track,int frame)
 
   if(!tracks[track].count()) tracks.erase(track);
 
+  clearPosition();
   drawTrack(track);
   drawPosition();
 }
@@ -393,6 +454,7 @@ void Timeline::mousePressEvent(QMouseEvent* e)
   // get track and frame based on mouse coordinates
   trackSelected=e->y()/LINE_HEIGHT+1;
   frameSelected=e->x()/KEY_WIDTH;
+  drawPosition();
 
   // set animation frame to where we clicked
   animation->setFrame(frameSelected);
@@ -407,7 +469,6 @@ void Timeline::mousePressEvent(QMouseEvent* e)
   emit trackClicked(trackSelected);
   // remember mouse button state
   leftMouseButton=true;
-  drawPosition();
 /*
   int p=previousKeyFrame(trackSelected,frameSelected);
   int n=nextKeyFrame(trackSelected,frameSelected);
@@ -419,6 +480,7 @@ void Timeline::mousePressEvent(QMouseEvent* e)
 
 void Timeline::mouseReleaseEvent(QMouseEvent*)
 {
+  clearPosition();
   leftMouseButton=false;
   if(dragging)
   {
@@ -426,8 +488,8 @@ void Timeline::mouseReleaseEvent(QMouseEvent*)
     dragging=0;
     // remove highlight from keyframe
     drawKeyframe(trackSelected,frameSelected);
-    drawPosition();
   }
+  drawPosition();
 }
 
 void Timeline::mouseMoveEvent(QMouseEvent* e)
