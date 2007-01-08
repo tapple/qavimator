@@ -21,13 +21,8 @@
 #ifndef TIMELINE_H
 #define TIMELINE_H
 
-#define NEW_TIMELINE_BAR 0
-
 #include <qwidget.h>
-
-#if NEW_TIMELINE_BAR == 1
 #include <qpixmap.h>
-#endif
 
 #include "keyframelist.h"
 
@@ -50,10 +45,8 @@ class Timeline : public QWidget
   Q_OBJECT
 
   public:
-    Timeline(QWidget *parent = 0, const char *name = 0);
+    Timeline(QWidget *parent = 0, const char *name = 0, WFlags f = 0);
     ~Timeline();
-
-    virtual void repaint();
 
     void setAnimation(Animation* anim);
 
@@ -70,6 +63,7 @@ class Timeline : public QWidget
     void addKeyframe(int bodypart,int frame);
     void removeKeyframe(int track,int frame);
     void setNumberOfFrames(int frames);
+    void drawPosition();
 
   protected:
     virtual void paintEvent(QPaintEvent* event);
@@ -81,7 +75,6 @@ class Timeline : public QWidget
     virtual void keyReleaseEvent(QKeyEvent* event);
 
     void clearPosition();
-    void drawPosition();
     void drawKeyframe(int track,int frame);
     void drawTrack(int track);
 
@@ -99,11 +92,9 @@ class Timeline : public QWidget
     bool leftMouseButton;
     bool shift;
 
-#if NEW_TIMELINE_BAR == 1
     bool positionSync;    // debugging
     int positionBarX;     // debugging
-    QPixmap* backgroundBuffer;
-#endif
+    QPixmap backgroundBuffer;
 
     int trackSelected;
     int frameSelected;
