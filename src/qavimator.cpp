@@ -123,8 +123,10 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(this,SIGNAL(resetCamera()),animationView,SLOT(resetCamera()));
   connect(this,SIGNAL(protectFrame(bool)),animationView,SLOT(protectFrame(bool)));
 
-  timeline=timelineView->getTimeline();
+  connect(animationView,SIGNAL(partClicked(int)),timelineView,SLOT(selectTrack(int)));
+  connect(animationView,SIGNAL(backgroundClicked()),timelineView,SLOT(backgroundClicked()));
 
+  timeline=timelineView->getTimeline();
   connect(timeline,SIGNAL(positionCenter(int)),timelineView,SLOT(scrollTo(int)));
   connect(timeline,SIGNAL(trackClicked(int)),animationView,SLOT(selectPart(int)));
 

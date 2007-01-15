@@ -118,6 +118,7 @@ class AnimationView : public QGLWidget
 
   signals:
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
+    void partClicked(int part);
     void propClicked(Prop* prop);
 
     void partDragged(const QString&,double changeX,double changeY,double changeZ);

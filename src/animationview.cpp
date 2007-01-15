@@ -574,6 +574,7 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
                        animation->getRotationLimits(part),
                        Position(animation->getPosition(part))
                       );
+      emit partClicked(partSelected);
     }
     // drag handle clicked
     else if(selected==DRAG_HANDLE_X ||

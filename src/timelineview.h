@@ -33,6 +33,8 @@ class Animation;
 
 class TimelineTracks : public QWidget
 {
+  Q_OBJECT
+
   public:
     TimelineTracks(QWidget* parent=0,const char* name=0,WFlags f=0);
     ~TimelineTracks();
@@ -40,12 +42,17 @@ class TimelineTracks : public QWidget
     virtual void repaint();
     virtual QSize sizeHint() const;
 
-    void drawTrack(const QString& name,int num);
+    void drawTrack(int track);
     void setAnimation(Animation* anim);
+
+    void selectTrack(int track);
+    void backgroundClicked();
 
   protected:
     Animation* animation;
     virtual void paintEvent(QPaintEvent* event);
+
+    int selectedTrack;
 };
 
 class TimelineView : public QFrame
@@ -57,6 +64,10 @@ class TimelineView : public QFrame
     ~TimelineView();
 
     Timeline* getTimeline() const;
+
+  public slots:
+    void selectTrack(int track);
+    void backgroundClicked();
 
   protected slots:
     void scrollTo(int x);

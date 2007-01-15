@@ -49,6 +49,7 @@ class Timeline : public QWidget
     ~Timeline();
 
     void setAnimation(Animation* anim);
+    void selectTrack(int track);
 
   signals:
     void positionCenter(int pos);

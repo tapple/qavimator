@@ -336,9 +336,35 @@ int Timeline::nextKeyFrame(int track,int frame)
   return numOfFrames-1;
 }
 
+void Timeline::selectTrack(int track)
+{
+  int oldTrack=trackSelected;
+  trackSelected=track;
+  // if the user clicked on a different track
+  if(oldTrack!=trackSelected)
+  {
+    clearPosition();
+    // draw old track with old color
+    drawTrack(oldTrack);
+    // draw new track
+    drawTrack(trackSelected);
+    drawPosition();
+  }
+}
+
 void Timeline::drawTrack(int track)
 {
+  // do not draw track number 0
+  if(!track) return;
 //  qDebug(QString("drawTrack(%1)").arg(track));
+
+  // if this is a "Site end" marker (end of group of limbs) do nothing more
+  QString trackName=animation->getPartName(track);
+
+  // normal tracks get default background color
+  QColorGroup::ColorRole baseColor=QColorGroup::Background;
+  // selected tracks get other color, unless it's a "Site" track (end of limbs group)
+  if(track==trackSelected && trackName!="Site") baseColor=QColorGroup::Highlight;
 
   QPainter p(this);
 
@@ -349,17 +375,16 @@ void Timeline::drawTrack(int track)
   for(int x=0;x<width();x+=10*KEY_WIDTH)
   {
     // draw a filled rectangle in background color, alternatingly darkened by 5 %
-    p.fillRect(x,y,x+10*KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,QColorGroup::Background).dark(100+5*light));
+    p.fillRect(x,y,x+10*KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,baseColor).dark(100+5*light));
     light=1-light;
   }
 
   // if this is a "Site end" marker (end of group of limbs) do nothing more
-  QString trackName=animation->getPartName(track);
   if(trackName=="Site") return;
 
   // draw straight line as track marker
-  p.fillRect(0,y+LINE_HEIGHT/2,width(),1,palette().color(QPalette::Active,QColorGroup::Background).dark(115));
-  p.fillRect(0,y+LINE_HEIGHT/2+1,width(),1,palette().color(QPalette::Active,QColorGroup::Background).light(115));
+  p.fillRect(0,y+LINE_HEIGHT/2,width(),1,palette().color(QPalette::Active,baseColor).dark(115));
+  p.fillRect(0,y+LINE_HEIGHT/2+1,width(),1,palette().color(QPalette::Active,baseColor).light(115));
 
   // get number of key frames in this track
   const int numKeyFrames=animation->numKeyFrames(track);
@@ -398,7 +423,7 @@ void Timeline::drawTrack(int track)
           if(!animation->compareFrames(trackName,frameNum,oldFrame))
           {
             QColor pen1(palette().color(QPalette::Active,QColorGroup::Foreground));
-            QColor pen2(palette().color(QPalette::Active,QColorGroup::Background).light(115));
+            QColor pen2(palette().color(QPalette::Active,baseColor).light(115));
             // we use fillRect instead of drawLine because for some reason the windows
             // version did not draw properly
             p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
@@ -426,7 +451,7 @@ void Timeline::drawTrack(int track)
 void Timeline::mousePressEvent(QMouseEvent* e)
 {
   // get track and frame based on mouse coordinates
-  trackSelected=e->y()/LINE_HEIGHT+1;
+  selectTrack(e->y()/LINE_HEIGHT+1);
   frameSelected=e->x()/KEY_WIDTH;
 
   // set animation frame to where we clicked
