@@ -46,7 +46,6 @@ class TimelineTracks : public QWidget
     void setAnimation(Animation* anim);
 
     void selectTrack(int track);
-    void backgroundClicked();
 
   protected:
     Animation* animation;
