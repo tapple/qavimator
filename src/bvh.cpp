@@ -24,41 +24,59 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "bvh.h"
 
-static char bvhTypeName[3][6] = { "ROOT", "JOINT", "End" };
-static char bvhChannelName[6][10] =
-  { "Xposition", "Yposition", "Zposition",
-    "Xrotation", "Yrotation", "Zrotation"};
+BVH::BVH()
+{
+  bvhTypeName.append("ROOT");
+  bvhTypeName.append("JOINT");
+  bvhTypeName.append("End");
+  bvhChannelName.append("Xposition");
+  bvhChannelName.append("Yposition");
+  bvhChannelName.append("Zposition");
+  bvhChannelName.append("Xrotation");
+  bvhChannelName.append("Yrotation");
+  bvhChannelName.append("Zrotation");
 
-char tokenBuf[1024];
-int nodeCount;
+//  tokenBuf=(char*) malloc(1024);
+}
 
-char *token(FILE *f)
+BVH::~ BVH()
+{
+//  free(tokenBuf);
+}
+
+char* BVH::token(FILE *f,char* tokenBuf) const
 {
   if (feof(f)) {
     fprintf(stderr, "Bad BVH file: Premature EOF\n");
+    tokenBuf[0]='\0';
     return "";
   }
+
   if(fscanf(f, "%s", tokenBuf)); // fix compiler warning
   return tokenBuf;
 }
 
-int expect_token(FILE *f, char *name)
+int BVH::expect_token(FILE *f, char *name) const
 {
-  if (strcmp(token(f), name)) {
+  char tokenbuf[1024];
+
+  if (strcmp(token(f,tokenbuf), name)) {
     fprintf(stderr, "Bad BVH file: %s missing\n", name);
     return 0;
   }
   return 1;
 }
 
-BVHNode *bvhReadNode(FILE *f)
+BVHNode* BVH::bvhReadNode(FILE *f) const
 {
   BVHNode *node = (BVHNode *)malloc(sizeof(BVHNode));
   BVHNode *child;
   char order[4];
-  char *type = token(f);
+  char buffer[1024];
+  const char *type = token(f,buffer);
   int i;
 
   node->numChildren = node->numChannels = 0;
@@ -75,22 +93,22 @@ BVHNode *bvhReadNode(FILE *f)
     fprintf(stderr, "Bad BVH file: unknown node type: %s\n", type);
     return NULL;
   }
-  strcpy(node->name, token(f));
+  strcpy(node->name, token(f,buffer));
   expect_token(f, "{");
   expect_token(f, "OFFSET");
-  node->offset[0] = atof(token(f));
-  node->offset[1] = atof(token(f));
-  node->offset[2] = atof(token(f));
+  node->offset[0] = atof(token(f,buffer));
+  node->offset[1] = atof(token(f,buffer));
+  node->offset[2] = atof(token(f,buffer));
   node->ikOn = false;
   node->ikWeight = 0.0;
   if (node->type != BVH_END) {
     expect_token(f, "CHANNELS");
-    node->numChannels = atoi(token(f));
+    node->numChannels = atoi(token(f,buffer));
     char *op = order;
     for (i=0; i<node->numChannels; i++) {
       node->channelMin[i] = -10000;
       node->channelMax[i] = 10000;
-      type = token(f);
+      type = token(f,buffer);
       if (!strcasecmp(type, "Xposition")) {node->channelType[i] = BVH_XPOS;}
       else if (!strcasecmp(type, "Yposition")) {node->channelType[i]=BVH_YPOS;}
       else if (!strcasecmp(type, "Zposition")) {node->channelType[i]=BVH_ZPOS;}
@@ -123,12 +141,13 @@ BVHNode *bvhReadNode(FILE *f)
   return node;
 }
 
-void assignChannels(BVHNode *node, FILE *f, int frame)
+void BVH::assignChannels(BVHNode *node, FILE *f, int frame) const
 {
   int i;
+  char buffer[1024];
   node->numFrames = frame + 1;
   for (i=0; i<node->numChannels; i++) {
-    node->frame[frame][i] = atof(token(f));
+    node->frame[frame][i] = atof(token(f,buffer));
   }
 
   for (i=0; i<node->numChildren; i++) {
@@ -136,7 +155,7 @@ void assignChannels(BVHNode *node, FILE *f, int frame)
   }
 }
 
-void setChannelLimits(BVHNode *node,BVHChannelType type,double min,double max)
+void BVH::setChannelLimits(BVHNode *node,BVHChannelType type,double min,double max) const
 {
   int i;
   if (!node) return;
@@ -149,7 +168,7 @@ void setChannelLimits(BVHNode *node,BVHChannelType type,double min,double max)
   }
 }
 
-void parseLimFile(BVHNode *root, const char *limFile)
+void BVH::parseLimFile(BVHNode *root, const char *limFile) const
 {
   FILE *f = fopen(limFile, "rt");
   char name[32];
@@ -180,7 +199,7 @@ void parseLimFile(BVHNode *root, const char *limFile)
   fclose(f);
 }
 
-void setNumFrames(BVHNode *node, int numFrames) {
+void BVH::setNumFrames(BVHNode *node, int numFrames) const {
   int i;
   node->numFrames = numFrames;
 
@@ -191,7 +210,7 @@ void setNumFrames(BVHNode *node, int numFrames) {
 // in BVH files, this is necessary so that
 // all frames but the start and last aren't
 // blown away by interpolation
-void setAllKeyFrames(BVHNode *node) {
+void BVH::setAllKeyFrames(BVHNode *node) const {
   int i;
   // skip first and last frames, they are automatic key frames
   for (i=1;i<node->numFrames;i++) {
@@ -203,8 +222,9 @@ void setAllKeyFrames(BVHNode *node) {
     setAllKeyFrames(node->child[i]);
 }
 
-BVHNode *bvhRead(const char *file)
+BVHNode* BVH::bvhRead(const char *file) const
 {
+  char buffer[1024];
   FILE *f = fopen(file, "rt");
   BVHNode *root;
 //  BVHNode *node[128];
@@ -221,11 +241,11 @@ BVHNode *bvhRead(const char *file)
   root = bvhReadNode(f);
   expect_token(f, "MOTION");
   expect_token(f, "Frames:");
-  numFrames = atoi(token(f));
+  numFrames = atoi(token(f,buffer));
   setNumFrames(root, numFrames);
   expect_token(f, "Frame");
   expect_token(f, "Time:");
-  root->frameTime = atof(token(f));
+  root->frameTime = atof(token(f,buffer));
   for (i=0; i<numFrames; i++) {
     assignChannels(root, f, i);
   }
@@ -235,12 +255,13 @@ BVHNode *bvhRead(const char *file)
   return(root);
 }
 
-void avmReadKeyFrame(BVHNode *root, FILE *f) {
+void BVH::avmReadKeyFrame(BVHNode *root, FILE *f) const {
   int i;
-  root->numKeyFrames = atoi(token(f));
+  char buffer[1024];
+  root->numKeyFrames = atoi(token(f,buffer));
 
   for (i=0;i<root->numKeyFrames;i++) {
-    root->keyFrames[i] = atoi(token(f));
+    root->keyFrames[i] = atoi(token(f,buffer));
   }
 
   for (i=0;i<root->numChildren;i++) {
@@ -250,9 +271,10 @@ void avmReadKeyFrame(BVHNode *root, FILE *f) {
 
 /* .avm files look suspiciously like .bvh files, except
    with keyframe data tacked at the end -- Lex Neva */
-BVHNode *avmRead(const char *file)
+BVHNode* BVH::avmRead(const char *file) const
 {
   FILE *f = fopen(file, "rt");
+  char buffer[1024];
   BVHNode *root;
 //  BVHNode *node[128];
 //  int numNodes;
@@ -268,11 +290,11 @@ BVHNode *avmRead(const char *file)
   root = bvhReadNode(f);
   expect_token(f, "MOTION");
   expect_token(f, "Frames:");
-  numFrames = atoi(token(f));
+  numFrames = atoi(token(f,buffer));
   setNumFrames(root, numFrames);
   expect_token(f, "Frame");
   expect_token(f, "Time:");
-  root->frameTime = atof(token(f));
+  root->frameTime = atof(token(f,buffer));
   for (i=0; i<numFrames; i++) {
     assignChannels(root, f, i);
   }
@@ -283,7 +305,7 @@ BVHNode *avmRead(const char *file)
   return(root);
 }
 
-BVHNode *animRead(const char *file, const char *limFile) {
+BVHNode* BVH::animRead(const char *file, const char *limFile) const {
   char *fileType;
   char *extension;
   BVHNode *root;
@@ -310,7 +332,7 @@ BVHNode *animRead(const char *file, const char *limFile) {
   return root;
 }
 
-void bvhIndent(FILE *f, int depth)
+void BVH::bvhIndent(FILE *f, int depth)
 {
   int i;
   for (i=0; i<depth; i++) {
@@ -318,11 +340,11 @@ void bvhIndent(FILE *f, int depth)
   }
 }
 
-void bvhWriteNode(BVHNode *node, FILE *f, int depth)
+void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
 {
   int i;
   bvhIndent(f, depth);
-  fprintf(f, "%s %s\n", bvhTypeName[node->type], node->name);
+  fprintf(f, "%s %s\n", bvhTypeName[node->type].latin1(), node->name);
   bvhIndent(f, depth);
   fprintf(f, "{\n");
   bvhIndent(f, depth+1);
@@ -335,7 +357,7 @@ void bvhWriteNode(BVHNode *node, FILE *f, int depth)
     bvhIndent(f, depth+1);
     fprintf(f, "CHANNELS %d ", node->numChannels);
     for (i=0; i<node->numChannels; i++) {
-      fprintf(f, "%s ", bvhChannelName[node->channelType[i]]);
+      fprintf(f, "%s ", bvhChannelName[node->channelType[i]].latin1());
     }
     fprintf(f, "\n");
   }
@@ -346,7 +368,7 @@ void bvhWriteNode(BVHNode *node, FILE *f, int depth)
   fprintf(f, "}\n");
 }
 
-void bvhWriteFrame(BVHNode *node, int frame, FILE *f)
+void BVH::bvhWriteFrame(BVHNode *node, int frame, FILE *f)
 {
   int i;
   for (i=0; i<node->numChannels; i++) {
@@ -357,7 +379,7 @@ void bvhWriteFrame(BVHNode *node, int frame, FILE *f)
   }
 }
 
-void bvhWriteZeroFrame(BVHNode *node, FILE *f)
+void BVH::bvhWriteZeroFrame(BVHNode *node, FILE *f)
 {
   int i;
   for (i=0; i<node->numChannels; i++) {
@@ -375,7 +397,7 @@ void bvhWriteZeroFrame(BVHNode *node, FILE *f)
   }
 }
 
-void bvhWrite(BVHNode *root, const char *file)
+void BVH::bvhWrite(BVHNode *root, const char *file)
 {
   int i;
   FILE *f = fopen(file, "wt");
@@ -392,7 +414,7 @@ void bvhWrite(BVHNode *root, const char *file)
   fclose(f);
 }
 
-void avmWriteKeyFrame(BVHNode *root, FILE *f) {
+void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f) {
   int i;
   fprintf(f, "%d ", root->numKeyFrames);
 
@@ -406,7 +428,7 @@ void avmWriteKeyFrame(BVHNode *root, FILE *f) {
   }
 }
 
-void avmWrite(BVHNode *root, const char *file)
+void BVH::avmWrite(BVHNode *root, const char *file)
 {
   int i;
   FILE *f = fopen(file, "wt");
@@ -426,7 +448,7 @@ void avmWrite(BVHNode *root, const char *file)
   fclose(f);
 }
 
-void animWrite(BVHNode *root, const char *file) {
+void BVH::animWrite(BVHNode *root, const char *file) {
   char *fileType;
   char *extension;
 
@@ -443,7 +465,7 @@ void animWrite(BVHNode *root, const char *file) {
   free(fileType);
 }
 
-void bvhPrintNode(BVHNode *n, int depth)
+void BVH::bvhPrintNode(BVHNode *n, int depth)
 {
   int i;
   for (i=0; i<depth*4; i++) { printf(" "); }
@@ -453,7 +475,7 @@ void bvhPrintNode(BVHNode *n, int depth)
   }
 }
 
-BVHNode *bvhFindNode(BVHNode *root, const char *name)
+BVHNode* BVH::bvhFindNode(BVHNode *root, const char *name) const
 {
   int i;
   BVHNode *node;
@@ -469,7 +491,7 @@ BVHNode *bvhFindNode(BVHNode *root, const char *name)
   return NULL;
 }
 
-void bvhSetChannel(BVHNode *node, int frame, BVHChannelType type, double val)
+void BVH::bvhSetChannel(BVHNode *node, int frame, BVHChannelType type, double val)
 {
   int i;
   if (!node) return;
@@ -481,7 +503,7 @@ void bvhSetChannel(BVHNode *node, int frame, BVHChannelType type, double val)
   }
 }
 
-double bvhGetChannel(BVHNode *node, int frame, BVHChannelType type)
+double BVH::bvhGetChannel(BVHNode *node, int frame, BVHChannelType type)
 {
   int i;
   if (!node) return 0;
@@ -493,7 +515,7 @@ double bvhGetChannel(BVHNode *node, int frame, BVHChannelType type)
   return 0;
 }
 
-void bvhGetChannelLimits(BVHNode *node, BVHChannelType type,
+void BVH::bvhGetChannelLimits(BVHNode *node, BVHChannelType type,
 			 double *min, double *max)
 {
   int i;
@@ -510,7 +532,7 @@ void bvhGetChannelLimits(BVHNode *node, BVHChannelType type,
   }
 }
 
-void bvhResetIK(BVHNode *root)
+void BVH::bvhResetIK(BVHNode *root)
 {
   int i;
   if (root) {
@@ -521,7 +543,7 @@ void bvhResetIK(BVHNode *root)
   }
 }
 
-const char *bvhGetNameHelper(BVHNode *node, int index)
+const char* BVH::bvhGetNameHelper(BVHNode *node, int index)
 {
   int i;
   const char *val;
@@ -536,13 +558,13 @@ const char *bvhGetNameHelper(BVHNode *node, int index)
   return NULL;
 }
 
-const char *bvhGetName(BVHNode *node, int index)
+const char* BVH::bvhGetName(BVHNode *node, int index)
 {
   nodeCount = 0;
   return bvhGetNameHelper(node, index);
 }
 
-int bvhGetIndexHelper(BVHNode *node, const char *name)
+int BVH::bvhGetIndexHelper(BVHNode *node, const char *name)
 {
   int i;
   int val;
@@ -557,13 +579,13 @@ int bvhGetIndexHelper(BVHNode *node, const char *name)
   return 0;
 }
 
-int bvhGetIndex(BVHNode *node, const char *name)
+int BVH::bvhGetIndex(BVHNode *node, const char *name)
 {
   nodeCount = 0;
   return bvhGetIndexHelper(node, name);
 }
 
-void bvhCopyOffsets(BVHNode *dst,BVHNode *src)
+void BVH::bvhCopyOffsets(BVHNode *dst,BVHNode *src)
 {
   int i;
   if (!dst || !src) return;
@@ -575,7 +597,7 @@ void bvhCopyOffsets(BVHNode *dst,BVHNode *src)
   }
 }
 
-int bvhGetFrameData(BVHNode *node, int frame, double *data)
+int BVH::bvhGetFrameData(BVHNode *node, int frame, double *data)
 {
   int n = 0;
   int i;
@@ -590,7 +612,7 @@ int bvhGetFrameData(BVHNode *node, int frame, double *data)
   return n;
 }
 
-int bvhSetFrameData(BVHNode *node, int frame, double *data)
+int BVH::bvhSetFrameData(BVHNode *node, int frame, double *data)
 {
   int n = 0;
 int i;
@@ -605,7 +627,7 @@ int i;
   return n;
 }
 
-void bvhDelete(BVHNode *node) {
+void BVH::bvhDelete(BVHNode *node) {
   int i;
   if (node) {
     for (i=0;i<node->numChildren;i++)
@@ -615,7 +637,7 @@ void bvhDelete(BVHNode *node) {
   }
 }
 
-void bvhSetFrameTime(BVHNode *node, double frameTime) {
+void BVH::bvhSetFrameTime(BVHNode *node, double frameTime) {
   int i;
   node->frameTime = frameTime;
 

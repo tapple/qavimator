@@ -39,6 +39,7 @@
 #include "camera.h"
 #include "rotation.h"
 #include "prop.h"
+#include "bvh.h"
 
 #define MALE_BVH   "data/SLMale.bvh"
 #define FEMALE_BVH "data/SLFemale.bvh"
@@ -74,6 +75,9 @@ class AnimationView : public QGLWidget
 
     AnimationView(QWidget* parent=0,const char* name=0,Animation* anim=0);
     ~AnimationView();
+
+    // exports the BVH class handler (ugly, need to find a better way)
+    BVH* getBVH() const;
 
     // Sets an animation "active"
     void selectAnimation(unsigned int index);
@@ -139,6 +143,8 @@ class AnimationView : public QGLWidget
     void draw();
 
   protected:
+    BVH* bvh;
+
     bool leftMouseButton;
     bool frameProtected;
     char modifier;

@@ -23,16 +23,24 @@
 
 #include <qapplication.h>
 
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 // #include "main.h"
 #include "animation.h"
-#include "bvh.h"
 #include "rotation.h"
+#include "bvh.h"
 
-Animation::Animation(const char *bvhFile) :
+Animation::Animation(BVH* newBVH,const char *bvhFile) :
   frame(0), mirrored(false)
 {
+  bvh=newBVH;
+  if(!bvh)
+  {
+    std::cout << "Animation::Animation(): BVH initialisation failed." << std::endl;
+    return;
+  }
+
   QString fileName;
 
   execPath=qApp->applicationDirPath();
@@ -55,7 +63,7 @@ Animation::Animation(const char *bvhFile) :
 
 Animation::~Animation() {
   if (frames) {
-    bvhDelete(frames);
+    bvh->bvhDelete(frames);
     frames = NULL;
   }
 }
@@ -63,13 +71,13 @@ Animation::~Animation() {
 void Animation::loadBVH(const char *bvhFile)
 {
   QString limFile=execPath+"/"+LIMITS_FILE;
-  frames = animRead(bvhFile, limFile);
+  frames = bvh->animRead(bvhFile, limFile);
   setFrame(0);
 }
 
 void Animation::saveBVH(const char *bvhFile)
 {
-  animWrite(frames, bvhFile);
+  bvh->animWrite(frames, bvhFile);
 }
 
 double Animation::frameTime()
@@ -82,7 +90,7 @@ double Animation::frameTime()
 
 void Animation::setFrameTime(double frameTime) {
   if (frames)
-    bvhSetFrameTime(frames, frameTime);
+    bvh->bvhSetFrameTime(frames, frameTime);
 }
 
 void Animation::setNumberOfFramesHelper(BVHNode *joint, int num)
@@ -147,7 +155,7 @@ int Animation::loopPoint()
 
 void Animation::applyIK(const char *name)
 {
-  BVHNode *node = bvhFindNode(frames, name);
+  BVHNode *node = bvh->bvhFindNode(frames, name);
   if (node) {
     for (int i=0; i<3; i++) {
       node->frame[frame][i] += node->ikRot[i];
@@ -245,7 +253,7 @@ bool Animation::getIK(const char *jointName)
 
 void Animation::solveIK()
 {
-  bvhResetIK(frames);
+  bvh->bvhResetIK(frames);
   if (ikOn[IK_LFOOT]) getEndSite("lFoot")->ikOn = true;
   if (ikOn[IK_RFOOT]) getEndSite("rFoot")->ikOn = true;
   if (ikOn[IK_LHAND]) getEndSite("lHand")->ikOn = true;
@@ -257,18 +265,18 @@ void Animation::solveIK()
 
 void Animation::setRotation(const char *jointName, double x, double y, double z)
 {
-  BVHNode *node = bvhFindNode(frames, jointName);
+  BVHNode *node = bvh->bvhFindNode(frames, jointName);
   BVHNode *node2 = NULL;
   const char *mirrorName;
   if (node) {
-    bvhSetChannel(node, frame, BVH_XROT, x);
-    bvhSetChannel(node, frame, BVH_YROT, y);
-    bvhSetChannel(node, frame, BVH_ZROT, z);
+    bvh->bvhSetChannel(node, frame, BVH_XROT, x);
+    bvh->bvhSetChannel(node, frame, BVH_YROT, y);
+    bvh->bvhSetChannel(node, frame, BVH_ZROT, z);
     if (mirrored && (mirrorName = getPartMirror(jointName))) {
-      node2 = bvhFindNode(frames, mirrorName);
-      bvhSetChannel(node2, frame, BVH_XROT, x);
-      bvhSetChannel(node2, frame, BVH_YROT, -y);
-      bvhSetChannel(node2, frame, BVH_ZROT, -z);
+      node2 = bvh->bvhFindNode(frames, mirrorName);
+      bvh->bvhSetChannel(node2, frame, BVH_XROT, x);
+      bvh->bvhSetChannel(node2, frame, BVH_YROT, -y);
+      bvh->bvhSetChannel(node2, frame, BVH_ZROT, -z);
     }
     for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
     addKeyFrame(node);
@@ -280,11 +288,11 @@ Rotation Animation::getRotation(const char* jointName)
 {
   double x,y,z;
 
-  BVHNode *node = bvhFindNode(frames, jointName);
+  BVHNode *node = bvh->bvhFindNode(frames, jointName);
   if (node) {
-    x = bvhGetChannel(node, frame, BVH_XROT);
-    y = bvhGetChannel(node, frame, BVH_YROT);
-    z = bvhGetChannel(node, frame, BVH_ZROT);
+    x = bvh->bvhGetChannel(node, frame, BVH_XROT);
+    y = bvh->bvhGetChannel(node, frame, BVH_YROT);
+    z = bvh->bvhGetChannel(node, frame, BVH_ZROT);
   }
   else {
     x = y = z = 0;
@@ -306,11 +314,11 @@ RotationLimits Animation::getRotationLimits(const char *jointName)
   double xMin,yMin,zMin,xMax,yMax,zMax;
 
   if (limits) {
-    BVHNode *node = bvhFindNode(frames, jointName);
+    BVHNode *node = bvh->bvhFindNode(frames, jointName);
     if (node) {
-      bvhGetChannelLimits(node, BVH_XROT, &xMin, &xMax);
-      bvhGetChannelLimits(node, BVH_YROT, &yMin, &yMax);
-      bvhGetChannelLimits(node, BVH_ZROT, &zMin, &zMax);
+      bvh->bvhGetChannelLimits(node, BVH_XROT, &xMin, &xMax);
+      bvh->bvhGetChannelLimits(node, BVH_YROT, &yMin, &yMax);
+      bvh->bvhGetChannelLimits(node, BVH_ZROT, &zMin, &zMax);
     }
   }
   else {
@@ -324,7 +332,7 @@ RotationLimits Animation::getRotationLimits(const char *jointName)
 
 int Animation::getRotationOrder(const char *jointName)
 {
-  BVHNode *node = bvhFindNode(frames, jointName);
+  BVHNode *node = bvh->bvhFindNode(frames, jointName);
   if (node) {
     return node->channelOrder;
   }
@@ -333,11 +341,11 @@ int Animation::getRotationOrder(const char *jointName)
 
 void Animation::setPosition(const char *jointName, double x, double y, double z)
 {
-  BVHNode *node = bvhFindNode(frames, jointName);
+  BVHNode *node = bvh->bvhFindNode(frames, jointName);
   if (node) {
-    bvhSetChannel(node, frame, BVH_XPOS, x);
-    bvhSetChannel(node, frame, BVH_YPOS, y);
-    bvhSetChannel(node, frame, BVH_ZPOS, z);
+    bvh->bvhSetChannel(node, frame, BVH_XPOS, x);
+    bvh->bvhSetChannel(node, frame, BVH_YPOS, y);
+    bvh->bvhSetChannel(node, frame, BVH_ZPOS, z);
     for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
     addKeyFrame(node);
   }
@@ -347,11 +355,11 @@ Position Animation::getPosition(const char *jointName)
 {
   double x,y,z;
 
-  BVHNode *node = bvhFindNode(frames, jointName);
+  BVHNode *node = bvh->bvhFindNode(frames, jointName);
   if (node) {
-    x = bvhGetChannel(node, frame, BVH_XPOS);
-    y = bvhGetChannel(node, frame, BVH_YPOS);
-    z = bvhGetChannel(node, frame, BVH_ZPOS);
+    x = bvh->bvhGetChannel(node, frame, BVH_XPOS);
+    y = bvh->bvhGetChannel(node, frame, BVH_YPOS);
+    z = bvh->bvhGetChannel(node, frame, BVH_ZPOS);
   }
   else {
     x = y = z = 0;
@@ -363,17 +371,17 @@ Position Animation::getPosition(const char *jointName)
 
 const char *Animation::getPartName(int index)
 {
-  return bvhGetName(frames, index);
+  return bvh->bvhGetName(frames, index);
 }
 
 int Animation::getPartIndex(const char *part)
 {
-  return bvhGetIndex(frames, part);
+  return bvh->bvhGetIndex(frames, part);
 }
 
 BVHNode *Animation::getEndSite(const char *rootName)
 {
-  BVHNode *node = bvhFindNode(frames, rootName);
+  BVHNode *node = bvh->bvhFindNode(frames, rootName);
   while (node && node->numChildren > 0) {
     node = node->child[0];
   }
@@ -507,7 +515,7 @@ bool Animation::isKeyFrame(const char *jointName) {
   if (jointName == NULL) {
      return isKeyFrame();
   } else {
-    BVHNode *node = bvhFindNode(frames, jointName);
+    BVHNode *node = bvh->bvhFindNode(frames, jointName);
 
     return isKeyFrame(node);
   }
@@ -567,7 +575,7 @@ bool Animation::toggleKeyFrame(const char *jointName) {
   if (jointName == NULL) {
     return toggleKeyFrame();
   } else {
-    BVHNode *node = bvhFindNode(frames, jointName);
+    BVHNode *node = bvh->bvhFindNode(frames, jointName);
 
     if (isKeyFrame(node)) {
       delKeyFrame(node);
@@ -595,12 +603,12 @@ bool Animation::toggleKeyFrame() {
 
 void Animation::getFrameData(double *data)
 {
-  bvhGetFrameData(frames, frame, data);
+  bvh->bvhGetFrameData(frames, frame, data);
 }
 
 void Animation::setFrameData(double *data)
 {
-  bvhSetFrameData(frames, frame, data);
+  bvh->bvhSetFrameData(frames, frame, data);
   addKeyFrame();
 }
 
@@ -610,33 +618,33 @@ void Animation::calcPartMirrors()
   char name[256];
   const char *n;
   partMirror[0] = 0;  // part indices start at 1
-  while ((n = bvhGetName(frames, i))) {
+  while ((n = bvh->bvhGetName(frames, i))) {
     strcpy(name, n);
     if (n[0] == 'r') name[0] = 'l';
     else name[0] = 'r';  // if n doesn't start with l, there will be no match,
                          // which is what we want since partMirror will be 0.
-    partMirror[i++] = bvhGetIndex(frames, name);
+    partMirror[i++] = bvh->bvhGetIndex(frames, name);
   }
 }
 
 const char *Animation::getPartMirror(const char *name)
 {
-  int index = bvhGetIndex(frames, name);
+  int index = bvh->bvhGetIndex(frames, name);
   if (index) index = partMirror[index];
-  return bvhGetName(frames, index);
+  return bvh->bvhGetName(frames, index);
 }
 
 const int* Animation::keyFrames(int jointNumber)
 {
   const char* jointName=getPartName(jointNumber);
-  BVHNode* node=bvhFindNode(frames,jointName);
+  BVHNode* node=bvh->bvhFindNode(frames,jointName);
   return node->keyFrames;
 }
 
 const int Animation::numKeyFrames(int jointNumber)
 {
   const char* jointName=getPartName(jointNumber);
-  BVHNode* node=bvhFindNode(frames,jointName);
+  BVHNode* node=bvh->bvhFindNode(frames,jointName);
 //  qDebug(QString("joint number %1 has %2 keyframes").arg(jointNumber).arg(node->numKeyFrames));
   return node->numKeyFrames;
 }
@@ -656,7 +664,7 @@ void Animation::moveKeyFrame(int jointNumber,int from,int to,bool copy)
 
   // get the joint structure
   const char* jointName=getPartName(jointNumber);
-  BVHNode* joint=bvhFindNode(frames,jointName);
+  BVHNode* joint=bvh->bvhFindNode(frames,jointName);
 
   // get rotation and position of the body part
   Rotation rot=getRotation(jointName);
@@ -682,26 +690,26 @@ bool Animation::compareFrames(const char* jointName,int key1,int key2)
   double x1,y1,z1;
   double x2,y2,z2;
 
-  BVHNode *node=bvhFindNode(frames,jointName);
+  BVHNode *node=bvh->bvhFindNode(frames,jointName);
   if(node)
   {
-    x1=bvhGetChannel(node,key1,BVH_XROT);
-    y1=bvhGetChannel(node,key1,BVH_YROT);
-    z1=bvhGetChannel(node,key1,BVH_ZROT);
-    x2=bvhGetChannel(node,key2,BVH_XROT);
-    y2=bvhGetChannel(node,key2,BVH_YROT);
-    z2=bvhGetChannel(node,key2,BVH_ZROT);
+    x1=bvh->bvhGetChannel(node,key1,BVH_XROT);
+    y1=bvh->bvhGetChannel(node,key1,BVH_YROT);
+    z1=bvh->bvhGetChannel(node,key1,BVH_ZROT);
+    x2=bvh->bvhGetChannel(node,key2,BVH_XROT);
+    y2=bvh->bvhGetChannel(node,key2,BVH_YROT);
+    z2=bvh->bvhGetChannel(node,key2,BVH_ZROT);
 
     if(x1!=x2) return false;
     if(y1!=y2) return false;
     if(z1!=z2) return false;
 
-    x1=bvhGetChannel(node,key1,BVH_XPOS);
-    y1=bvhGetChannel(node,key1,BVH_YPOS);
-    z1=bvhGetChannel(node,key1,BVH_ZPOS);
-    x2=bvhGetChannel(node,key2,BVH_XPOS);
-    y2=bvhGetChannel(node,key2,BVH_YPOS);
-    z2=bvhGetChannel(node,key2,BVH_ZPOS);
+    x1=bvh->bvhGetChannel(node,key1,BVH_XPOS);
+    y1=bvh->bvhGetChannel(node,key1,BVH_YPOS);
+    z1=bvh->bvhGetChannel(node,key1,BVH_ZPOS);
+    x2=bvh->bvhGetChannel(node,key2,BVH_XPOS);
+    y2=bvh->bvhGetChannel(node,key2,BVH_YPOS);
+    z2=bvh->bvhGetChannel(node,key2,BVH_ZPOS);
 
     if(x1!=x2) return false;
     if(y1!=y2) return false;

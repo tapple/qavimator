@@ -24,13 +24,14 @@
 
 #include <qobject.h>
 
-#include "bvh.h"
 #include "iktree.h"
 #include "rotation.h"
 
 //#define DEFAULT_POSE "data/TPose.avm"
 #define DEFAULT_POSE "data/Relaxed.avm"
 #define LIMITS_FILE "data/SL.lim"
+
+class BVH;
 
 class Animation : public QObject
 {
@@ -39,8 +40,9 @@ class Animation : public QObject
   public:
     typedef enum { IK_LHAND=0, IK_RHAND, IK_LFOOT, IK_RFOOT, NUM_IK } IKPartType;
 
-  Animation(const char *bvhFile = NULL);
+  Animation(BVH* bvh,const char *bvhFile = NULL);
   ~Animation();
+
   void loadBVH(const char *bvhFile);
   void saveBVH(const char *bvhFile);
   double frameTime();
@@ -101,6 +103,7 @@ class Animation : public QObject
     void keyframeRemoved(int partIndex,int frameNumber);
 
  private:
+  BVH* bvh;
   BVHNode *frames;
   int frame;
   int loopingPoint;

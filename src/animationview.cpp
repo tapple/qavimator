@@ -46,8 +46,15 @@ const char AnimationView::figureFiles[NUM_FIGURES][256] = {
 AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
  : QGLWidget(parent,name)
 {
+  bvh=new BVH();
+  if(!bvh)
+  {
+    std::cout << "AnimationView::AnimationView(): BVH initialisation failed." << std::endl;
+    return;
+  }
   // Ptrlist properties
   animList.setAutoDelete(true);
+  animation=0;
 
   // fake glut initialization
   int args=1;
@@ -79,7 +86,7 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
 
   for (int i=0; i<NUM_FIGURES; i++) {
     QString fileName=execPath+"/"+figureFiles[i];
-    joints[i] = animRead(fileName, limFile);
+    joints[i] = bvh->animRead(fileName, limFile);
   }
 
   leftMouseButton=false;
@@ -96,6 +103,11 @@ AnimationView::~AnimationView()
 {
     clear();
     animList.clear();
+}
+
+BVH* AnimationView::getBVH() const
+{
+  return bvh;
 }
 
 void AnimationView::selectAnimation(unsigned int index)

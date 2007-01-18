@@ -639,7 +639,7 @@ void qavimator::fileNew()
 {
   setCurrentFile(UNTITLED_NAME);
 
-  Animation* anim=new Animation();
+  Animation* anim=new Animation(animationView->getBVH());
   animationView->setAnimation(anim);
   timeline->setAnimation(anim);
   selectAnimation(anim);
@@ -711,7 +711,7 @@ void qavimator::fileAdd(const QString& name)
     if(fileInfo.exists())
     {
       addToOpenFiles(file);
-      Animation* anim=new Animation(file);
+      Animation* anim=new Animation(animationView->getBVH(),file);
       animationIds.append((unsigned long) anim);
 
       setCurrentFile(file);
