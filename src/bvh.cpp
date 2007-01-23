@@ -282,7 +282,7 @@ BVHNode* BVH::avmRead(const char *file) const
   int i;
 
   if (!f) {
-    fprintf(stderr, "BVH File not found: %s\n", file);
+    fprintf(stderr, "AVM File not found: %s\n", file);
     return NULL;
   }
 
