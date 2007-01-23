@@ -38,13 +38,10 @@ BVH::BVH()
   bvhChannelName.append("Xrotation");
   bvhChannelName.append("Yrotation");
   bvhChannelName.append("Zrotation");
-
-//  tokenBuf=(char*) malloc(1024);
 }
 
 BVH::~ BVH()
 {
-//  free(tokenBuf);
 }
 
 char* BVH::token(FILE *f,char* tokenBuf) const
