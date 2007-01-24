@@ -26,10 +26,6 @@
 
 #define MAX_FRAMES 1800
 
-#define BOOL int
-#define false 0
-#define true 1
-
 typedef enum { BVH_ROOT=0, BVH_JOINT=1, BVH_END=2 } BVHNodeType;
 typedef enum { BVH_XPOS, BVH_YPOS, BVH_ZPOS, BVH_XROT, BVH_YROT, BVH_ZROT } BVHChannelType;
 typedef enum { BVH_XYZ=1, BVH_ZYX, BVH_XZY, BVH_YZX, BVH_YXZ, BVH_ZXY} BVHOrderType;
@@ -45,7 +41,7 @@ typedef struct _BVHNode {
   double channelMax[6];
   int numFrames;
   double frame[MAX_FRAMES][6];
-  BOOL ikOn;
+  bool ikOn;
   double ikRot[3];
   double ikGoalPos[3];
   double ikGoalDir[3];
