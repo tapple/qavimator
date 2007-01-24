@@ -73,23 +73,17 @@ int BVH::expect_token(FILE *f, char *name) const
 
 BVHNode* BVH::bvhReadNode(FILE *f) const
 {
-  BVHNode *node = (BVHNode *)malloc(sizeof(BVHNode));
-  BVHNode *child;
+  BVHNode* node = new BVHNode();
+  BVHNode* child = NULL;
   char order[4];
   char buffer[1024];
   const char *type = token(f,buffer);
   int i;
 
-  node->numChildren = node->numChannels = 0;
-  node->numKeyFrames = 0;
-  node->ikRot[0] = node->ikRot[1] = node->ikRot[2] = 0;
-  node->ikGoalPos[0] = node->ikGoalPos[1] = node->ikGoalPos[2] = 0;
-  node->ikGoalDir[0] = node->ikGoalDir[2] = 0;
-  node->ikGoalDir[1] = 1;
   if (!strcasecmp(type, "ROOT")) { node->type = BVH_ROOT; }
   else if (!strcasecmp(type, "JOINT")) { node->type = BVH_JOINT; }
   else if (!strcasecmp(type, "END")) { node->type = BVH_END; }
-  else if (!strcmp(type, "}")) { free(node); return NULL; }
+  else if (!strcmp(type, "}")) { delete node; return NULL; }
   else {
     fprintf(stderr, "Bad BVH file: unknown node type: %s\n", type);
     return NULL;

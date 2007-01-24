@@ -22,7 +22,9 @@
 #ifndef IKTREE_H
 #define IKTREE_H
 
-#include "bvh.h"
+// #include "bvh.h"
+#include "bvhnode.h"
+
 #include "MT_Quaternion.h"
 
 #define MAX_BONES 50

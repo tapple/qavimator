@@ -32,6 +32,7 @@
 #include <qtimer.h>
 
 #include "animationview.h"
+#include "bvh.h"
 #include "slparts.h"
 
 #define SHIFT 1
