@@ -25,6 +25,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <qstring.h>
+#include <qfile.h>
+#include <qmessagebox.h>
+
 #include "bvh.h"
 
 BVH::BVH()
@@ -165,35 +169,46 @@ void BVH::setChannelLimits(BVHNode *node,BVHChannelType type,double min,double m
   }
 }
 
+// read joint limits file
 void BVH::parseLimFile(BVHNode *root, const char *limFile) const
 {
-  FILE *f = fopen(limFile, "rt");
-  char name[32];
-  char channel[5];
-  double min, max;
-  double weight;
+  QFile f(limFile);
   BVHNode *node;
 
-  if (!f) {
-    fprintf(stderr, "Limits file not found: %s\n", limFile);
+  if (!f.open(IO_ReadOnly))
+  {
+    QMessageBox::critical(0,QObject::tr("Missing Limits File"),QObject::tr("<qt>Limits file not found at:<br>%1</qt>").arg(limFile));
     return;
   }
 
-  while (!feof(f)) {
-    int i;
-    if(fscanf(f, "%s %lf", name, &weight)); // fix compiler warning
+  while (!f.atEnd())
+  {
+    QString line;
+    if(!f.readLine(line,4096))
+    {
+      QMessageBox::critical(0,QObject::tr("Error reading limits file"),QObject::tr("Error reading limits file."));
+      return;
+    }
+
+    QStringList parameters=QStringList::split(' ',line);
+    QString name=parameters[0];
+    double weight=parameters[1].toDouble();
+
     node = bvhFindNode(root, name);
     node->ikWeight = weight;
-    for (i=0; i<3; i++) {
-      if(fscanf (f, "%s %lf %lf", channel, &min, &max)); // fix compiler warning
-      switch (channel[0]) {
-      case 'X': setChannelLimits(node, BVH_XROT, min, max); break;
-      case 'Y': setChannelLimits(node, BVH_YROT, min, max); break;
-      case 'Z': setChannelLimits(node, BVH_ZROT, min, max); break;
-      }
+
+    for(int i=0;i<3;i++)
+    {
+      QString channel=parameters[i*3+2];
+      double min=parameters[i*3+3].toDouble();
+      double max=parameters[i*3+4].toDouble();
+
+      if(channel.startsWith("X")) setChannelLimits(node, BVH_XROT, min, max);
+      else if(channel.startsWith("Y")) setChannelLimits(node, BVH_YROT, min, max);
+      else if(channel.startsWith("Z")) setChannelLimits(node, BVH_ZROT, min, max);
     }
   }
-  fclose(f);
+  f.close();
 }
 
 void BVH::setNumFrames(BVHNode *node, int numFrames) const {
