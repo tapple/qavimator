@@ -34,7 +34,7 @@ void doDrawMale(int num,const double* normals,const double* vertices)
   glEnd();
 }
 
-void drawSLMalePart(char *name) {
+void drawSLMalePart(const char *name) {
   if (!strcasecmp(name, "End")) {
     return;
   }

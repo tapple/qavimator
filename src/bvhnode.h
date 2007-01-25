@@ -29,14 +29,33 @@ typedef enum { BVH_ROOT=0, BVH_JOINT=1, BVH_END=2 } BVHNodeType;
 typedef enum { BVH_XPOS, BVH_YPOS, BVH_ZPOS, BVH_XROT, BVH_YROT, BVH_ZROT } BVHChannelType;
 typedef enum { BVH_XYZ=1, BVH_ZYX, BVH_XZY, BVH_YZX, BVH_YXZ, BVH_ZXY} BVHOrderType;
 
+/* Not yet Functional
+class Keyframe
+{
+  public:
+    double xRot;
+    double yRot;
+    double zRot;
+
+    double xPos;
+    double yPos;
+    double zPos;
+
+    bool easeIn;
+    bool easeOut;
+};
+*/
+
 class BVHNode
 {
   public:
     BVHNode();
     ~BVHNode();
 
+    void setName(const QString& newName);
+    const QString& name() const;
+
   public:
-    QString name;
     BVHNodeType type;
     double offset[3];
     int numChannels;
@@ -55,7 +74,10 @@ class BVHNode
     int keyFrames[MAX_FRAMES];
     double frameTime;
     int numChildren;
-    BVHNode *child[16];
+    BVHNode* child[16];
+
+  protected:
+    QString m_name;
 };
 
 #endif

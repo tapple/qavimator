@@ -796,11 +796,11 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
 	glColor4f(0.4, 0.5, 0.3, 1);
       else
 	glColor4f(0.6, 0.5, 0.5, 1);
-      if (anim->getIK(motion->name)) {
+      if (anim->getIK(motion->name())) {
 	glGetFloatv(GL_CURRENT_COLOR, color);
 	glColor4f(color[0], color[1], color[2]+0.3, color[3]);
       }
-      figType==MALE ? drawSLMalePart(motion->name):drawSLFemalePart(motion->name);
+      figType==MALE ? drawSLMalePart(motion->name()):drawSLFemalePart(motion->name());
 
       for(unsigned int index=0;index<propList.count();index++)
       {

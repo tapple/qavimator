@@ -73,22 +73,25 @@ int BVH::expect_token(FILE *f, char *name) const
 
 BVHNode* BVH::bvhReadNode(FILE *f) const
 {
+  char buffer[1024];
+  const char *type = token(f,buffer);
+  if (!strcmp(type, "}")) { return NULL; }
+
   BVHNode* node = new BVHNode();
   BVHNode* child = NULL;
   char order[4];
-  char buffer[1024];
-  const char *type = token(f,buffer);
   int i;
 
   if (!strcasecmp(type, "ROOT")) { node->type = BVH_ROOT; }
   else if (!strcasecmp(type, "JOINT")) { node->type = BVH_JOINT; }
   else if (!strcasecmp(type, "END")) { node->type = BVH_END; }
-  else if (!strcmp(type, "}")) { delete node; return NULL; }
   else {
     fprintf(stderr, "Bad BVH file: unknown node type: %s\n", type);
+    delete node;
     return NULL;
   }
-  strcpy(node->name, token(f,buffer));
+  node->setName(token(f,buffer));
+//  strcpy(node->name, token(f,buffer));
   expect_token(f, "{");
   expect_token(f, "OFFSET");
   node->offset[0] = atof(token(f,buffer));
@@ -350,7 +353,9 @@ void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
 {
   int i;
   bvhIndent(f, depth);
-  fprintf(f, "%s %s\n", bvhTypeName[node->type].latin1(), node->name);
+  QString line=QString("%1 %2\n").arg(bvhTypeName[node->type]).arg(node->name());
+  fprintf(f,line);
+//  fprintf(f, "%s %s\n", bvhTypeName[node->type].latin1(), node->name);
   bvhIndent(f, depth);
   fprintf(f, "{\n");
   bvhIndent(f, depth+1);
@@ -475,7 +480,9 @@ void BVH::bvhPrintNode(BVHNode *n, int depth)
 {
   int i;
   for (i=0; i<depth*4; i++) { printf(" "); }
-  printf("%s (%lf %lf %lf)\n", n->name, n->offset[0], n->offset[1], n->offset[2]);
+  QString line=QString("%1 (%2 %3 %4)").arg(n->name()).arg(n->offset[0]).arg(n->offset[1]).arg(n->offset[2]);
+  printf(line);
+//  printf("%s (%lf %lf %lf)\n", n->name, n->offset[0], n->offset[1], n->offset[2]);
   for (i=0; i<n->numChildren; i++) {
     bvhPrintNode(n->child[i], depth+1);
   }
@@ -486,7 +493,7 @@ BVHNode* BVH::bvhFindNode(BVHNode *root, const char *name) const
   int i;
   BVHNode *node;
   if (!root) return NULL;
-  if (!strcmp(root->name, name))
+  if (!strcmp(root->name(), name))
     return root;
 
   for (i=0; i<root->numChildren; i++) {
@@ -556,7 +563,7 @@ const char* BVH::bvhGetNameHelper(BVHNode *node, int index)
 
   nodeCount++;
   if (nodeCount == index)
-    return (const char *)(node->name);
+    return (const char *)(node->name());
   for (i=0; i<node->numChildren; i++) {
     if ((val = bvhGetNameHelper(node->child[i], index)))
       return val;
@@ -576,7 +583,7 @@ int BVH::bvhGetIndexHelper(BVHNode *node, const char *name)
   int val;
 
   nodeCount++;
-  if (!strcmp(node->name, name))
+  if (!strcmp(node->name(), name))
     return nodeCount;
   for (i=0; i<node->numChildren; i++) {
     if ((val = bvhGetIndexHelper(node->child[i], name)))

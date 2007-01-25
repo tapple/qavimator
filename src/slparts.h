@@ -28,7 +28,7 @@
 #include <GL/glu.h>
 #endif
 
-void drawSLMalePart(char *name);
-void drawSLFemalePart(char *name);
+void drawSLMalePart(const char *name);
+void drawSLFemalePart(const char *name);
 
 #endif

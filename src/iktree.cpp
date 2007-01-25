@@ -53,7 +53,7 @@ void IKTree::setGoal(int frame, const char *name)
   reset(frame);
 
   for (int i=0; i<numBones; i++) {
-    if (!strcmp(bone[i].node->name, name)) {
+    if (!strcmp(bone[i].node->name(), name)) {
       int j = bone[i].child[0];
       BVHNode *n = bone[j].node;
       n->ikGoalPos[0] = bone[j].pos[0];

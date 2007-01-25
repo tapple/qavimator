@@ -390,8 +390,8 @@ BVHNode *Animation::getEndSite(const char *rootName)
 
 bool Animation::isSecondLifeJoint(BVHNode *joint)
 {
-  return !(!strcmp(joint->name, "neckDummy") ||
-	   !strcmp(joint->name, "figureHair"));
+  return !(!strcmp(joint->name(), "neckDummy") ||
+	   !strcmp(joint->name(), "figureHair"));
 }
 
 void Animation::addKeyFrameHelper(BVHNode *joint)
@@ -431,7 +431,7 @@ void Animation::addKeyFrame(BVHNode *joint)
   }
 
   interpolateFrames(joint);
-  emit keyframeAdded(getPartIndex(joint->name),frame);
+  emit keyframeAdded(getPartIndex(joint->name()),frame);
   emit frameChanged();
 }
 
@@ -552,7 +552,7 @@ void Animation::delKeyFrame(BVHNode *joint,bool silent) {
   }
 
   interpolateFrames(joint);
-  emit keyframeRemoved(getPartIndex(joint->name),frame);
+  emit keyframeRemoved(getPartIndex(joint->name()),frame);
   if(!silent) emit frameChanged();
 }
 

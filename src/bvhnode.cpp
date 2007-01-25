@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <qapplication.h>
+
 #include "bvhnode.h"
 
 BVHNode::BVHNode()
@@ -41,4 +43,14 @@ BVHNode::BVHNode()
 
 BVHNode::~BVHNode()
 {
+}
+
+const QString& BVHNode::name() const
+{
+  return m_name;
+}
+
+void BVHNode::setName(const QString& newName)
+{
+  m_name=newName;
 }
