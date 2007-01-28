@@ -31,8 +31,7 @@ HEADERS += GEN_List.h \
            MT_Vector2.h \
            MT_Vector3.h \
            MT_Vector4.h \
-           NM_Scalar.h \
-           bvhnode.h 
+           NM_Scalar.h 
 SOURCES += MEM_RefCountedC-Api.cpp \
            MT_Assert.cpp \
            MT_CmMatrix4x4.cpp \
@@ -46,8 +45,7 @@ SOURCES += MEM_RefCountedC-Api.cpp \
            MT_Transform.cpp \
            MT_Vector2.cpp \
            MT_Vector3.cpp \
-           MT_Vector4.cpp \
-           bvhnode.cpp 
+           MT_Vector4.cpp 
 CONFIG += release \
 warn_on \
 qt \
