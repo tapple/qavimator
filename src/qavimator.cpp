@@ -111,6 +111,8 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(positionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_FrameSlider(int)));
   connect(playButton,SIGNAL(clicked()),this,SLOT(cb_PlayBtn()));
 
+  connect(fpsSpin,SIGNAL(valueChanged(int)),this,SLOT(cb_fpsValue(int)));
+
   connect(this,SIGNAL(enableProps(bool)),propPositionGroup,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enableProps(bool)),propScaleGroup,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enableProps(bool)),propRotationGroup,SLOT(setEnabled(bool)));
