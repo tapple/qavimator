@@ -105,9 +105,9 @@ void IKTree::addJoint(BVHNode *node)
   bone[numBones].numChildren = 0;
 
   int myNumBones = numBones++;
-  for (int i=0; i<node->numChildren; i++) {
+  for (int i=0; i<node->numChildren(); i++) {
     bone[myNumBones].child[bone[myNumBones].numChildren++] = numBones;
-    addJoint(node->child[i]);
+    addJoint(node->child(i));
   }
 }
 

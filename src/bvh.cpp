@@ -133,7 +133,7 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
   }
   do {
     if ((child = bvhReadNode(f))) {
-      node->child[node->numChildren++] = child;
+      node->addChild(child);
     }
   } while (child != NULL);
   return node;
@@ -148,8 +148,8 @@ void BVH::assignChannels(BVHNode *node, FILE *f, int frame) const
     node->frame[frame][i] = atof(token(f,buffer));
   }
 
-  for (i=0; i<node->numChildren; i++) {
-    assignChannels(node->child[i], f, frame);
+  for (i=0; i<node->numChildren(); i++) {
+    assignChannels(node->child(i), f, frame);
   }
 }
 
@@ -212,8 +212,8 @@ void BVH::setNumFrames(BVHNode *node, int numFrames) const {
   int i;
   node->numFrames = numFrames;
 
-  for (i=0;i<node->numChildren;i++)
-    setNumFrames(node->child[i], numFrames);
+  for (i=0;i<node->numChildren();i++)
+    setNumFrames(node->child(i), numFrames);
 }
 
 // in BVH files, this is necessary so that
@@ -227,8 +227,8 @@ void BVH::setAllKeyFrames(BVHNode *node) const {
     node->numKeyFrames++;
   }
 
-  for (i=0;i<node->numChildren;i++)
-    setAllKeyFrames(node->child[i]);
+  for (i=0;i<node->numChildren();i++)
+    setAllKeyFrames(node->child(i));
 }
 
 BVHNode* BVH::bvhRead(const char *file) const
@@ -273,8 +273,8 @@ void BVH::avmReadKeyFrame(BVHNode *root, FILE *f) const {
     root->keyFrames[i] = atoi(token(f,buffer));
   }
 
-  for (i=0;i<root->numChildren;i++) {
-    avmReadKeyFrame(root->child[i], f);
+  for (i=0;i<root->numChildren();i++) {
+    avmReadKeyFrame(root->child(i), f);
   }
 }
 
@@ -372,8 +372,8 @@ void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
     }
     fprintf(f, "\n");
   }
-  for (i=0; i<node->numChildren; i++) {
-    bvhWriteNode(node->child[i], f, depth+1);
+  for (i=0; i<node->numChildren(); i++) {
+    bvhWriteNode(node->child(i), f, depth+1);
   }
   bvhIndent(f, depth);
   fprintf(f, "}\n");
@@ -385,8 +385,8 @@ void BVH::bvhWriteFrame(BVHNode *node, int frame, FILE *f)
   for (i=0; i<node->numChannels; i++) {
     fprintf(f, "%f ", node->frame[frame][i]);
   }
-  for (i=0; i<node->numChildren; i++) {
-    bvhWriteFrame(node->child[i], frame, f);
+  for (i=0; i<node->numChildren(); i++) {
+    bvhWriteFrame(node->child(i), frame, f);
   }
 }
 
@@ -403,8 +403,8 @@ void BVH::bvhWriteZeroFrame(BVHNode *node, FILE *f)
       fprintf(f, "0.000000 ");
     }
   }
-  for (i=0; i<node->numChildren; i++) {
-    bvhWriteZeroFrame(node->child[i], f);
+  for (i=0; i<node->numChildren(); i++) {
+    bvhWriteZeroFrame(node->child(i), f);
   }
 }
 
@@ -434,8 +434,8 @@ void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f) {
   }
   fprintf(f, "\n");
 
-  for (i=0;i<root->numChildren;i++) {
-    avmWriteKeyFrame(root->child[i], f);
+  for (i=0;i<root->numChildren();i++) {
+    avmWriteKeyFrame(root->child(i), f);
   }
 }
 
@@ -483,8 +483,8 @@ void BVH::bvhPrintNode(BVHNode *n, int depth)
   QString line=QString("%1 (%2 %3 %4)").arg(n->name()).arg(n->offset[0]).arg(n->offset[1]).arg(n->offset[2]);
   printf(line);
 //  printf("%s (%lf %lf %lf)\n", n->name, n->offset[0], n->offset[1], n->offset[2]);
-  for (i=0; i<n->numChildren; i++) {
-    bvhPrintNode(n->child[i], depth+1);
+  for (i=0; i<n->numChildren(); i++) {
+    bvhPrintNode(n->child(i), depth+1);
   }
 }
 
@@ -496,8 +496,8 @@ BVHNode* BVH::bvhFindNode(BVHNode *root, const char *name) const
   if (!strcmp(root->name(), name))
     return root;
 
-  for (i=0; i<root->numChildren; i++) {
-    if ((node=bvhFindNode(root->child[i], name)))
+  for (i=0; i<root->numChildren(); i++) {
+    if ((node=bvhFindNode(root->child(i), name)))
       return node;
   }
 
@@ -550,8 +550,8 @@ void BVH::bvhResetIK(BVHNode *root)
   int i;
   if (root) {
     root->ikOn = false;
-    for (i=0; i<root->numChildren; i++) {
-      bvhResetIK(root->child[i]);
+    for (i=0; i<root->numChildren(); i++) {
+      bvhResetIK(root->child(i));
     }
   }
 }
@@ -564,8 +564,8 @@ const char* BVH::bvhGetNameHelper(BVHNode *node, int index)
   nodeCount++;
   if (nodeCount == index)
     return (const char *)(node->name());
-  for (i=0; i<node->numChildren; i++) {
-    if ((val = bvhGetNameHelper(node->child[i], index)))
+  for (i=0; i<node->numChildren(); i++) {
+    if ((val = bvhGetNameHelper(node->child(i), index)))
       return val;
   }
   return NULL;
@@ -585,8 +585,8 @@ int BVH::bvhGetIndexHelper(BVHNode *node, const char *name)
   nodeCount++;
   if (!strcmp(node->name(), name))
     return nodeCount;
-  for (i=0; i<node->numChildren; i++) {
-    if ((val = bvhGetIndexHelper(node->child[i], name)))
+  for (i=0; i<node->numChildren(); i++) {
+    if ((val = bvhGetIndexHelper(node->child(i), name)))
       return val;
   }
   return 0;
@@ -605,8 +605,8 @@ void BVH::bvhCopyOffsets(BVHNode *dst,BVHNode *src)
   dst->offset[0] = src->offset[0];
   dst->offset[1] = src->offset[1];
   dst->offset[2] = src->offset[2];
-  for (i=0; i<src->numChildren; i++) {
-    bvhCopyOffsets(dst->child[i], src->child[i]);
+  for (i=0; i<src->numChildren(); i++) {
+    bvhCopyOffsets(dst->child(i), src->child(i));
   }
 }
 
@@ -619,8 +619,8 @@ int BVH::bvhGetFrameData(BVHNode *node, int frame, double *data)
   for (i=0; i<node->numChannels; i++) {
     data[n++] = node->frame[frame][i];
   }
-  for (i=0; i<node->numChildren; i++) {
-    n += bvhGetFrameData(node->child[i], frame, data + n);
+  for (i=0; i<node->numChildren(); i++) {
+    n += bvhGetFrameData(node->child(i), frame, data + n);
   }
   return n;
 }
@@ -634,8 +634,8 @@ int i;
   for (i=0; i<node->numChannels; i++) {
     node->frame[frame][i] = data[n++];
   }
-  for (i=0; i<node->numChildren; i++) {
-    n += bvhSetFrameData(node->child[i], frame, data + n);
+  for (i=0; i<node->numChildren(); i++) {
+    n += bvhSetFrameData(node->child(i), frame, data + n);
   }
   return n;
 }
@@ -643,8 +643,8 @@ int i;
 void BVH::bvhDelete(BVHNode *node) {
   int i;
   if (node) {
-    for (i=0;i<node->numChildren;i++)
-      bvhDelete(node->child[i]);
+    for (i=0;i<node->numChildren();i++)
+      bvhDelete(node->child(i));
 
     free(node);
   }
@@ -654,6 +654,6 @@ void BVH::bvhSetFrameTime(BVHNode *node, double frameTime) {
   int i;
   node->frameTime = frameTime;
 
-  for (i=0;i<node->numChildren;i++)
-      bvhSetFrameTime(node->child[i], frameTime);
+  for (i=0;i<node->numChildren();i++)
+      bvhSetFrameTime(node->child(i), frameTime);
 }

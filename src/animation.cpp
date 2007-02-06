@@ -105,8 +105,8 @@ void Animation::setNumberOfFramesHelper(BVHNode *joint, int num)
     }
   }
   joint->numFrames = num;
-  for (int i=0; i < joint->numChildren; i++)
-    setNumberOfFramesHelper(joint->child[i], num);
+  for (int i=0; i < joint->numChildren(); i++)
+    setNumberOfFramesHelper(joint->child(i), num);
 }
 
 void Animation::setNumberOfFrames(int num)
@@ -382,13 +382,13 @@ int Animation::getPartIndex(const char *part)
 BVHNode *Animation::getEndSite(const char *rootName)
 {
   BVHNode *node = bvh->bvhFindNode(frames, rootName);
-  while (node && node->numChildren > 0) {
-    node = node->child[0];
+  while (node && node->numChildren() > 0) {
+    node = node->child(0);
   }
   return node;
 }
 
-bool Animation::isSecondLifeJoint(BVHNode *joint)
+bool Animation::isSecondLifeJoint(const BVHNode* joint)
 {
   return !(!strcmp(joint->name(), "neckDummy") ||
 	   !strcmp(joint->name(), "figureHair"));
@@ -397,8 +397,8 @@ bool Animation::isSecondLifeJoint(BVHNode *joint)
 void Animation::addKeyFrameHelper(BVHNode *joint)
 {
   addKeyFrame(joint);
-  for (int i=0; i < joint->numChildren; i++)
-    addKeyFrameHelper(joint->child[i]);
+  for (int i=0; i < joint->numChildren(); i++)
+    addKeyFrameHelper(joint->child(i));
 }
 
 void Animation::addKeyFrame()
@@ -487,8 +487,8 @@ bool Animation::isKeyFrameHelper(BVHNode *joint) {
   if (isKeyFrame(joint))
     return true;
 
-  for (int i=0;i<joint->numChildren;i++) {
-    if (isKeyFrameHelper(joint->child[i])) {
+  for (int i=0;i<joint->numChildren();i++) {
+    if (isKeyFrameHelper(joint->child(i))) {
       return true;
     }
   }
@@ -559,8 +559,8 @@ void Animation::delKeyFrame(BVHNode *joint,bool silent) {
 void Animation::delKeyFrameHelper(BVHNode *joint) {
   delKeyFrame(joint);
 
-  for (int i=0;i<joint->numChildren;i++)
-    delKeyFrameHelper(joint->child[i]);
+  for (int i=0;i<joint->numChildren();i++)
+    delKeyFrameHelper(joint->child(i));
 }
 
 void Animation::delKeyFrame() {

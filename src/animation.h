@@ -91,7 +91,7 @@ class Animation : public QObject
 
   bool compareFrames(const char* jointName,int key1,int key2);
 
-  static bool isSecondLifeJoint(BVHNode *joint);
+  static bool isSecondLifeJoint(const BVHNode *joint);
 
   enum { MAX_PARTS = 64 };
 

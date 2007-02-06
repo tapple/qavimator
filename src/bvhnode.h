@@ -22,6 +22,7 @@
 #define BVHNODE_H
 
 #include <qstring.h>
+#include <qptrlist.h>
 
 #define MAX_FRAMES 1800
 
@@ -54,6 +55,9 @@ class BVHNode
 
     void setName(const QString& newName);
     const QString& name() const;
+    int numChildren() const;
+    BVHNode* child(int num);
+    void addChild(BVHNode* newChild);
 
   public:
     BVHNodeType type;
@@ -73,11 +77,10 @@ class BVHNode
     int numKeyFrames;
     int keyFrames[MAX_FRAMES];
     double frameTime;
-    int numChildren;
-    BVHNode* child[16];
 
   protected:
     QString m_name;
+    QPtrList<BVHNode> children;
 };
 
 #endif

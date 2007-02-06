@@ -740,7 +740,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
     glTranslatef(joints->offset[0], joints->offset[1], joints->offset[2]);
     if (!Animation::isSecondLifeJoint(motion)) {
       selectName++;
-      motion = motion->child[0];
+      motion = motion->child(0);
     }
     if (mode == MODE_SKELETON && skeleton && !selecting) {
       glColor4f(0,1,1,1);
@@ -808,8 +808,8 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
         if(prop->isAttached()==selectName) drawProp(prop);
       } // for
     }
-    for (int i=0; i<motion->numChildren; i++) {
-      drawPart(anim, currentAnimationIndex, frame, motion->child[i], joints->child[i], mode);
+    for (int i=0; i<motion->numChildren(); i++) {
+      drawPart(anim, currentAnimationIndex, frame, motion->child(i), joints->child(i), mode);
     }
     glPopMatrix();
   }

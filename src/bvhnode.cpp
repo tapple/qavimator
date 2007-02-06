@@ -24,7 +24,7 @@
 
 BVHNode::BVHNode()
 {
-  numChildren=0;
+  children.clear();
   numChannels=0;
   numKeyFrames=0;
 
@@ -53,4 +53,19 @@ const QString& BVHNode::name() const
 void BVHNode::setName(const QString& newName)
 {
   m_name=newName;
+}
+
+int BVHNode::numChildren() const
+{
+  return children.count();
+}
+
+BVHNode* BVHNode::child(int num)
+{
+  return children.at(num);
+}
+
+void BVHNode::addChild(BVHNode* newChild)
+{
+  children.append(newChild);
 }
