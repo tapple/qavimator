@@ -23,6 +23,9 @@
 
 #include <qstring.h>
 #include <qptrlist.h>
+#include <qmap.h>
+
+#include "rotation.h"
 
 #define MAX_FRAMES 1800
 
@@ -30,22 +33,22 @@ typedef enum { BVH_ROOT=0, BVH_JOINT=1, BVH_END=2 } BVHNodeType;
 typedef enum { BVH_XPOS, BVH_YPOS, BVH_ZPOS, BVH_XROT, BVH_YROT, BVH_ZROT } BVHChannelType;
 typedef enum { BVH_XYZ=1, BVH_ZYX, BVH_XZY, BVH_YZX, BVH_YXZ, BVH_ZXY} BVHOrderType;
 
-/* Not yet Functional
-class Keyframe
+class FrameData
 {
   public:
-    double xRot;
-    double yRot;
-    double zRot;
+    FrameData();
+    FrameData(int frame,Position pos,Rotation rot);
+    ~FrameData();
 
-    double xPos;
-    double yPos;
-    double zPos;
+  protected:
+    unsigned int frameNumber;
+
+    Rotation rotation;
+    Position position;
 
     bool easeIn;
     bool easeOut;
 };
-*/
 
 class BVHNode
 {
@@ -58,6 +61,11 @@ class BVHNode
     int numChildren() const;
     BVHNode* child(int num);
     void addChild(BVHNode* newChild);
+
+    void addKeyframe(int frame,Position pos,Rotation rot);
+    bool isKeyframe(int frame);
+
+    const FrameData* frameData(int frame);
 
   public:
     BVHNodeType type;
@@ -81,6 +89,7 @@ class BVHNode
   protected:
     QString m_name;
     QPtrList<BVHNode> children;
+    QMap<int,FrameData> keyframes;
 };
 
 #endif

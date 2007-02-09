@@ -30,6 +30,7 @@
 class Rotation
 {
   public:
+    Rotation();
     Rotation(const QString& bodyPart,double x,double y,double z);
     ~Rotation();
 
@@ -59,6 +60,7 @@ class RotationLimits
 class Position
 {
   public:
+    Position();
     Position(const QString& bodyPart,double x,double y,double z);
     ~Position();
 

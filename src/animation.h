@@ -73,14 +73,14 @@ class Animation : public QObject
   void setPosition(const char *jointName, double x, double y, double z);
   Position getPosition(const char *jointName);
   int getRotationOrder(const char *jointName);
-  void addKeyFrame();
+  void addKeyFrameAllJoints();
   void addKeyFrame(BVHNode *joint);
   bool isKeyFrame();
   bool isKeyFrame(BVHNode *joint);
   bool isKeyFrame(const char *jointName);
-  void delKeyFrame();
+  void delKeyFrameAllJoints();
   void delKeyFrame(BVHNode *joint,bool silent=false); // silent = only send signal to timeline
-  bool toggleKeyFrame();
+  bool toggleKeyFrameAllJoints();
   bool toggleKeyFrame(const char *jointName);
   void setFrameTime(double frameTime);
 
@@ -114,9 +114,9 @@ class Animation : public QObject
   IKTree ikTree;
 
   void setNumberOfFramesHelper(BVHNode *joint, int num);
-  void addKeyFrameHelper(BVHNode *joint);
+  void recursiveAddKeyFrame(BVHNode *joint);
   bool isKeyFrameHelper(BVHNode *joint);
-  void delKeyFrameHelper(BVHNode *joint);
+  void recursiveDelKeyFrame(BVHNode *joint);
   void interpolateFrames(BVHNode *joint);
   void calcPartMirrors();
   void setIK(IKPartType part, bool flag);

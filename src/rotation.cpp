@@ -19,6 +19,14 @@
  ***************************************************************************/
 #include "rotation.h"
 
+Rotation::Rotation()
+{
+  bodyPart=QString::null;
+  x=0;
+  y=0;
+  z=0;
+}
+
 Rotation::Rotation(const QString& part,double rx,double ry, double rz)
 {
   bodyPart=part;
@@ -47,6 +55,14 @@ RotationLimits::RotationLimits(const QString& joint,double rxMin,double rxMax,
 
 RotationLimits::~RotationLimits()
 {
+}
+
+Position::Position()
+{
+  bodyPart=QString::null;
+  x=0;
+  y=0;
+  z=0;
 }
 
 Position::Position(const QString& part,double px,double py, double pz)

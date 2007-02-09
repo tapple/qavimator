@@ -24,7 +24,10 @@
 
 BVHNode::BVHNode()
 {
+//  keyframes.setAutoDelete(true);
+  keyframes.clear();
   children.clear();
+
   numChannels=0;
   numKeyFrames=0;
 
@@ -68,4 +71,33 @@ BVHNode* BVHNode::child(int num)
 void BVHNode::addChild(BVHNode* newChild)
 {
   children.append(newChild);
+}
+
+void BVHNode::addKeyframe(int frame,Position pos,Rotation rot)
+{
+//  FrameData(frame,pos,rot);
+  keyframes[frame]=FrameData(frame,pos,rot); // .append(key);
+}
+
+// ************************************************************************
+
+FrameData::FrameData()
+{
+  qDebug(QString("FrameData(%1)").arg((unsigned long)this));
+  frameNumber=0;
+  easeIn=false;
+  easeOut=false;
+}
+
+FrameData::FrameData(int frame,Position pos,Rotation rot)
+{
+  qDebug(QString("FrameData(%1): frame %2  pos %3,%4,%5 rot %6,%7,%8").arg((unsigned long) this).arg(frame).arg(pos.x).arg(pos.y).arg(pos.z).arg(rot.x).arg(rot.y).arg(rot.z));
+  frameNumber=frame;
+  easeIn=false;
+  easeOut=false;
+}
+
+FrameData::~FrameData()
+{
+  qDebug(QString("~FrameData(%1)").arg((unsigned long) this));
 }

@@ -144,9 +144,24 @@ void BVH::assignChannels(BVHNode *node, FILE *f, int frame) const
   int i;
   char buffer[1024];
   node->numFrames = frame + 1;
+
+  Rotation* rot=new Rotation(node->name(),0,0,0);
+  Position* pos=new Position(node->name(),0,0,0);
+
   for (i=0; i<node->numChannels; i++) {
-    node->frame[frame][i] = atof(token(f,buffer));
+    double value=atof(token(f,buffer));
+    BVHChannelType type=node->channelType[i];
+    if(type==BVH_XPOS) pos->x=value;
+    else if(type==BVH_YPOS) pos->y=value;
+    else if(type==BVH_ZPOS) pos->z=value;
+    else if(type==BVH_XROT) rot->x=value;
+    else if(type==BVH_YROT) rot->y=value;
+    else if(type==BVH_ZROT) rot->z=value;
+    else qDebug("unknown channel type");
+    node->frame[frame][i] = value;
   }
+// ???? rotations.append(new Rotation());
+// ????  positions.append(pos);
 
   for (i=0; i<node->numChildren(); i++) {
     assignChannels(node->child(i), f, frame);
@@ -270,7 +285,11 @@ void BVH::avmReadKeyFrame(BVHNode *root, FILE *f) const {
   root->numKeyFrames = atoi(token(f,buffer));
 
   for (i=0;i<root->numKeyFrames;i++) {
-    root->keyFrames[i] = atoi(token(f,buffer));
+    token(f,buffer);
+// ????    Rotation* rot=rotations[i];
+// ????    Position* pos=positions.at(i);
+// ????    root->addKeyframe(atoi(buffer),Position(root->name(),pos->x,pos->y,pos->z),Rotation(root->name(),rot->x,rot->y,rot->z));
+    root->keyFrames[i] = atoi(buffer);
   }
 
   for (i=0;i<root->numChildren();i++) {

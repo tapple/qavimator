@@ -19,12 +19,15 @@
  *
  */
 
-#include <qstringlist.h>
-
-#include "bvhnode.h"
-
 #ifndef BVH_H
 #define BVH_H
+
+#include <qstringlist.h>
+
+#include "rotation.h"
+#include "bvhnode.h"
+
+class BVHNode;
 
 class BVH
 {
@@ -78,6 +81,10 @@ void bvhSetFrameTime(BVHNode *node, double frameTime);
 QStringList bvhTypeName;
 QStringList bvhChannelName;
 int nodeCount;
+
+QPtrList<Rotation> rotations;
+QPtrList<Position> positions;
+
 };
 
 #endif

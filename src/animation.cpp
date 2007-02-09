@@ -394,20 +394,22 @@ bool Animation::isSecondLifeJoint(const BVHNode* joint)
 	   !strcmp(joint->name(), "figureHair"));
 }
 
-void Animation::addKeyFrameHelper(BVHNode *joint)
+void Animation::recursiveAddKeyFrame(BVHNode *joint)
 {
   addKeyFrame(joint);
   for (int i=0; i < joint->numChildren(); i++)
-    addKeyFrameHelper(joint->child(i));
+    recursiveAddKeyFrame(joint->child(i));
 }
 
-void Animation::addKeyFrame()
+void Animation::addKeyFrameAllJoints()
 {
-  addKeyFrameHelper(frames);
+  recursiveAddKeyFrame(frames);
 }
 
 void Animation::addKeyFrame(BVHNode *joint)
 {
+  joint->addKeyframe(frame,getPosition(joint->name()),getRotation(joint->name()));
+
   bool newKey = true;
   int numKeyFrames = joint->numKeyFrames;
   int i, *kf = joint->keyFrames;
@@ -556,24 +558,24 @@ void Animation::delKeyFrame(BVHNode *joint,bool silent) {
   if(!silent) emit frameChanged();
 }
 
-void Animation::delKeyFrameHelper(BVHNode *joint) {
+void Animation::recursiveDelKeyFrame(BVHNode *joint) {
   delKeyFrame(joint);
 
   for (int i=0;i<joint->numChildren();i++)
-    delKeyFrameHelper(joint->child(i));
+    recursiveDelKeyFrame(joint->child(i));
 }
 
-void Animation::delKeyFrame() {
+void Animation::delKeyFrameAllJoints() {
   // first and last frames are ALWAYS automatic keyframes
   if (frame == 0 || frame == (getNumberOfFrames() - 1))
     return;
 
-  delKeyFrameHelper(frames);
+  recursiveDelKeyFrame(frames);
 }
 
 bool Animation::toggleKeyFrame(const char *jointName) {
   if (jointName == NULL) {
-    return toggleKeyFrame();
+    return toggleKeyFrameAllJoints();
   } else {
     BVHNode *node = bvh->bvhFindNode(frames, jointName);
 
@@ -588,15 +590,15 @@ bool Animation::toggleKeyFrame(const char *jointName) {
 }
 
 // returns TRUE if frame is now a keyframe for entire animation, FALSE if not
-bool Animation::toggleKeyFrame() {
+bool Animation::toggleKeyFrameAllJoints() {
   if (frame == 0 || frame == (getNumberOfFrames() - 1))
     return true;  // first and last frames will always stay keyframes
 
   if (isKeyFrame()) {
-    delKeyFrame();
+    delKeyFrameAllJoints();
     return false;
   } else {
-    addKeyFrame();
+    addKeyFrameAllJoints();
     return true;
   }
 }
@@ -609,7 +611,7 @@ void Animation::getFrameData(double *data)
 void Animation::setFrameData(double *data)
 {
   bvh->bvhSetFrameData(frames, frame, data);
-  addKeyFrame();
+  addKeyFrameAllJoints();
 }
 
 void Animation::calcPartMirrors()
