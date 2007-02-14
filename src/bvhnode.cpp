@@ -77,13 +77,14 @@ void BVHNode::addKeyframe(int frame,Position pos,Rotation rot)
 {
 //  FrameData(frame,pos,rot);
   keyframes[frame]=FrameData(frame,pos,rot); // .append(key);
+  qDebug(QString("BVHNode::addKeyframe(%1,<%2,%3,%4>,<%5,%6,%7>) %8").arg(frame).arg(pos.x).arg(pos.y).arg(pos.z).arg(rot.x).arg(rot.y).arg(rot.z).arg(pos.bodyPart));
 }
 
 // ************************************************************************
 
 FrameData::FrameData()
 {
-  qDebug(QString("FrameData(%1)").arg((unsigned long)this));
+//  qDebug(QString("FrameData(%1)").arg((unsigned long)this));
   frameNumber=0;
   easeIn=false;
   easeOut=false;
@@ -91,13 +92,15 @@ FrameData::FrameData()
 
 FrameData::FrameData(int frame,Position pos,Rotation rot)
 {
-  qDebug(QString("FrameData(%1): frame %2  pos %3,%4,%5 rot %6,%7,%8").arg((unsigned long) this).arg(frame).arg(pos.x).arg(pos.y).arg(pos.z).arg(rot.x).arg(rot.y).arg(rot.z));
+//  qDebug(QString("FrameData(%1): frame %2  pos %3,%4,%5 rot %6,%7,%8").arg((unsigned long) this).arg(frame).arg(pos.x).arg(pos.y).arg(pos.z).arg(rot.x).arg(rot.y).arg(rot.z));
   frameNumber=frame;
+  rotation=rot;
+  position=pos;
   easeIn=false;
   easeOut=false;
 }
 
 FrameData::~FrameData()
 {
-  qDebug(QString("~FrameData(%1)").arg((unsigned long) this));
+//  qDebug(QString("~FrameData(%1)").arg((unsigned long) this));
 }

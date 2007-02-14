@@ -139,7 +139,7 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
   return node;
 }
 
-void BVH::assignChannels(BVHNode *node, FILE *f, int frame) const
+void BVH::assignChannels(BVHNode *node, FILE *f, int frame)
 {
   int i;
   char buffer[1024];
@@ -160,9 +160,10 @@ void BVH::assignChannels(BVHNode *node, FILE *f, int frame) const
     else qDebug("unknown channel type");
     node->frame[frame][i] = value;
   }
-// ???? rotations.append(new Rotation());
-// ????  positions.append(pos);
-
+  rotations.append(rot);
+  positions.append(pos);
+//  qDebug(QString("Appended Rot(%1): %2 - %3 %4 %5").arg(node->name()).arg(frame).arg(rot->x).arg(rot->y).arg(rot->z));
+//  qDebug(QString("Appended Pos(%1): %2 - %3 %4 %5").arg(node->name()).arg(frame).arg(pos->x).arg(pos->y).arg(pos->z));
   for (i=0; i<node->numChildren(); i++) {
     assignChannels(node->child(i), f, frame);
   }
@@ -246,7 +247,7 @@ void BVH::setAllKeyFrames(BVHNode *node) const {
     setAllKeyFrames(node->child(i));
 }
 
-BVHNode* BVH::bvhRead(const char *file) const
+BVHNode* BVH::bvhRead(const char *file)
 {
   char buffer[1024];
   FILE *f = fopen(file, "rt");
@@ -279,19 +280,26 @@ BVHNode* BVH::bvhRead(const char *file) const
   return(root);
 }
 
-void BVH::avmReadKeyFrame(BVHNode *root, FILE *f) const {
+void BVH::avmReadKeyFrame(BVHNode *root, FILE *f)
+{
+  static int part=0;
   int i;
   char buffer[1024];
   root->numKeyFrames = atoi(token(f,buffer));
 
   for (i=0;i<root->numKeyFrames;i++) {
     token(f,buffer);
-// ????    Rotation* rot=rotations[i];
-// ????    Position* pos=positions.at(i);
-// ????    root->addKeyframe(atoi(buffer),Position(root->name(),pos->x,pos->y,pos->z),Rotation(root->name(),rot->x,rot->y,rot->z));
-    root->keyFrames[i] = atoi(buffer);
-  }
+    int key=atoi(buffer);
 
+// -------------------
+//    Rotation* rot=rotations.at(root->numFrames*part+key);
+//    Position* pos=positions.at(root->numFrames*part+key);
+//qDebug(QString("%1").arg(root->numFrames*key+part));
+//    root->addKeyframe(key,Position(rot->bodyPart,pos->x,pos->y,pos->z),Rotation(root->name(),rot->x,rot->y,rot->z));
+// -------------------
+    root->keyFrames[i]=key;
+  }
+part++;
   for (i=0;i<root->numChildren();i++) {
     avmReadKeyFrame(root->child(i), f);
   }
@@ -299,7 +307,7 @@ void BVH::avmReadKeyFrame(BVHNode *root, FILE *f) const {
 
 /* .avm files look suspiciously like .bvh files, except
    with keyframe data tacked at the end -- Lex Neva */
-BVHNode* BVH::avmRead(const char *file) const
+BVHNode* BVH::avmRead(const char *file)
 {
   FILE *f = fopen(file, "rt");
   char buffer[1024];
@@ -333,7 +341,8 @@ BVHNode* BVH::avmRead(const char *file) const
   return(root);
 }
 
-BVHNode* BVH::animRead(const char *file, const char *limFile) const {
+BVHNode* BVH::animRead(const char *file, const char *limFile)
+{
   char *fileType;
   char *extension;
   BVHNode *root;

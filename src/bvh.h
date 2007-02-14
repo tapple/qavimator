@@ -36,16 +36,16 @@ class BVH
     BVH();
     ~BVH();
 
-    BVHNode *bvhRead(const char *file) const;
+    BVHNode *bvhRead(const char *file);
     char* token(FILE *f,char* tokenBuf) const;
     int expect_token(FILE *f, char *name) const;
     BVHNode* bvhReadNode(FILE *f) const;
-    void assignChannels(BVHNode *node, FILE *f, int frame) const;
+    void assignChannels(BVHNode *node, FILE *f, int frame);
     void setChannelLimits(BVHNode *node,BVHChannelType type,double min,double max) const;
     void parseLimFile(BVHNode *root, const char *limFile) const;
     void setNumFrames(BVHNode *node, int numFrames) const;
     void setAllKeyFrames(BVHNode *node) const;
-    void avmReadKeyFrame(BVHNode *root, FILE *f) const;
+    void avmReadKeyFrame(BVHNode *root, FILE *f);
     void bvhIndent(FILE *f, int depth);
     void bvhWriteNode(BVHNode *node, FILE *f, int depth);
     void bvhWriteFrame(BVHNode *node, int frame, FILE *f);
@@ -71,8 +71,8 @@ int bvhGetFrameData(BVHNode *node, int frame, double *data);
 int bvhSetFrameData(BVHNode *node, int frame, double *data);
 
 // lex neva's stuff:
-BVHNode *animRead(const char *file, const char *limFile) const;
-BVHNode *avmRead(const char *file) const;
+BVHNode *animRead(const char *file, const char *limFile);
+BVHNode *avmRead(const char *file);
 void avmWrite(BVHNode *root, const char *file);
 void animWrite(BVHNode *root, const char *file);
 void bvhDelete(BVHNode *node);
