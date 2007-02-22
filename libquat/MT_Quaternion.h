@@ -66,6 +66,7 @@ public:
         setEuler(yaw, pitch, roll); 
     }
 
+
     void setRotation(const MT_Vector3& axis, MT_Scalar mt_angle) {
         MT_Scalar d = axis.length();
         MT_assert(!MT_fuzzyZero(d));

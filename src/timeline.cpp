@@ -83,20 +83,6 @@ void Timeline::paintEvent(QPaintEvent*)
 
 void Timeline::setNumberOfFrames(int frames)
 {
-  // TODO: this works, but the animation class seems not to delete keyframes after maxframe, so
-  //       for now we should keep them around as well
-  /*  if(frames<numOfFrames)
-  {
-    qDebug(QString("new %1, old %2").arg(frames).arg(numOfFrames));
-    QValueList<int> keys=tracks.keys();
-    for(unsigned int index=0;index<keys.count();index++)
-    {
-      for(unsigned int count=frames;count<numOfFrames;count++)
-      {
-        removeKeyframe(keys[index],count);
-      } // for
-    } // for
-  }*/
   numOfFrames=frames;
   repaint();
 }
@@ -240,6 +226,8 @@ void Timeline::removeKeyframe(int track,int frame)
 void Timeline::drawKeyframe(int track,int frame)
 {
 //  qDebug(QString("drawKeyframe(%1,%2)").arg(track).arg(frame));
+  // track==0 means an BVH_END track or something else that went wrong
+  if(!track) return;
 
   int ypos=(track-1)*LINE_HEIGHT;
 
@@ -265,10 +253,11 @@ void Timeline::drawKeyframe(int track,int frame)
     // find out if we should paint in highlight or normal color
     if(frame && dragging==frame && trackSelected==track) color=Qt::red;
 
-    QString trackName=animation->getPartName(track);
+    // get the list of key frames
+    const BVHNode* joint=animation->getNode(track);
 
-    bool ps=animation->compareFrames(trackName,previousKeyFrame(track,frame),frame);
-    bool ns=animation->compareFrames(trackName,nextKeyFrame(track,frame),frame);
+    bool ps=animation->compareFrames(joint->name(),joint->getKeyframeBefore(frame).frameNumber(),frame);
+    bool ns=animation->compareFrames(joint->name(),joint->getNextKeyframe(frame).frameNumber(),frame);
 
     p.setPen(color);
     p.setBrush(QBrush(color));
@@ -293,47 +282,6 @@ void Timeline::drawKeyframe(int track,int frame)
     else
       p.fillRect(xpos,ypos,KEY_WIDTH-1,KEY_HEIGHT,QBrush(color));
   }
-}
-
-int Timeline::isKeyFrame(int track,int frame)
-{
-  // first and last frames are always key frames
-  if(frame==0 || frame==(numOfFrames-1)) return true;
-
-  const int* keyFrames=animation->keyFrames(track);
-  int numOfKeyFrames=animation->numKeyFrames(track);
-  for(int index=0;index<numOfKeyFrames;index++)
-  {
-    int lookFrame=keyFrames[index];
-    if(lookFrame==frame) return true;
-  }
-  return false;
-}
-
-int Timeline::previousKeyFrame(int track,int frame)
-{
-  int previous=0;
-  const int* keyFrames=animation->keyFrames(track);
-  int numOfKeyFrames=animation->numKeyFrames(track);
-  for(int index=0;index<numOfKeyFrames;index++)
-  {
-    int lookFrame=keyFrames[index];
-    if(lookFrame>=frame) return previous;
-    previous=lookFrame;
-  }
-  return previous;
-}
-
-int Timeline::nextKeyFrame(int track,int frame)
-{
-  const int* keyFrames=animation->keyFrames(track);
-  int numOfKeyFrames=animation->numKeyFrames(track);
-  for(int index=0;index<numOfKeyFrames;index++)
-  {
-    int lookFrame=keyFrames[index];
-    if(lookFrame>frame && index!=numOfKeyFrames) return keyFrames[index];
-  }
-  return numOfFrames-1;
 }
 
 void Timeline::selectTrack(int track)
@@ -386,33 +334,25 @@ void Timeline::drawTrack(int track)
   p.fillRect(0,y+LINE_HEIGHT/2,width(),1,palette().color(QPalette::Active,baseColor).dark(115));
   p.fillRect(0,y+LINE_HEIGHT/2+1,width(),1,palette().color(QPalette::Active,baseColor).light(115));
 
-  // get number of key frames in this track
-  const int numKeyFrames=animation->numKeyFrames(track);
-
-  // TODO: switch over to something like this
-  /*  KeyframeList keyFrames=tracks[track];
-  const int numKeyFrames=keyFrames.count();*/
-
-  // first frame is always a key frame
-  drawKeyframe(track,0);
-
+  // get the list of key frames
+  const BVHNode* joint=animation->getNode(track);
   // start drawing rest of key frames
-  if(numKeyFrames)
+  if(joint->numKeyframes())
   {
     // get foreground color
     QColor color(palette().color(QPalette::Active,QColorGroup::Foreground));
     // set drawing pen to foreground color
     p.setPen(color);
-    // get the list of key frames
-    const int* keyFrames=animation->keyFrames(track);
 
     // reset previous frame marker
     int oldFrame=0;
     // iterate through list of key frames
-    for(int key=0;key<numKeyFrames;key++)
+    for(int key=0;key<joint->numKeyframes();key++)
     {
       // get frame number of key frame
-      int frameNum=keyFrames[key];
+      FrameData frameData=joint->keyframeDataByIndex(key);
+      int frameNum=frameData.frameNumber();
+
       // if key frame is not out of animation length
       if(frameNum<numOfFrames)
       {
@@ -457,7 +397,7 @@ void Timeline::mousePressEvent(QMouseEvent* e)
   // set animation frame to where we clicked
   animation->setFrame(frameSelected);
   // check if we clicked on a key frame which is not the first or last one in animation
-  if(frameSelected>0 && frameSelected<(numOfFrames-1) && isKeyFrame(trackSelected,frameSelected))
+  if(frameSelected>0 && frameSelected<(numOfFrames-1) && animation->isKeyFrame(trackSelected,frameSelected))
   {
     // first switch on dragging state, so drawKeyframe() will work as expected
     dragging=frameSelected;
@@ -467,13 +407,6 @@ void Timeline::mousePressEvent(QMouseEvent* e)
   emit trackClicked(trackSelected);
   // remember mouse button state
   leftMouseButton=true;
-/*
-  int p=previousKeyFrame(trackSelected,frameSelected);
-  int n=nextKeyFrame(trackSelected,frameSelected);
-  int k=isKeyFrame(trackSelected,frameSelected);
-  qDebug(QString("prev of %1 is %2 (%3)").arg(frameSelected).arg(p).arg(k));
-  qDebug(QString("next of %1 is %2 (%3)").arg(frameSelected).arg(n).arg(k));
-*/
 }
 
 void Timeline::mouseReleaseEvent(QMouseEvent*)

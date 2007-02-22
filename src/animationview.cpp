@@ -85,11 +85,6 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
 
 // FIXME:    mode(FL_DOUBLE | FL_MULTISAMPLE | FL_ALPHA | FL_DEPTH);
 
-  for (int i=0; i<NUM_FIGURES; i++) {
-    QString fileName=execPath+"/"+figureFiles[i];
-    joints[i] = bvh->animRead(fileName, limFile);
-  }
-
   leftMouseButton=false;
   frameProtected=false;
   modifier=0;
@@ -102,8 +97,8 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
 
 AnimationView::~AnimationView()
 {
-    clear();
-    animList.clear();
+  clear();
+  animList.clear();
 }
 
 BVH* AnimationView::getBVH() const
@@ -713,21 +708,22 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
     glTranslatef(0, 2, 0);
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_DEPTH_TEST);
-    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType],
+    drawPart(anim, index, anim->getFrame(), anim->getMotion(), anim->getMotion(), //, joints[figType],
 	     MODE_PARTS);
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_COLOR_MATERIAL);
-    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType],
+    drawPart(anim, index, anim->getFrame(), anim->getMotion(), anim->getMotion(), // joints[figType],
 	     MODE_ROT_AXES);
     selectName = index*ANIMATION_INCREMENT;
     glDisable(GL_DEPTH_TEST);
-    drawPart(anim, index, anim->getFrame(), anim->getMotion(), joints[figType],
+    drawPart(anim, index, anim->getFrame(), anim->getMotion(), anim->getMotion(), // joints[figType],
 	     MODE_SKELETON);
 }
 
+// NOTE: joints == motion for now
 void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex, int frame, BVHNode *motion, BVHNode *joints, int mode)
 {
-  float value, color[4];
+  float color[4];
 
   GLint renderMode;
   bool selecting;
@@ -754,8 +750,11 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
         glutSolidSphere(1, 16, 16);
     }
     if (joints->type == BVH_ROOT) {
+      Position pos=motion->frameData(frame).position();
+      glTranslatef(pos.x,pos.y,pos.z);
+/*
       for (int i=0; i<motion->numChannels; i++) {
-        value = motion->frame[frame][i];
+        float value = motion->frame[frame][i];
         switch(motion->channelType[i]) {
           case BVH_XPOS: glTranslatef(value, 0, 0); break;
           case BVH_YPOS: glTranslatef(0, value, 0); break;
@@ -763,18 +762,36 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
           default: break;
         }
       }
+*/
     }
+
+    Rotation rot=motion->frameData(frame).rotation();
     for (int i=0; i<motion->numChannels; i++) {
+/*
+      float value;
       if (motion->ikOn)
         value = motion->frame[frame][i] + motion->ikRot[i];
       else
         value = motion->frame[frame][i];
+
       switch(motion->channelType[i]) {
         case BVH_XROT: glRotatef(value, 1, 0, 0); break;
         case BVH_YROT: glRotatef(value, 0, 1, 0); break;
         case BVH_ZROT: glRotatef(value, 0, 0, 1); break;
         default: break;
-      }
+      } */
+
+      Rotation ikRot;
+      if (motion->ikOn) ikRot=motion->ikRot;
+
+      // need to do rotations in the right order
+      switch(motion->channelType[i]) {
+        case BVH_XROT: glRotatef(rot.x+ikRot.x, 1, 0, 0); break;
+        case BVH_YROT: glRotatef(rot.y+ikRot.y, 0, 1, 0); break;
+        case BVH_ZROT: glRotatef(rot.z+ikRot.z, 0, 0, 1); break;
+        default: break;
+}
+
       if (mode == MODE_ROT_AXES && !selecting && partSelected == selectName) {
         switch(motion->channelType[i]) {
           case BVH_XROT: drawCircle(0, 10, xSelect ? 4 : 1); break;

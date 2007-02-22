@@ -79,10 +79,6 @@ class Timeline : public QWidget
     void drawKeyframe(int track,int frame);
     void drawTrack(int track);
 
-    int isKeyFrame(int track,int frame);
-    int previousKeyFrame(int track,int frame);
-    int nextKeyFrame(int track,int frame);
-
     Animation* animation;
 
     int numOfFrames;

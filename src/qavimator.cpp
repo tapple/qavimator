@@ -639,14 +639,21 @@ void qavimator::keyframeButtonToggled(bool)
 // Menu action: File / New
 void qavimator::fileNew()
 {
-  setCurrentFile(UNTITLED_NAME);
+  clearProps();
+  clearOpenFiles();
 
   Animation* anim=new Animation(animationView->getBVH());
-  animationView->setAnimation(anim);
+
+  // set timeline animation first, because ...
   timeline->setAnimation(anim);
+  // ... setting animation here will delete all old animations
+  animationView->setAnimation(anim);
   selectAnimation(anim);
-  addToOpenFiles(UNTITLED_NAME);
+
+  // add new animation to internal list
   animationIds.append((unsigned long) anim);
+  // add new animation to combo box
+  addToOpenFiles(UNTITLED_NAME);
 
   anim->useRotationLimits(jointLimits);
 
@@ -659,7 +666,7 @@ void qavimator::fileNew()
 
   if(protectFirstFrame)
     // skip first frame, since it's protected anyway
-      animationView->setFrame(1);
+    animationView->setFrame(1);
   else
     animationView->setFrame(0);
 
@@ -667,7 +674,6 @@ void qavimator::fileNew()
   emit protectFrame(false);
   protect=false;
 
-  clearProps();
   updateInputs();
   updateFps();
 
@@ -883,13 +889,16 @@ void qavimator::fileExit()
   settings.writeEntry("/last_path",lastPath);
 
   settings.endGroup();
-  qApp->quit();
+
+  // remove all widgets and close the main form
+  close();
+  qApp->exit(0);
 }
 
 // Menu Action: Edit / Copy
 void qavimator::editCopy()
 {
-  animationView->getAnimation()->getFrameData(frameData);
+  animationView->getAnimation()->copyFrame();
   frameDataValid = true;
   updateInputs();
 }
@@ -899,7 +908,7 @@ void qavimator::editPaste()
 {
   if (frameDataValid)
   {
-    animationView->getAnimation()->setFrameData(frameData);
+    animationView->getAnimation()->pasteFrame();
     animationView->repaint();
     updateInputs();
   }
@@ -1062,20 +1071,20 @@ void qavimator::addToOpenFiles(const QString& fileName)
 
 void qavimator::removeFromOpenFiles(unsigned int which)
 {
-    if (which >= openFiles.count()) return;
-    openFiles.remove(openFiles.at(which));
-    selectAnimationCombo->removeItem(which);
+  if(which>=openFiles.count()) return;
+  openFiles.remove(openFiles.at(which));
+  selectAnimationCombo->removeItem(which);
 }
-
 
 // empty out the open files list
 void qavimator::clearOpenFiles()
 {
-    timeline->setAnimation(0);
-    animationView->clear();
-    openFiles.clear();
-    selectAnimationCombo->clear();
-    animationIds.clear();
+  timeline->setAnimation(0);
+  animationView->clear();
+  openFiles.clear();
+  selectAnimationCombo->clear();
+  animationIds.clear();
+  setCurrentFile(UNTITLED_NAME);
 }
 
 // convenience function to set window title in a defined way

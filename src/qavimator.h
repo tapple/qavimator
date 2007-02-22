@@ -48,8 +48,6 @@ class qavimator : public MainApplicationForm
     qavimator();
     ~qavimator();
 
-    double frameData[512];
-
   signals:
     void enableRotation(bool state);
     void enablePosition(bool state);
@@ -173,13 +171,3 @@ class qavimator : public MainApplicationForm
 };
 
 #endif
-
-
-/*
-
-#include <string.h>
-#include <FL/Fl_PNG_Image.h>
-#include "AnimationView.h"
-#include "Main.h"
-
-*/

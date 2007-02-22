@@ -40,32 +40,55 @@ class FrameData
     FrameData(int frame,Position pos,Rotation rot);
     ~FrameData();
 
+    int frameNumber() const;
+    Position position() const;
+    Rotation rotation() const;
+    void setPosition(const Position& pos);
+    void setRotation(const Rotation& rot);
+
   protected:
-    unsigned int frameNumber;
+    unsigned int m_frameNumber;
 
-    Rotation rotation;
-    Position position;
+    Rotation m_rotation;
+    Position m_position;
 
-    bool easeIn;
-    bool easeOut;
+    bool m_easeIn;
+    bool m_easeOut;
 };
 
 class BVHNode
 {
   public:
-    BVHNode();
+    BVHNode(const QString& name);
     ~BVHNode();
 
-    void setName(const QString& newName);
     const QString& name() const;
     int numChildren() const;
     BVHNode* child(int num);
     void addChild(BVHNode* newChild);
 
-    void addKeyframe(int frame,Position pos,Rotation rot);
-    bool isKeyframe(int frame);
+    const FrameData frameData(int frame) const;
+    const FrameData keyframeDataByIndex(int index) const;
+    const QValueList<int> keyframeList() const;
 
-    const FrameData* frameData(int frame);
+    void addKeyframe(int frame,Position pos,Rotation rot);
+    void deleteKeyframe(int frame);
+    void setKeyframePosition(int frame,const Position& pos);
+    void setKeyframeRotation(int frame,const Rotation& rot);
+    bool isKeyframe(int frame) const;
+    int numKeyframes() const;
+
+    const FrameData getKeyframeBefore(int frame) const;
+    const FrameData getNextKeyframe(int frame) const;
+    int getKeyframeNumberBefore(int frame) const;
+
+    const Rotation* getCachedRotation(int frame);
+    const Position* getCachedPosition(int frame);
+    void cacheRotation(Rotation* rot);
+    void cachePosition(Position* pos);
+    void flushFrameCache();
+
+    void dumpKeyframes();
 
   public:
     BVHNodeType type;
@@ -75,21 +98,26 @@ class BVHNode
     BVHOrderType channelOrder;
     double channelMin[6];
     double channelMax[6];
-    int numFrames;
-    double frame[MAX_FRAMES][6];
+
     bool ikOn;
-    double ikRot[3];
+    Rotation ikRot;
     double ikGoalPos[3];
     double ikGoalDir[3];
     double ikWeight;
-    int numKeyFrames;
-    int keyFrames[MAX_FRAMES];
+
     double frameTime;
 
   protected:
+    void setName(const QString& newName);
+    double interpolate(double from,double to,int steps,int pos,bool interpolationType) const;
+
     QString m_name;
     QPtrList<BVHNode> children;
     QMap<int,FrameData> keyframes;
+
+    // rotation/position cache on load, will be cleared once the animation is loaded
+    QPtrList<Rotation> rotations;
+    QPtrList<Position> positions;
 };
 
 #endif

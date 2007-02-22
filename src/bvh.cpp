@@ -77,21 +77,24 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
   const char *type = token(f,buffer);
   if (!strcmp(type, "}")) { return NULL; }
 
-  BVHNode* node = new BVHNode();
-  BVHNode* child = NULL;
   char order[4];
   int i;
 
-  if (!strcasecmp(type, "ROOT")) { node->type = BVH_ROOT; }
-  else if (!strcasecmp(type, "JOINT")) { node->type = BVH_JOINT; }
-  else if (!strcasecmp(type, "END")) { node->type = BVH_END; }
+  // check for node type first
+  BVHNodeType nodeType;
+  if (!strcasecmp(type, "ROOT")) { nodeType = BVH_ROOT; }
+  else if (!strcasecmp(type, "JOINT")) { nodeType = BVH_JOINT; }
+  else if (!strcasecmp(type, "END")) { nodeType = BVH_END; }
   else {
     fprintf(stderr, "Bad BVH file: unknown node type: %s\n", type);
-    delete node;
     return NULL;
   }
-  node->setName(token(f,buffer));
-//  strcpy(node->name, token(f,buffer));
+
+  // add node with name
+  BVHNode* node = new BVHNode(token(f,buffer));
+  // set node type
+  node->type=nodeType;
+
   expect_token(f, "{");
   expect_token(f, "OFFSET");
   node->offset[0] = atof(token(f,buffer));
@@ -131,6 +134,7 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
     else if (!strcmp(order, "YXZ")) node->channelOrder = BVH_YXZ;
     else if (!strcmp(order, "ZXY")) node->channelOrder = BVH_ZXY;
   }
+  BVHNode* child = NULL;
   do {
     if ((child = bvhReadNode(f))) {
       node->addChild(child);
@@ -141,14 +145,14 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
 
 void BVH::assignChannels(BVHNode *node, FILE *f, int frame)
 {
-  int i;
-  char buffer[1024];
-  node->numFrames = frame + 1;
-
+  // create new rotation and position objects
   Rotation* rot=new Rotation(node->name(),0,0,0);
   Position* pos=new Position(node->name(),0,0,0);
 
-  for (i=0; i<node->numChannels; i++) {
+  char buffer[1024];
+
+  for (int i=0; i<node->numChannels; i++)
+  {
     double value=atof(token(f,buffer));
     BVHChannelType type=node->channelType[i];
     if(type==BVH_XPOS) pos->x=value;
@@ -158,13 +162,13 @@ void BVH::assignChannels(BVHNode *node, FILE *f, int frame)
     else if(type==BVH_YROT) rot->y=value;
     else if(type==BVH_ZROT) rot->z=value;
     else qDebug("unknown channel type");
-    node->frame[frame][i] = value;
   }
-  rotations.append(rot);
-  positions.append(pos);
-//  qDebug(QString("Appended Rot(%1): %2 - %3 %4 %5").arg(node->name()).arg(frame).arg(rot->x).arg(rot->y).arg(rot->z));
-//  qDebug(QString("Appended Pos(%1): %2 - %3 %4 %5").arg(node->name()).arg(frame).arg(pos->x).arg(pos->y).arg(pos->z));
-  for (i=0; i<node->numChildren(); i++) {
+
+  // put rotation and position into the node's cache for later keyframe referencing
+  node->cacheRotation(rot);
+  node->cachePosition(pos);
+
+  for (int i=0; i<node->numChildren(); i++) {
     assignChannels(node->child(i), f, frame);
   }
 }
@@ -224,38 +228,40 @@ void BVH::parseLimFile(BVHNode *root, const char *limFile) const
   f.close();
 }
 
-void BVH::setNumFrames(BVHNode *node, int numFrames) const {
-  int i;
-  node->numFrames = numFrames;
+void BVH::setNumFrames(int numFrames)
+{
+  totalFrames=numFrames;
+}
 
-  for (i=0;i<node->numChildren();i++)
-    setNumFrames(node->child(i), numFrames);
+int BVH::numFrames() const
+{
+  return totalFrames;
 }
 
 // in BVH files, this is necessary so that
 // all frames but the start and last aren't
 // blown away by interpolation
-void BVH::setAllKeyFrames(BVHNode *node) const {
-  int i;
-  // skip first and last frames, they are automatic key frames
-  for (i=1;i<node->numFrames;i++) {
-    node->keyFrames[node->numKeyFrames] = i;
-    node->numKeyFrames++;
+void BVH::setAllKeyFrames(BVHNode *node) const
+{
+  for (int i=0;i<totalFrames;i++)
+  {
+    const Rotation* rot=node->getCachedRotation(i);
+    const Position* pos=node->getCachedPosition(i);
+
+    node->addKeyframe(i,Position(node->name(),pos->x,pos->y,pos->z),Rotation(node->name(),rot->x,rot->y,rot->z));
   }
 
-  for (i=0;i<node->numChildren();i++)
+  for (int i=0;i<node->numChildren();i++)
     setAllKeyFrames(node->child(i));
 }
 
 BVHNode* BVH::bvhRead(const char *file)
 {
+  qDebug(QString("BVH::bvhRead(%1)").arg(file));
+
   char buffer[1024];
   FILE *f = fopen(file, "rt");
   BVHNode *root;
-//  BVHNode *node[128];
-//  int numNodes;
-  int numFrames;
-  int i;
 
   if (!f) {
     fprintf(stderr, "BVH File not found: %s\n", file);
@@ -264,16 +270,19 @@ BVHNode* BVH::bvhRead(const char *file)
 
   expect_token(f, "HIERARCHY");
   root = bvhReadNode(f);
+
   expect_token(f, "MOTION");
   expect_token(f, "Frames:");
-  numFrames = atoi(token(f,buffer));
-  setNumFrames(root, numFrames);
+  totalFrames = atoi(token(f,buffer));
+
   expect_token(f, "Frame");
   expect_token(f, "Time:");
   root->frameTime = atof(token(f,buffer));
-  for (i=0; i<numFrames; i++) {
+
+  for (int i=0; i<totalFrames; i++) {
     assignChannels(root, f, i);
   }
+
   setAllKeyFrames(root);
   fclose(f);
 
@@ -282,25 +291,29 @@ BVHNode* BVH::bvhRead(const char *file)
 
 void BVH::avmReadKeyFrame(BVHNode *root, FILE *f)
 {
-  static int part=0;
-  int i;
-  char buffer[1024];
-  root->numKeyFrames = atoi(token(f,buffer));
+  // NOTE: new system needs frame 0 as key frame
+  // FIXME: find a better way without code duplication
+  const Rotation* rot=root->getCachedRotation(0);
+  const Position* pos=root->getCachedPosition(0);
+  root->addKeyframe(0,Position(root->name(),pos->x,pos->y,pos->z),Rotation(root->name(),rot->x,rot->y,rot->z));
 
-  for (i=0;i<root->numKeyFrames;i++) {
+  char buffer[1024];
+  int numKeyFrames=atoi(token(f,buffer));
+  for (int i=0;i<numKeyFrames;i++)
+  {
     token(f,buffer);
     int key=atoi(buffer);
 
-// -------------------
-//    Rotation* rot=rotations.at(root->numFrames*part+key);
-//    Position* pos=positions.at(root->numFrames*part+key);
-//qDebug(QString("%1").arg(root->numFrames*key+part));
-//    root->addKeyframe(key,Position(rot->bodyPart,pos->x,pos->y,pos->z),Rotation(root->name(),rot->x,rot->y,rot->z));
-// -------------------
-    root->keyFrames[i]=key;
+    const Rotation* rot=root->getCachedRotation(key);
+    const Position* pos=root->getCachedPosition(key);
+    root->addKeyframe(key,Position(root->name(),pos->x,pos->y,pos->z),Rotation(root->name(),rot->x,rot->y,rot->z));
   }
-part++;
-  for (i=0;i<root->numChildren();i++) {
+
+  // all keyframes are found, flush the node's cache to free up memory
+  root->flushFrameCache();
+//  root->dumpKeyframes();
+
+  for (int i=0;i<root->numChildren();i++) {
     avmReadKeyFrame(root->child(i), f);
   }
 }
@@ -309,13 +322,11 @@ part++;
    with keyframe data tacked at the end -- Lex Neva */
 BVHNode* BVH::avmRead(const char *file)
 {
+  qDebug(QString("BVH::avmRead(%1)").arg(file));
+
   FILE *f = fopen(file, "rt");
   char buffer[1024];
   BVHNode *root;
-//  BVHNode *node[128];
-//  int numNodes;
-  int numFrames;
-  int i;
 
   if (!f) {
     fprintf(stderr, "AVM File not found: %s\n", file);
@@ -324,20 +335,22 @@ BVHNode* BVH::avmRead(const char *file)
 
   expect_token(f, "HIERARCHY");
   root = bvhReadNode(f);
+
   expect_token(f, "MOTION");
   expect_token(f, "Frames:");
-  numFrames = atoi(token(f,buffer));
-  setNumFrames(root, numFrames);
+  totalFrames = atoi(token(f,buffer));
+
   expect_token(f, "Frame");
   expect_token(f, "Time:");
   root->frameTime = atof(token(f,buffer));
-  for (i=0; i<numFrames; i++) {
+
+  for (int i=0; i<totalFrames; i++) {
     assignChannels(root, f, i);
   }
 
   avmReadKeyFrame(root, f);
-
   fclose(f);
+
   return(root);
 }
 
@@ -371,15 +384,13 @@ BVHNode* BVH::animRead(const char *file, const char *limFile)
 
 void BVH::bvhIndent(FILE *f, int depth)
 {
-  int i;
-  for (i=0; i<depth; i++) {
+  for (int i=0; i<depth; i++) {
     fprintf(f, "\t");
   }
 }
 
 void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
 {
-  int i;
   bvhIndent(f, depth);
   QString line=QString("%1 %2\n").arg(bvhTypeName[node->type]).arg(node->name());
   fprintf(f,line);
@@ -392,15 +403,14 @@ void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
 	  node->offset[1],
 	  node->offset[2]);
   if (node->type != BVH_END) {
-    int i;
     bvhIndent(f, depth+1);
     fprintf(f, "CHANNELS %d ", node->numChannels);
-    for (i=0; i<node->numChannels; i++) {
+    for (int i=0; i<node->numChannels; i++) {
       fprintf(f, "%s ", bvhChannelName[node->channelType[i]].latin1());
     }
     fprintf(f, "\n");
   }
-  for (i=0; i<node->numChildren(); i++) {
+  for (int i=0; i<node->numChildren(); i++) {
     bvhWriteNode(node->child(i), f, depth+1);
   }
   bvhIndent(f, depth);
@@ -409,30 +419,28 @@ void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
 
 void BVH::bvhWriteFrame(BVHNode *node, int frame, FILE *f)
 {
-  int i;
-  for (i=0; i<node->numChannels; i++) {
-    fprintf(f, "%f ", node->frame[frame][i]);
-  }
-  for (i=0; i<node->numChildren(); i++) {
-    bvhWriteFrame(node->child(i), frame, f);
-  }
-}
+  Rotation rot=node->frameData(frame).rotation();
+  Position pos=node->frameData(frame).position();
 
-void BVH::bvhWriteZeroFrame(BVHNode *node, FILE *f)
-{
-  int i;
-  for (i=0; i<node->numChannels; i++) {
-    if (node->channelType[i] == BVH_XPOS ||
-	node->channelType[i] == BVH_YPOS ||
-	node->channelType[i] == BVH_ZPOS) {
-      fprintf(f, "%f ", node->frame[0][i]);
-    }
-    else {
-      fprintf(f, "0.000000 ");
-    }
+  // preserve channel order while writing
+  for (int i=0; i<node->numChannels; i++)
+  {
+    float value=0.0;
+    BVHChannelType type=node->channelType[i];
+
+    if     (type==BVH_XPOS) value=pos.x;
+    else if(type==BVH_YPOS) value=pos.y;
+    else if(type==BVH_ZPOS) value=pos.z;
+
+    else if(type==BVH_XROT) value=rot.x;
+    else if(type==BVH_YROT) value=rot.y;
+    else if(type==BVH_ZROT) value=rot.z;
+
+    fprintf(f, "%f ",value);
   }
-  for (i=0; i<node->numChildren(); i++) {
-    bvhWriteZeroFrame(node->child(i), f);
+
+  for (int i=0; i<node->numChildren(); i++) {
+    bvhWriteFrame(node->child(i), frame, f);
   }
 }
 
@@ -444,40 +452,41 @@ void BVH::bvhWrite(BVHNode *root, const char *file)
   fprintf(f, "HIERARCHY\n");
   bvhWriteNode(root, f, 0);
   fprintf(f, "MOTION\n");
-  fprintf(f, "Frames:\t%d\n", root->numFrames);
+  fprintf(f, "Frames:\t%d\n", totalFrames);
   fprintf(f, "Frame Time:\t%f\n", root->frameTime);
-  for (i=0; i<root->numFrames; i++) {
+  for (i=0; i<totalFrames; i++) {
     bvhWriteFrame(root, i, f);
     fprintf(f, "\n");
   }
   fclose(f);
 }
 
-void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f) {
-  int i;
-  fprintf(f, "%d ", root->numKeyFrames);
+void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f)
+{
+  const QValueList<int> keys=root->keyframeList();
+  fprintf(f, "%d ", keys.count()-1);
 
-  for (i=0; i<root->numKeyFrames; i++) {
-    fprintf(f, "%d ", root->keyFrames[i]);
+  // skip frame 0 (always key frame) while saving
+  for (unsigned int i=1; i<keys.count(); i++) {
+    fprintf(f, "%d ", keys[i]);
   }
   fprintf(f, "\n");
 
-  for (i=0;i<root->numChildren();i++) {
+  for (int i=0;i<root->numChildren();i++) {
     avmWriteKeyFrame(root->child(i), f);
   }
 }
 
 void BVH::avmWrite(BVHNode *root, const char *file)
 {
-  int i;
   FILE *f = fopen(file, "wt");
 
   fprintf(f, "HIERARCHY\n");
   bvhWriteNode(root, f, 0);
   fprintf(f, "MOTION\n");
-  fprintf(f, "Frames:\t%d\n", root->numFrames);
+  fprintf(f, "Frames:\t%d\n", totalFrames);
   fprintf(f, "Frame Time:\t%f\n", root->frameTime);
-  for (i=0; i<root->numFrames; i++) {
+  for (int i=0; i<totalFrames; i++) {
     bvhWriteFrame(root, i, f);
     fprintf(f, "\n");
   }
@@ -530,30 +539,6 @@ BVHNode* BVH::bvhFindNode(BVHNode *root, const char *name) const
   }
 
   return NULL;
-}
-
-void BVH::bvhSetChannel(BVHNode *node, int frame, BVHChannelType type, double val)
-{
-  int i;
-  if (!node) return;
-  for (i=0; i<node->numChannels; i++) {
-    if (node->channelType[i] == type) {
-      node->frame[frame][i] = val;
-      return;
-    }
-  }
-}
-
-double BVH::bvhGetChannel(BVHNode *node, int frame, BVHChannelType type)
-{
-  int i;
-  if (!node) return 0;
-  for (i=0; i<node->numChannels; i++) {
-    if (node->channelType[i] == type) {
-      return node->frame[frame][i];
-    }
-  }
-  return 0;
 }
 
 void BVH::bvhGetChannelLimits(BVHNode *node, BVHChannelType type,
@@ -638,50 +623,72 @@ void BVH::bvhCopyOffsets(BVHNode *dst,BVHNode *src)
   }
 }
 
-int BVH::bvhGetFrameData(BVHNode *node, int frame, double *data)
+void BVH::bvhGetFrameDataHelper(BVHNode* node,int frame)
 {
-  int n = 0;
-  int i;
+  if(node->type!=BVH_END)
+  {
+    positionCopyBuffer.append(node->frameData(frame).position());
+    rotationCopyBuffer.append(node->frameData(frame).rotation());
 
-  if (!node) return 0;
-  for (i=0; i<node->numChannels; i++) {
-    data[n++] = node->frame[frame][i];
+//    rotationCopyBuffer[rotationCopyBuffer.count()-1].bodyPart=node->name(); // not necessary but nice for debugging
+//    qDebug(QString("copying frame data for %1 frame number %2 (%3)")
+//          .arg(node->name()).arg(frame).arg(positionCopyBuffer[rotationCopyBuffer.count()-1].bodyPart));
   }
-  for (i=0; i<node->numChildren(); i++) {
-    n += bvhGetFrameData(node->child(i), frame, data + n);
-  }
-  return n;
+
+
+  for(int i=0;i<node->numChildren();i++)
+    bvhGetFrameDataHelper(node->child(i),frame);
 }
 
-int BVH::bvhSetFrameData(BVHNode *node, int frame, double *data)
+void BVH::bvhGetFrameData(BVHNode* node,int frame)
 {
-  int n = 0;
-int i;
+  if(!node) return;
 
-  if (!node) return 0;
-  for (i=0; i<node->numChannels; i++) {
-    node->frame[frame][i] = data[n++];
+  rotationCopyBuffer.clear();
+  positionCopyBuffer.clear();
+
+  bvhGetFrameDataHelper(node,frame);
+}
+
+void BVH::bvhSetFrameDataHelper(BVHNode* node,int frame)
+{
+  // if this node is not the end of a joint child structure
+  if(node->type!=BVH_END)
+  {
+    // add the node as key frame
+    node->addKeyframe(frame,positionCopyBuffer[pasteIndex],rotationCopyBuffer[pasteIndex]);
+//    qDebug(QString("pasting frame data for %1 frame number %2 (%3)").arg(node->name()).arg(frame).arg(rotationCopyBuffer[pasteIndex].bodyPart));
+    // increment paste buffer counter
+    pasteIndex++;
   }
-  for (i=0; i<node->numChildren(); i++) {
-    n += bvhSetFrameData(node->child(i), frame, data + n);
-  }
-  return n;
+
+  // traverse down the child list, call this function recursively
+  for(int i=0;i<node->numChildren();i++)
+    bvhSetFrameDataHelper(node->child(i),frame);
+}
+
+void BVH::bvhSetFrameData(BVHNode* node,int frame)
+{
+  if(!node) return;
+
+  // reset paste buffer counter
+  pasteIndex=0;
+  // paste all keyframes for all joints
+  bvhSetFrameDataHelper(node,frame);
 }
 
 void BVH::bvhDelete(BVHNode *node) {
-  int i;
   if (node) {
-    for (i=0;i<node->numChildren();i++)
+    for (int i=0;i<node->numChildren();i++)
       bvhDelete(node->child(i));
 
-    free(node);
+    delete node;
   }
 }
 
 void BVH::bvhSetFrameTime(BVHNode *node, double frameTime) {
-  int i;
   node->frameTime = frameTime;
 
-  for (i=0;i<node->numChildren();i++)
+  for (int i=0;i<node->numChildren();i++)
       bvhSetFrameTime(node->child(i), frameTime);
 }

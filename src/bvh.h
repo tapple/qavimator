@@ -43,13 +43,14 @@ class BVH
     void assignChannels(BVHNode *node, FILE *f, int frame);
     void setChannelLimits(BVHNode *node,BVHChannelType type,double min,double max) const;
     void parseLimFile(BVHNode *root, const char *limFile) const;
-    void setNumFrames(BVHNode *node, int numFrames) const;
+
+    void setNumFrames(int numFrames);
+	int numFrames() const;
     void setAllKeyFrames(BVHNode *node) const;
     void avmReadKeyFrame(BVHNode *root, FILE *f);
     void bvhIndent(FILE *f, int depth);
     void bvhWriteNode(BVHNode *node, FILE *f, int depth);
     void bvhWriteFrame(BVHNode *node, int frame, FILE *f);
-    void bvhWriteZeroFrame(BVHNode *node, FILE *f);
     void avmWriteKeyFrame(BVHNode *root, FILE *f);
     void bvhPrintNode(BVHNode *n, int depth);
     const char* bvhGetNameHelper(BVHNode *node, int index);
@@ -57,18 +58,17 @@ class BVH
 
 void bvhWrite(BVHNode *root, const char *file);
 BVHNode *bvhFindNode(BVHNode *root, const char *name) const;
-void bvhSetChannel(BVHNode *node, int frame, BVHChannelType type, double val);
-double bvhGetChannel(BVHNode *node, int frame, BVHChannelType type);
+
 void bvhGetChannelLimits(BVHNode *node, BVHChannelType type,
 			 double *min, double *max);
 void bvhResetIK(BVHNode *root);
-//double bvhGetOffset(BVHNode *node, double *x, double *y, double *z);
-//double bvhGetLength(BVHNode *node, double *x, double *y, double *z);
+
 const char *bvhGetName(BVHNode *node, int index);
 int bvhGetIndex(BVHNode *node, const char *name);
 void bvhCopyOffsets(BVHNode *dst,BVHNode *src);
-int bvhGetFrameData(BVHNode *node, int frame, double *data);
-int bvhSetFrameData(BVHNode *node, int frame, double *data);
+
+    void bvhGetFrameData(BVHNode* node,int frame);
+    void bvhSetFrameData(BVHNode *node,int frame);
 
 // lex neva's stuff:
 BVHNode *animRead(const char *file, const char *limFile);
@@ -81,10 +81,16 @@ void bvhSetFrameTime(BVHNode *node, double frameTime);
 QStringList bvhTypeName;
 QStringList bvhChannelName;
 int nodeCount;
+int totalFrames;   // number of frames in this bvh/avm file
 
-QPtrList<Rotation> rotations;
-QPtrList<Position> positions;
+QValueList<Rotation> rotationCopyBuffer;
+QValueList<Position> positionCopyBuffer;
 
+  protected:
+    void bvhGetFrameDataHelper(BVHNode* node,int frame);
+    void bvhSetFrameDataHelper(BVHNode *node,int frame);
+
+    int pasteIndex;
 };
 
 #endif

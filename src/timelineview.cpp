@@ -116,10 +116,11 @@ void TimelineTracks::drawTrack(int track)
 {
   if(track==0) return;
 
-  QPainter p(this);
-  QString trackName=animation->getPartName(track);
+  QString trackName=(animation) ? animation->getPartName(track) : "";
   if(trackName!="Site")
   {
+    QPainter p(this);
+
     int y=(track-1)*LINE_HEIGHT+2;
 
     if(track==selectedTrack)
