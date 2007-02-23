@@ -81,7 +81,6 @@ class Animation : public QObject
   void addKeyFrameAllJoints();
   void addKeyFrame(BVHNode *joint);
   bool isKeyFrame();
-  bool isKeyFrame(BVHNode *joint);
   bool isKeyFrame(const char *jointName);
   bool isKeyFrame(int jointNumber,int frame);
   void delKeyFrameAllJoints();

@@ -478,7 +478,7 @@ void Animation::interpolateFrames(BVHNode *joint) {
 */
 
 bool Animation::isKeyFrameHelper(BVHNode *joint) {
-  if (isKeyFrame(joint))
+  if (joint->isKeyframe(frame))
     return true;
 
   for (int i=0;i<joint->numChildren();i++) {
@@ -490,11 +490,6 @@ bool Animation::isKeyFrameHelper(BVHNode *joint) {
   return false;
 }
 
-bool Animation::isKeyFrame(BVHNode *joint)
-{
-  return joint->isKeyframe(frame);
-}
-
 bool Animation::isKeyFrame(const char *jointName)
 {
   if (jointName == NULL) {
@@ -502,7 +497,7 @@ bool Animation::isKeyFrame(const char *jointName)
   } else {
     BVHNode *node = bvh->bvhFindNode(frames, jointName);
 
-    return isKeyFrame(node);
+    return node->isKeyframe(frame);
   }
 }
 
@@ -561,7 +556,7 @@ bool Animation::toggleKeyFrame(const char *jointName) {
   } else {
     BVHNode *node = bvh->bvhFindNode(frames, jointName);
 
-    if (isKeyFrame(node)) {
+    if (node->isKeyframe(frame)) {
       delKeyFrame(node);
       return false;
     } else {
