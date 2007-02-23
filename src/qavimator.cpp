@@ -31,6 +31,7 @@
 #include <qgroupbox.h>
 #include <qregexp.h>
 #include <qtabwidget.h>
+#include <qmessagebox.h>
 
 #include "qavimator.h"
 #include "animationview.h"
@@ -967,6 +968,12 @@ void qavimator::optionsShowTimeline(bool on)
   animationView->resize(oldSize.width(),oldSize.height()-1);
   qApp->processEvents();
   animationView->resize(oldSize);
+}
+
+// Menu Action: Help / About ...
+void qavimator::helpAbout()
+{
+  QMessageBox::about(this,QObject::tr("About QAvimator"),QObject::tr("QAvimator build 200702231408."));
 }
 
 void qavimator::setX(float x)

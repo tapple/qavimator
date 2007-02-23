@@ -66,6 +66,8 @@ class qavimator : public MainApplicationForm
     void propRotated(Prop* prop,double x,double y,double z);
     void backgroundClicked();
 
+    void helpAbout();
+
     void cb_PartChoice();
     void cb_RotRoller(int dummy);
     void cb_RotValue();
