@@ -569,45 +569,42 @@ void BVH::bvhResetIK(BVHNode *root)
   }
 }
 
-const char* BVH::bvhGetNameHelper(BVHNode *node, int index)
+const QString& BVH::bvhGetNameHelper(BVHNode* node,int index)
 {
-  int i;
-  const char *val;
-
   nodeCount++;
-  if (nodeCount == index)
-    return (const char *)(node->name());
-  for (i=0; i<node->numChildren(); i++) {
-    if ((val = bvhGetNameHelper(node->child(i), index)))
-      return val;
+  if(nodeCount==index) return node->name();
+
+  for(int i=0;i<node->numChildren();i++)
+  {
+    const QString& val=bvhGetNameHelper(node->child(i),index);
+    if(!val.isEmpty()) return val;
   }
-  return NULL;
+  return QString::null;
 }
 
-const char* BVH::bvhGetName(BVHNode *node, int index)
+const QString& BVH::bvhGetName(BVHNode* node,int index)
 {
   nodeCount = 0;
   return bvhGetNameHelper(node, index);
 }
 
-int BVH::bvhGetIndexHelper(BVHNode *node, const char *name)
+int BVH::bvhGetIndexHelper(BVHNode* node,const QString& name)
 {
-  int i;
-  int val;
-
   nodeCount++;
-  if (!strcmp(node->name(), name))
-    return nodeCount;
-  for (i=0; i<node->numChildren(); i++) {
+  if(node->name()==name) return nodeCount;
+
+  for(int i=0;i<node->numChildren();i++)
+  {
+    int val;
     if ((val = bvhGetIndexHelper(node->child(i), name)))
       return val;
   }
   return 0;
 }
 
-int BVH::bvhGetIndex(BVHNode *node, const char *name)
+int BVH::bvhGetIndex(BVHNode* node,const QString& name)
 {
-  nodeCount = 0;
+  nodeCount=0;
   return bvhGetIndexHelper(node, name);
 }
 

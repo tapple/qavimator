@@ -53,8 +53,6 @@ class BVH
     void bvhWriteFrame(BVHNode *node, int frame, FILE *f);
     void avmWriteKeyFrame(BVHNode *root, FILE *f);
     void bvhPrintNode(BVHNode *n, int depth);
-    const char* bvhGetNameHelper(BVHNode *node, int index);
-    int bvhGetIndexHelper(BVHNode *node, const char *name);
 
 void bvhWrite(BVHNode *root, const char *file);
 BVHNode *bvhFindNode(BVHNode *root, const char *name) const;
@@ -63,8 +61,8 @@ void bvhGetChannelLimits(BVHNode *node, BVHChannelType type,
 			 double *min, double *max);
 void bvhResetIK(BVHNode *root);
 
-const char *bvhGetName(BVHNode *node, int index);
-int bvhGetIndex(BVHNode *node, const char *name);
+    const QString& bvhGetName(BVHNode* node,int index);
+    int bvhGetIndex(BVHNode* node,const QString& name);
 void bvhCopyOffsets(BVHNode *dst,BVHNode *src);
 
     void bvhGetFrameData(BVHNode* node,int frame);
@@ -87,6 +85,9 @@ QValueList<Rotation> rotationCopyBuffer;
 QValueList<Position> positionCopyBuffer;
 
   protected:
+    const QString& bvhGetNameHelper(BVHNode* node,int index);
+    int bvhGetIndexHelper(BVHNode* node,const QString& name);
+
     void bvhGetFrameDataHelper(BVHNode* node,int frame);
     void bvhSetFrameDataHelper(BVHNode *node,int frame);
 

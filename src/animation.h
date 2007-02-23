@@ -56,11 +56,11 @@ class Animation : public QObject
   void setIK(const char *jointName, bool flag);
   bool getIK(const char *jointName);
   const char *getPartName(int index) const;
-  int getPartIndex(const char *part);
+  int getPartIndex(const QString& part);
   void setMirrored(bool mirror) { mirrored = mirror; }
   bool getMirrored() { return mirrored; }
   unsigned int getPartMirror(int index) { return partMirror[index]; }
-  const char *getPartMirror(const char *name);
+  const QString& getPartMirror(const QString& name);
   BVHNode *getMotion() { return frames; }
   BVHNode *getEndSite(const char *siteParentName);
   BVHNode* getNode(int jointNumber);

@@ -386,7 +386,7 @@ const char *Animation::getPartName(int index) const
   return bvh->bvhGetName(frames, index);
 }
 
-int Animation::getPartIndex(const char *part)
+int Animation::getPartIndex(const QString& part)
 {
   return bvh->bvhGetIndex(frames, part);
 }
@@ -596,7 +596,7 @@ void Animation::calcPartMirrors()
   }
 }
 
-const char *Animation::getPartMirror(const char *name)
+const QString& Animation::getPartMirror(const QString& name)
 {
   int index = bvh->bvhGetIndex(frames, name);
   if (index) index = partMirror[index];
