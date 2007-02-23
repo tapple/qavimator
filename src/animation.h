@@ -100,6 +100,9 @@ class Animation : public QObject
 
   enum { MAX_PARTS = 64 };
 
+  public slots:
+    void delKeyFrame(int jointNumber,int frame);
+
   signals:
     void numberOfFrames(int num);
     void currentFrame(int frame);

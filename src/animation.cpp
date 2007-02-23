@@ -517,14 +517,29 @@ bool Animation::isKeyFrame(int jointNumber,int frame)
   return joint->isKeyframe(frame);
 }
 
-// if silent is true then only send a signal to the timeline but not to the animation view
 void Animation::delKeyFrame(BVHNode *joint,bool silent)
 {
   // never delete first keyframe
   if(frame) joint->deleteKeyframe(frame);
 
-  emit keyframeRemoved(getPartIndex(joint->name()),frame);
+  // if silent is true then only send a signal to the timeline but not to the animation view
   if(!silent) emit frameChanged();
+  emit keyframeRemoved(getPartIndex(joint->name()),frame);
+}
+
+void Animation::delKeyFrame(int jointNumber,int frame)
+{
+  // frams should always be current frame, but better play safe for future enhancements
+  setFrame(frame);
+  if(jointNumber)
+  {
+     BVHNode* joint=getNode(jointNumber);
+     if(joint->isKeyframe(frame)) delKeyFrame(joint);
+  }
+  else if(isKeyFrame()) delKeyFrameAllJoints();
+
+  // tell main class that the keyframe has changed
+  emit currentFrame(frame);
 }
 
 void Animation::recursiveDelKeyFrame(BVHNode *joint) {

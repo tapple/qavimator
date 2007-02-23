@@ -105,6 +105,7 @@ void Timeline::setAnimation(Animation* anim)
     disconnect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
     disconnect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
     disconnect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
+    disconnect(this,SIGNAL(deleteKeyframe(int,int)),animation,SLOT(delKeyFrame(int,int)));
     numOfFrames=0;
   }
   animation=anim;
@@ -114,6 +115,7 @@ void Timeline::setAnimation(Animation* anim)
     connect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
     connect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
     connect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
+    connect(this,SIGNAL(deleteKeyframe(int,int)),animation,SLOT(delKeyFrame(int,int)));
     numOfFrames=animation->getNumberOfFrames();
   }
 
@@ -483,12 +485,31 @@ void Timeline::wheelEvent(QWheelEvent* e)
 
 void Timeline::keyPressEvent(QKeyEvent* e)
 {
-  if(e->key()==Qt::Key_Shift) shift=true;
-  e->ignore();
+  switch(e->key())
+  {
+    case Qt::Key_Shift:
+      shift=true;
+      break;
+    case Qt::Key_Delete:
+      emit deleteKeyframe(trackSelected,frameSelected);
+      break;
+    default:
+      e->ignore();
+      return;
+  }
+  e->accept();
 }
 
 void Timeline::keyReleaseEvent(QKeyEvent* e)
 {
-  if(e->key()==Qt::Key_Shift) shift=false;
-  e->ignore();
+  switch(e->key())
+  {
+    case Qt::Key_Shift:
+      shift=false;
+      break;
+    default:
+      e->ignore();
+      return;
+  }
+  e->accept();
 }
