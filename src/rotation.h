@@ -31,10 +31,9 @@ class Rotation
 {
   public:
     Rotation();
-    Rotation(const QString& bodyPart,double x,double y,double z);
+    Rotation(double x,double y,double z);
     ~Rotation();
 
-    QString bodyPart;
     double x;
     double y;
     double z;
@@ -61,10 +60,9 @@ class Position
 {
   public:
     Position();
-    Position(const QString& bodyPart,double x,double y,double z);
+    Position(double x,double y,double z);
     ~Position();
 
-    QString bodyPart;
     double x;
     double y;
     double z;

@@ -146,8 +146,8 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
 void BVH::assignChannels(BVHNode *node, FILE *f, int frame)
 {
   // create new rotation and position objects
-  Rotation* rot=new Rotation(node->name(),0,0,0);
-  Position* pos=new Position(node->name(),0,0,0);
+  Rotation* rot=new Rotation();
+  Position* pos=new Position();
 
   char buffer[1024];
 
@@ -248,7 +248,7 @@ void BVH::setAllKeyFrames(BVHNode *node) const
     const Rotation* rot=node->getCachedRotation(i);
     const Position* pos=node->getCachedPosition(i);
 
-    node->addKeyframe(i,Position(node->name(),pos->x,pos->y,pos->z),Rotation(node->name(),rot->x,rot->y,rot->z));
+    node->addKeyframe(i,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
   }
 
   for (int i=0;i<node->numChildren();i++)
@@ -295,7 +295,7 @@ void BVH::avmReadKeyFrame(BVHNode *root, FILE *f)
   // FIXME: find a better way without code duplication
   const Rotation* rot=root->getCachedRotation(0);
   const Position* pos=root->getCachedPosition(0);
-  root->addKeyframe(0,Position(root->name(),pos->x,pos->y,pos->z),Rotation(root->name(),rot->x,rot->y,rot->z));
+  root->addKeyframe(0,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
 
   char buffer[1024];
   int numKeyFrames=atoi(token(f,buffer));
@@ -306,7 +306,7 @@ void BVH::avmReadKeyFrame(BVHNode *root, FILE *f)
 
     const Rotation* rot=root->getCachedRotation(key);
     const Position* pos=root->getCachedPosition(key);
-    root->addKeyframe(key,Position(root->name(),pos->x,pos->y,pos->z),Rotation(root->name(),rot->x,rot->y,rot->z));
+    root->addKeyframe(key,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
   }
 
   // all keyframes are found, flush the node's cache to free up memory

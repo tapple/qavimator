@@ -278,9 +278,9 @@ void Animation::setRotation(const char *jointName, double x, double y, double z)
     //qDebug(QString("Animation::setRotation(")+jointName+")");
 
     if(node->isKeyframe(frame))
-      node->setKeyframeRotation(frame,Rotation(jointName,x,y,z));
+      node->setKeyframeRotation(frame,Rotation(x,y,z));
     else
-      node->addKeyframe(frame,node->frameData(frame).position(),Rotation(jointName,x,y,z));
+      node->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
 
     //      node->dumpKeyframes();
     if (mirrored && (mirrorName = getPartMirror(jointName)))
@@ -289,9 +289,9 @@ void Animation::setRotation(const char *jointName, double x, double y, double z)
 
       // new keyframe system
       if(node2->isKeyframe(frame))
-        node2->setKeyframeRotation(frame,Rotation(jointName,x,-y,-z));
+        node2->setKeyframeRotation(frame,Rotation(x,-y,-z));
       else
-        node2->addKeyframe(frame,node->frameData(frame).position(),Rotation(jointName,x,y,z));
+        node2->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
       // tell timeline that this keyframe has changed (added or changed is the same here)
       emit keyframeAdded(getPartIndex(jointName),frame);
     }
@@ -310,7 +310,7 @@ Rotation Animation::getRotation(const char* jointName)
   if(node)
     return node->frameData(frame).rotation();
 
-  return Rotation(jointName,0.0,0.0,0.0);
+  return Rotation();
 }
 
 void Animation::useRotationLimits(bool flag)
@@ -359,10 +359,10 @@ void Animation::setPosition(const char *jointName, double x, double y, double z)
 
     // new keyframe system
     if(node->isKeyframe(frame))
-      node->setKeyframePosition(frame,Position(jointName,x,y,z));
+      node->setKeyframePosition(frame,Position(x,y,z));
     else
     {
-      node->addKeyframe(frame,Position(jointName,x,y,z),node->frameData(frame).rotation());
+      node->addKeyframe(frame,Position(x,y,z),node->frameData(frame).rotation());
     }
     for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
     // tell timeline that this keyframe has changed (added or changed is the same here)
@@ -378,7 +378,7 @@ Position Animation::getPosition(const char *jointName)
   if (node)
     return node->frameData(frame).position();
 
-  return Position(jointName,0.0,0.0,0.0);
+  return Position();
 }
 
 const char *Animation::getPartName(int index) const

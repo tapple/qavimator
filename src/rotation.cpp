@@ -22,15 +22,13 @@
 
 Rotation::Rotation()
 {
-  bodyPart=QString::null;
   x=0;
   y=0;
   z=0;
 }
 
-Rotation::Rotation(const QString& part,double rx,double ry, double rz)
+Rotation::Rotation(double rx,double ry, double rz)
 {
-  bodyPart=part;
   x=rx;
   y=ry;
   z=rz;
@@ -60,15 +58,13 @@ RotationLimits::~RotationLimits()
 
 Position::Position()
 {
-  bodyPart=QString::null;
   x=0;
   y=0;
   z=0;
 }
 
-Position::Position(const QString& part,double px,double py, double pz)
+Position::Position(double px,double py, double pz)
 {
-  bodyPart=part;
   x=px;
   y=py;
   z=pz;
