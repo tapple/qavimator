@@ -116,6 +116,16 @@ void BVHNode::deleteKeyframe(int frame)
   keyframes.erase(frame);
 }
 
+void BVHNode::insertFrame(int frame)
+{
+  QMap<int,FrameData>::iterator itCurrent=keyframes.find(frame);
+  while(itCurrent!=keyframes.end())
+  {
+    (*itCurrent).setFrameNumber((*itCurrent).frameNumber()+1);
+    itCurrent++;
+  }
+}
+
 bool BVHNode::isKeyframe(int frame) const
 {
   return keyframes.contains(frame);
@@ -288,6 +298,11 @@ FrameData::FrameData(int num,Position pos,Rotation rot)
 int FrameData::frameNumber() const
 {
   return m_frameNumber;
+}
+
+void FrameData::setFrameNumber(int frame)
+{
+  m_frameNumber=frame;
 }
 
 Position FrameData::position() const

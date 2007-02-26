@@ -41,6 +41,8 @@ class FrameData
     ~FrameData();
 
     int frameNumber() const;
+    void setFrameNumber(int frame);
+
     Position position() const;
     Rotation rotation() const;
     void setPosition(const Position& pos);
@@ -75,6 +77,7 @@ class BVHNode
     void deleteKeyframe(int frame);
     void setKeyframePosition(int frame,const Position& pos);
     void setKeyframeRotation(int frame,const Rotation& rot);
+    void insertFrame(int frame); // moves all key frames starting at "frame" one frame further
     bool isKeyframe(int frame) const;
     int numKeyframes() const;
 

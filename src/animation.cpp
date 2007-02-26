@@ -691,3 +691,15 @@ BVHNode* Animation::getNode(int jointNumber)
   const char* jointName=getPartName(jointNumber);
   return bvh->bvhFindNode(frames,jointName);
 }
+
+void Animation::insertFrameHelper(BVHNode* joint,int frame)
+{
+  joint->insertFrame(frame);
+  for(int i=0;i<joint->numChildren();i++)
+    insertFrameHelper(joint,frame);
+}
+
+void Animation::insertFrame()
+{
+  insertFrameHelper(frames,frame);
+}
