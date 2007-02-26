@@ -43,6 +43,7 @@
 #define ANIM_FILTER "Animation Files (*.bvh *.avm)"
 #define PROP_FILTER "Props (*.prp)"
 #define PRECISION 100
+#define SVN_ID    "$Id$"
 
 qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose )
 {
@@ -973,7 +974,7 @@ void qavimator::optionsShowTimeline(bool on)
 // Menu Action: Help / About ...
 void qavimator::helpAbout()
 {
-  QMessageBox::about(this,QObject::tr("About QAvimator"),QObject::tr("QAvimator build 200702231408."));
+  QMessageBox::about(this,QObject::tr("About QAvimator"),QObject::tr("QAvimator build 200702231408.<br />"+SVN_ID));
 }
 
 void qavimator::setX(float x)
