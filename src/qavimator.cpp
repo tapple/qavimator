@@ -974,7 +974,7 @@ void qavimator::optionsShowTimeline(bool on)
 // Menu Action: Help / About ...
 void qavimator::helpAbout()
 {
-  QMessageBox::about(this,QObject::tr("About QAvimator"),QObject::tr("QAvimator build 200702231408.<br />"+SVN_ID));
+  QMessageBox::about(this,QObject::tr("About QAvimator"),QObject::tr("QAvimator - Animation editor for Second Life<br />%1").arg(SVN_ID));
 }
 
 void qavimator::setX(float x)
