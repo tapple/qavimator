@@ -106,6 +106,7 @@ void Timeline::setAnimation(Animation* anim)
     disconnect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
     disconnect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
     disconnect(this,SIGNAL(deleteKeyframe(int,int)),animation,SLOT(delKeyFrame(int,int)));
+    disconnect(this,SIGNAL(insertFrame(int,int)),animation,SLOT(insertFrame(int,int)));
     numOfFrames=0;
   }
   animation=anim;
@@ -116,6 +117,7 @@ void Timeline::setAnimation(Animation* anim)
     connect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
     connect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
     connect(this,SIGNAL(deleteKeyframe(int,int)),animation,SLOT(delKeyFrame(int,int)));
+    connect(this,SIGNAL(insertFrame(int,int)),animation,SLOT(insertFrame(int,int)));
     numOfFrames=animation->getNumberOfFrames();
   }
 
@@ -492,6 +494,16 @@ void Timeline::keyPressEvent(QKeyEvent* e)
       break;
     case Qt::Key_Delete:
       emit deleteKeyframe(trackSelected,frameSelected);
+      break;
+    case Qt::Key_Insert:
+      emit insertFrame(trackSelected,frameSelected);
+      if(trackSelected)
+      {
+        clearPosition();
+        drawTrack(trackSelected);
+        drawPosition();
+      }
+      else repaint();
       break;
     default:
       e->ignore();

@@ -118,12 +118,40 @@ void BVHNode::deleteKeyframe(int frame)
 
 void BVHNode::insertFrame(int frame)
 {
-  QMap<int,FrameData>::iterator itCurrent=keyframes.find(frame);
-  while(itCurrent!=keyframes.end())
+  QMap<int,FrameData>::iterator itCurrent;
+  if(isKeyframe(frame))
+    // if this actually is a keyframe, use this
+    itCurrent=keyframes.find(frame);
+  else
   {
-    (*itCurrent).setFrameNumber((*itCurrent).frameNumber()+1);
-    itCurrent++;
+    // find next keyframe number
+    frame=getKeyframeNumberAfter(frame);
+    // past the end? then do nothing
+    if(frame==-1) return;
+    // get current iterator
+    itCurrent=keyframes.find(frame);
   }
+  // step back one key
+  itCurrent--;
+
+  // start looking for keys at the end
+  QMap<int,FrameData>::iterator itLook=keyframes.end();
+  // step back to get the last keyframe
+  itLook--;
+
+  do
+  {
+    // get current keyframe's position
+    int frame=(*itLook).frameNumber();
+    // increment frame number in frame data
+    (*itLook).setFrameNumber(frame+1);
+    // decrement iterator here already, so it does not get invalidated by remove() later
+    itLook--;
+    // copy frame data into next frame
+    keyframes[frame+1]=keyframes[frame];
+    // remove old frame
+    keyframes.remove(frame);
+  } while(itLook!=itCurrent);
 }
 
 bool BVHNode::isKeyframe(int frame) const
@@ -208,11 +236,23 @@ int BVHNode::getKeyframeNumberBefore(int frame) const
     return 0;
   }
 
+  // find previous key
+  while(--frame && !isKeyframe(frame));
+
+  return frame;
+}
+
+int BVHNode::getKeyframeNumberAfter(int frame) const
+{
   // get a list of all keyframe numbers
   QValueList<int> keys=keyframeList();
 
-  // find previous key
-  while(--frame && !isKeyframe(frame));
+  // past the end? return -1
+  if(frame>(int) keys[keyframes.count()-1])
+    return -1;
+
+  // find next key
+  while(++frame && !isKeyframe(frame));
 
   return frame;
 }

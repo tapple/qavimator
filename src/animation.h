@@ -92,7 +92,6 @@ class Animation : public QObject
   const int numKeyFrames(int jointNumber);
   void copyKeyFrame(int jointNumber,int from,int to);
   void moveKeyFrame(int jointNumber,int from,int to,bool copy=false);
-  void insertFrame();
 
   bool compareFrames(const char* jointName,int key1,int key2);
 
@@ -102,6 +101,7 @@ class Animation : public QObject
 
   public slots:
     void delKeyFrame(int jointNumber,int frame);
+    void insertFrame(int jointNumber,int frame);
 
   signals:
     void numberOfFrames(int num);

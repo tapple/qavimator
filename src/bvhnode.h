@@ -83,7 +83,6 @@ class BVHNode
 
     const FrameData getKeyframeBefore(int frame) const;
     const FrameData getNextKeyframe(int frame) const;
-    int getKeyframeNumberBefore(int frame) const;
 
     const Rotation* getCachedRotation(int frame);
     const Position* getCachedPosition(int frame);
@@ -93,7 +92,6 @@ class BVHNode
 
     void dumpKeyframes();
 
-  public:
     BVHNodeType type;
     double offset[3];
     int numChannels;
@@ -113,6 +111,9 @@ class BVHNode
   protected:
     void setName(const QString& newName);
     double interpolate(double from,double to,int steps,int pos,bool interpolationType) const;
+
+    int getKeyframeNumberBefore(int frame) const;
+    int getKeyframeNumberAfter(int frame) const;
 
     QString m_name;
     QPtrList<BVHNode> children;

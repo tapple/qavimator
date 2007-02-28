@@ -696,10 +696,17 @@ void Animation::insertFrameHelper(BVHNode* joint,int frame)
 {
   joint->insertFrame(frame);
   for(int i=0;i<joint->numChildren();i++)
-    insertFrameHelper(joint,frame);
+    insertFrameHelper(joint->child(i),frame);
 }
 
-void Animation::insertFrame()
+void Animation::insertFrame(int track,int pos)
 {
-  insertFrameHelper(frames,frame);
+  if(track==0)
+    insertFrameHelper(frames,pos);
+  else
+  {
+    BVHNode* joint=getNode(track);
+    if(joint) joint->insertFrame(frame);
+  }
+  emit frameChanged();
 }
