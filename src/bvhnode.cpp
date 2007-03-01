@@ -161,6 +161,8 @@ bool BVHNode::isKeyframe(int frame) const
 
 double BVHNode::interpolate(double from,double to,int steps,int pos,bool /* type */) const
 {
+  // do not start any calculation if there's nothing to do
+  if(from==to) return from;
 //  qDebug(QString("interpolate %1 %2 %3 %4").arg(from).arg(to).arg(steps).arg(pos));
   double distance=to-from;
   double increment=distance/(double) steps;
