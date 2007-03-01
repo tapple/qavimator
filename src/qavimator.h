@@ -83,6 +83,9 @@ class qavimator : public MainApplicationForm
     void cb_fpsValue(int fps);
     void cb_FrameSlider(int position);
 
+    void easeInChanged(int change);
+    void easeOutChanged(int change);
+
     void animationChanged(int which);
 
     void figureChanged(int shape);

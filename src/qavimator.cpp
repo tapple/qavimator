@@ -636,6 +636,20 @@ void qavimator::keyframeButtonToggled(bool)
   animationView->repaint();
 }
 
+void qavimator::easeInChanged(int change)
+{
+  bool ease=false;
+  if(change==QButton::On) ease=true;
+  animationView->getAnimation()->setEaseIn(editPartCombo->currentText(),ease);
+}
+
+void qavimator::easeOutChanged(int change)
+{
+  bool ease=false;
+  if(change==QButton::On) ease=true;
+  animationView->getAnimation()->setEaseOut(editPartCombo->currentText(),ease);
+}
+
 // ------ Menu Action Slots (Callbacks) -----------
 
 // Menu action: File / New

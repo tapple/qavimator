@@ -136,6 +136,28 @@ int Animation::stepForward()
     return 0;
 }
 
+void Animation::setEaseIn(const QString& name,bool state)
+{
+  BVHNode *node=bvh->bvhFindNode(frames,name);
+  if(node->isKeyframe(frame))
+  {
+    node->setEaseIn(frame,state);
+    // tell main class that the keyframe has changed
+    emit redrawTrack(getPartIndex(name));
+  }
+}
+
+void Animation::setEaseOut(const QString& name,bool state)
+{
+  BVHNode *node=bvh->bvhFindNode(frames,name);
+  if(node->isKeyframe(frame))
+  {
+    node->setEaseOut(frame,state);
+    // tell main class that the keyframe has changed
+    emit redrawTrack(getPartIndex(name));
+  }
+}
+
 void Animation::setLoopPoint(int frame)
 {
   loopingPoint=frame;

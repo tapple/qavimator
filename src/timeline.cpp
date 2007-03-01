@@ -105,6 +105,7 @@ void Timeline::setAnimation(Animation* anim)
     disconnect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
     disconnect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
     disconnect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
+    disconnect(animation,SIGNAL(redrawTrack(int)),this,SLOT(drawTrack(int)));
     disconnect(this,SIGNAL(deleteKeyframe(int,int)),animation,SLOT(delKeyFrame(int,int)));
     disconnect(this,SIGNAL(insertFrame(int,int)),animation,SLOT(insertFrame(int,int)));
     numOfFrames=0;
@@ -116,6 +117,7 @@ void Timeline::setAnimation(Animation* anim)
     connect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
     connect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
     connect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
+    connect(animation,SIGNAL(redrawTrack(int)),this,SLOT(drawTrack(int)));
     connect(this,SIGNAL(deleteKeyframe(int,int)),animation,SLOT(delKeyFrame(int,int)));
     connect(this,SIGNAL(insertFrame(int,int)),animation,SLOT(insertFrame(int,int)));
     numOfFrames=animation->getNumberOfFrames();
@@ -354,7 +356,7 @@ void Timeline::drawTrack(int track)
     for(int key=0;key<joint->numKeyframes();key++)
     {
       // get frame number of key frame
-      FrameData frameData=joint->keyframeDataByIndex(key);
+      const FrameData& frameData=joint->keyframeDataByIndex(key);
       int frameNum=frameData.frameNumber();
 
       // if key frame is not out of animation length
@@ -366,18 +368,72 @@ void Timeline::drawTrack(int track)
           // check if it differs from the previous frame, if it does, draw a line there
           if(!animation->compareFrames(trackName,frameNum,oldFrame))
           {
+            const FrameData& oldFrameData=joint->keyframeDataByIndex(key-1);
+            int frameDiff=(frameNum-oldFrame+1)*KEY_WIDTH/2;
+
             QColor pen1(palette().color(QPalette::Active,QColorGroup::Foreground));
             QColor pen2(palette().color(QPalette::Active,baseColor).light(115));
-            // we use fillRect instead of drawLine because for some reason the windows
-            // version did not draw properly
-            p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
-                       y+KEY_HEIGHT/2,
-                       (frameNum-oldFrame)*KEY_WIDTH,
-                       1,QBrush(pen1));
-            p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
-                       y+KEY_HEIGHT/2+1,
-                       (frameNum-oldFrame)*KEY_WIDTH,
-                       1,QBrush(pen2));
+
+            if(oldFrameData.easeOut())
+            {
+              QPoint oldPos(oldFrame*KEY_WIDTH+KEY_WIDTH-1,y+LINE_HEIGHT/2);
+              for(int x=0;x<frameDiff-KEY_WIDTH+1;x++)
+              {
+                QPoint newPos(QPoint(x+oldFrame*KEY_WIDTH+KEY_WIDTH-1,y+sin(x*6.283/(frameDiff-KEY_WIDTH+1))*(LINE_HEIGHT/2-1)+LINE_HEIGHT/2));
+                p.setPen(pen1);
+                p.drawLine(oldPos,newPos);
+                p.setPen(pen2);
+                p.drawLine(oldPos+QPoint(0,1),newPos+QPoint(0,1));
+                oldPos=newPos;
+              }
+/*              p.drawLine(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
+                         y,
+                         oldFrame*KEY_WIDTH+frameDiff-1,
+                         y+KEY_HEIGHT/2); */
+            }
+            else
+            {
+              // we use fillRect instead of drawLine because for some reason the windows
+              // version did not draw properly
+              p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
+                         y+KEY_HEIGHT/2,
+                         frameDiff-KEY_WIDTH,
+                         1,QBrush(pen1));
+              p.fillRect(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
+                         y+KEY_HEIGHT/2+1,
+                         frameDiff,
+                         1,QBrush(pen2));
+            }
+
+            if(frameData.easeIn())
+            {
+              QPoint oldPos(oldFrame*KEY_WIDTH+frameDiff,y+LINE_HEIGHT/2);
+              for(int x=0;x<frameDiff-KEY_WIDTH+1;x++)
+              {
+                QPoint newPos(x+oldFrame*KEY_WIDTH+frameDiff-1,y+sin(x*6.283/(frameDiff-KEY_WIDTH+1))*(LINE_HEIGHT/2-1)+LINE_HEIGHT/2);
+                p.setPen(pen1);
+                p.drawLine(oldPos,newPos);
+                p.setPen(pen2);
+                p.drawLine(oldPos+QPoint(0,1),newPos+QPoint(0,1));
+                oldPos=newPos;
+              }
+/*
+              p.drawLine(oldFrame*KEY_WIDTH+frameDiff-1,
+                         y+KEY_HEIGHT/2,
+                         frameNum*KEY_WIDTH-1,
+                         y); */
+            }
+            else
+            {
+              p.fillRect(oldFrame*KEY_WIDTH+frameDiff-1,
+                         y+KEY_HEIGHT/2,
+                         frameDiff,
+                         1,QBrush(pen1));
+              p.fillRect(oldFrame*KEY_WIDTH+frameDiff-1,
+                         y+KEY_HEIGHT/2+1,
+                         frameDiff,
+                         1,QBrush(pen2));
+            }
           }
         }
         // draw the key frame

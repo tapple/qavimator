@@ -61,6 +61,7 @@ class Timeline : public QWidget
 
   public slots:
     void setCurrentFrame(int frame);
+    void drawTrack(int track);
 
   protected slots:
     void addKeyframe(int bodypart,int frame);
@@ -79,7 +80,6 @@ class Timeline : public QWidget
 
     void clearPosition();
     void drawKeyframe(int track,int frame);
-    void drawTrack(int track);
 
     Animation* animation;
 

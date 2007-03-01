@@ -48,6 +48,11 @@ class FrameData
     void setPosition(const Position& pos);
     void setRotation(const Rotation& rot);
 
+    bool easeIn() const;
+    bool easeOut() const;
+    void setEaseIn(bool state);
+    void setEaseOut(bool state);
+
   protected:
     unsigned int m_frameNumber;
 
@@ -83,6 +88,9 @@ class BVHNode
 
     const FrameData getKeyframeBefore(int frame) const;
     const FrameData getNextKeyframe(int frame) const;
+
+    void setEaseIn(int frame,bool state);
+    void setEaseOut(int frame,bool state);
 
     const Rotation* getCachedRotation(int frame);
     const Position* getCachedPosition(int frame);

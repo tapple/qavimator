@@ -89,6 +89,9 @@ class Animation : public QObject
   bool toggleKeyFrame(const char *jointName);
   void setFrameTime(double frameTime);
 
+  void setEaseIn(const QString& jointName,bool state);
+  void setEaseOut(const QString& jointName,bool state);
+
   const int numKeyFrames(int jointNumber);
   void copyKeyFrame(int jointNumber,int from,int to);
   void moveKeyFrame(int jointNumber,int from,int to,bool copy=false);
@@ -107,6 +110,7 @@ class Animation : public QObject
     void numberOfFrames(int num);
     void currentFrame(int frame);
     void frameChanged();
+    void redrawTrack(int track);
     void keyframeAdded(int partIndex,int frameNumber);
     void keyframeRemoved(int partIndex,int frameNumber);
 

@@ -18,6 +18,8 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
+#include <math.h>
+
 #include <qapplication.h>
 
 #include "bvhnode.h"
@@ -164,9 +166,17 @@ double BVHNode::interpolate(double from,double to,int steps,int pos,bool /* type
   // do not start any calculation if there's nothing to do
   if(from==to) return from;
 //  qDebug(QString("interpolate %1 %2 %3 %4").arg(from).arg(to).arg(steps).arg(pos));
+
   double distance=to-from;
   double increment=distance/(double) steps;
   return from+increment*(double) pos;
+
+
+// sine (in work)
+/*  double distance=to-from;
+  double step=3.1415/(steps+1);
+
+  return from+(0.5-cos(step*(double) pos)/2)*distance; */
 }
 
 const FrameData BVHNode::frameData(int frame) const
@@ -317,6 +327,16 @@ void BVHNode::dumpKeyframes()
   }
 }
 
+void BVHNode::setEaseIn(int frame,bool state)
+{
+    (*keyframes.find(frame)).setEaseIn(state);
+}
+
+void BVHNode::setEaseOut(int frame,bool state)
+{
+    (*keyframes.find(frame)).setEaseOut(state);
+}
+
 // ************************************************************************
 
 FrameData::FrameData()
@@ -355,6 +375,26 @@ Position FrameData::position() const
 Rotation FrameData::rotation() const
 {
   return m_rotation;
+}
+
+void FrameData::setEaseIn(bool state)
+{
+  m_easeIn=state;
+}
+
+void FrameData::setEaseOut(bool state)
+{
+  m_easeOut=state;
+}
+
+bool FrameData::easeIn() const
+{
+  return m_easeIn;
+}
+
+bool FrameData::easeOut() const
+{
+  return m_easeOut;
 }
 
 void FrameData::setPosition(const Position& pos)
