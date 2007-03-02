@@ -47,11 +47,9 @@ class BVH
     void setNumFrames(int numFrames);
 	int numFrames() const;
     void setAllKeyFrames(BVHNode *node) const;
-    void avmReadKeyFrame(BVHNode *root, FILE *f);
     void bvhIndent(FILE *f, int depth);
     void bvhWriteNode(BVHNode *node, FILE *f, int depth);
     void bvhWriteFrame(BVHNode *node, int frame, FILE *f);
-    void avmWriteKeyFrame(BVHNode *root, FILE *f);
     void bvhPrintNode(BVHNode *n, int depth);
 
 void bvhWrite(BVHNode *root, const char *file);
@@ -85,6 +83,12 @@ QValueList<Rotation> rotationCopyBuffer;
 QValueList<Position> positionCopyBuffer;
 
   protected:
+    void avmReadKeyFrame(BVHNode *root, FILE *f);
+    void avmReadKeyFrameProperties(BVHNode *root, FILE *f);
+
+    void avmWriteKeyFrame(BVHNode *root, FILE *f);
+    void avmWriteKeyFrameProperties(BVHNode *root, FILE *f);
+
     const QString& bvhGetNameHelper(BVHNode* node,int index);
     int bvhGetIndexHelper(BVHNode* node,const QString& name);
 

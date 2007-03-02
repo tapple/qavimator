@@ -50,10 +50,11 @@ BVH::~ BVH()
 
 char* BVH::token(FILE *f,char* tokenBuf) const
 {
+  tokenBuf[0]='\0';
+
   if (feof(f)) {
     fprintf(stderr, "Bad BVH file: Premature EOF\n");
-    tokenBuf[0]='\0';
-    return "";
+    return tokenBuf;
   }
 
   if(fscanf(f, "%s", tokenBuf)); // fix compiler warning
@@ -318,6 +319,34 @@ void BVH::avmReadKeyFrame(BVHNode *root, FILE *f)
   }
 }
 
+// reads ease in / out data
+void BVH::avmReadKeyFrameProperties(BVHNode *root, FILE *f)
+{
+  // NOTE: key frame properties save key 0, too, so numKeyFrames here will be one higher than before
+  char buffer[1024];
+
+  token(f,buffer);
+  if(!strlen(buffer)) return;
+
+  int numKeyFrames=atoi(buffer);
+  for (int i=0;i<numKeyFrames;i++)
+  {
+    token(f,buffer);
+    int key=atoi(buffer);
+
+    if(key & 1) root->setEaseIn(root->keyframeDataByIndex(i).frameNumber(),true);
+    if(key & 2) root->setEaseOut(root->keyframeDataByIndex(i).frameNumber(),true);
+  }
+
+  // all keyframes are found, flush the node's cache to free up memory
+  root->flushFrameCache();
+//  root->dumpKeyframes();
+
+  for (int i=0;i<root->numChildren();i++) {
+    avmReadKeyFrameProperties(root->child(i), f);
+  }
+}
+
 /* .avm files look suspiciously like .bvh files, except
    with keyframe data tacked at the end -- Lex Neva */
 BVHNode* BVH::avmRead(const char *file)
@@ -349,6 +378,10 @@ BVHNode* BVH::avmRead(const char *file)
   }
 
   avmReadKeyFrame(root, f);
+  if (!feof(f)) {
+    if(expect_token(f, "Properties"))
+      avmReadKeyFrameProperties(root, f);
+  }
   fclose(f);
 
   return(root);
@@ -477,6 +510,30 @@ void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f)
   }
 }
 
+// writes ease in / out data
+void BVH::avmWriteKeyFrameProperties(BVHNode *root, FILE *f)
+{
+  const QValueList<int> keys=root->keyframeList();
+
+  // NOTE: remember, ease in/out data always takes first frame into account
+  fprintf(f, "%d ", keys.count());
+
+  // NOTE: remember, ease in/out data always takes first frame into account
+  for (unsigned int i=0; i<keys.count(); i++) {
+    int type=0;
+
+    if(root->keyframeDataByIndex(i).easeIn()) type|=1;
+    if(root->keyframeDataByIndex(i).easeOut()) type|=2;
+
+    fprintf(f, "%d ", type);
+  }
+  fprintf(f, "\n");
+
+  for (int i=0;i<root->numChildren();i++) {
+    avmWriteKeyFrameProperties(root->child(i), f);
+  }
+}
+
 void BVH::avmWrite(BVHNode *root, const char *file)
 {
   FILE *f = fopen(file, "wt");
@@ -492,6 +549,8 @@ void BVH::avmWrite(BVHNode *root, const char *file)
   }
 
   avmWriteKeyFrame(root, f);
+  fprintf(f, "Properties\n");
+  avmWriteKeyFrameProperties(root, f);
 
   fclose(f);
 }
