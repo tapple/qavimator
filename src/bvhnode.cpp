@@ -161,22 +161,31 @@ bool BVHNode::isKeyframe(int frame) const
   return keyframes.contains(frame);
 }
 
-double BVHNode::interpolate(double from,double to,int steps,int pos,bool /* type */) const
+double BVHNode::interpolate(double from,double to,int steps,int pos,bool easeOut,bool easeIn) const
 {
+  bool ease=false;
+
   // do not start any calculation if there's nothing to do
   if(from==to) return from;
-//  qDebug(QString("interpolate %1 %2 %3 %4").arg(from).arg(to).arg(steps).arg(pos));
 
-  double distance=to-from;
-  double increment=distance/(double) steps;
-  return from+increment*(double) pos;
+  if(pos<=(steps/2) && easeOut) ease=true;
+  if(pos>(steps/2) && easeIn) ease=true;
 
+  // sine interpolation for ease in / out
+  if(ease)
+  {
+    double distance=to-from;
+    double step=3.1415/(steps);
 
-// sine (in work)
-/*  double distance=to-from;
-  double step=3.1415/(steps+1);
-
-  return from+(0.5-cos(step*(double) pos)/2)*distance; */
+    return from+(0.5-cos(step*(double) pos)/2)*distance;
+  }
+  // classic linear interpolation
+  else
+  {
+    double distance=to-from;
+    double increment=distance/(double) steps;
+    return from+increment*(double) pos;
+  }
 }
 
 const FrameData BVHNode::frameData(int frame) const
@@ -205,13 +214,13 @@ const FrameData BVHNode::frameData(int frame) const
   Rotation iRot;
   Position iPos;
 
-  iRot.x=interpolate(rotBefore.x,rotAfter.x,frameAfter-frameBefore,frame-frameBefore,true);
-  iRot.y=interpolate(rotBefore.y,rotAfter.y,frameAfter-frameBefore,frame-frameBefore,true);
-  iRot.z=interpolate(rotBefore.z,rotAfter.z,frameAfter-frameBefore,frame-frameBefore,true);
+  iRot.x=interpolate(rotBefore.x,rotAfter.x,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
+  iRot.y=interpolate(rotBefore.y,rotAfter.y,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
+  iRot.z=interpolate(rotBefore.z,rotAfter.z,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
 
-  iPos.x=interpolate(posBefore.x,posAfter.x,frameAfter-frameBefore,frame-frameBefore,true);
-  iPos.y=interpolate(posBefore.y,posAfter.y,frameAfter-frameBefore,frame-frameBefore,true);
-  iPos.z=interpolate(posBefore.z,posAfter.z,frameAfter-frameBefore,frame-frameBefore,true);
+  iPos.x=interpolate(posBefore.x,posAfter.x,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
+  iPos.y=interpolate(posBefore.y,posAfter.y,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
+  iPos.z=interpolate(posBefore.z,posAfter.z,frameAfter-frameBefore,frame-frameBefore,before.easeOut(),after.easeIn());
 
 // qDebug(QString("iRot.x %1 frame %2: %3").arg(rotBefore.bodyPart).arg(before.frameNumber()).arg(iRot.x));
 
@@ -329,12 +338,30 @@ void BVHNode::dumpKeyframes()
 
 void BVHNode::setEaseIn(int frame,bool state)
 {
-    (*keyframes.find(frame)).setEaseIn(state);
+  (*keyframes.find(frame)).setEaseIn(state);
 }
 
 void BVHNode::setEaseOut(int frame,bool state)
 {
-    (*keyframes.find(frame)).setEaseOut(state);
+  (*keyframes.find(frame)).setEaseOut(state);
+}
+
+bool BVHNode::easeIn(int frame)
+{
+  if(keyframes.contains(frame))
+    return (*keyframes.find(frame)).easeIn();
+
+  qDebug("BVHNode::easeIn(): asked on non-keyframe!");
+  return false;
+}
+
+bool BVHNode::easeOut(int frame)
+{
+  if(keyframes.contains(frame))
+    return (*keyframes.find(frame)).easeOut();
+
+  qDebug("BVHNode::easeOut(): asked on non-keyframe!");
+  return false;
 }
 
 // ************************************************************************

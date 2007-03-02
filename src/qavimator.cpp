@@ -24,6 +24,7 @@
 #include <qslider.h>
 #include <qspinbox.h>
 #include <qpushbutton.h>
+#include <qcheckbox.h>
 #include <qlabel.h>
 #include <qfiledialog.h>
 #include <qaction.h>
@@ -49,6 +50,7 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 {
   playing=false;
   frameDataValid = false;
+  currentPart=QString::null;
 
   readSettings();
 
@@ -121,6 +123,8 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   connect(this,SIGNAL(enableProps(bool)),attachToLabel,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enableProps(bool)),attachToComboBox,SLOT(setEnabled(bool)));
+
+  connect(this,SIGNAL(enableEaseInOut(bool)),easeInOutGroup,SLOT(setEnabled(bool)));
 
   connect(&timer,SIGNAL(timeout()),this,SLOT(cb_timeout()));
 
@@ -219,6 +223,8 @@ void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits 
   emit enableProps(false);
   if(partName)
   {
+    currentPart=partName;
+
     for(int index=0;index<editPartCombo->count();index++)
       if(editPartCombo->text(index)==partName) editPartCombo->setCurrentItem(index);
 
@@ -258,7 +264,7 @@ void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits 
 // slot gets called by AnimationView::mouseMoveEvent()
 void qavimator::partDragged(const QString& partName,double x,double y,double z)
 {
-  if(partName)
+  if(!partName.isEmpty())
   {
     // check if this frame is protected
     if(!protect)
@@ -345,17 +351,20 @@ void qavimator::propRotated(Prop* prop,double x,double y,double z)
 // slot gets called by AnimationView::mouseButtonClicked()
 void qavimator::backgroundClicked()
 {
+  currentPart=QString::null;
+
   emit enableRotation(false);
   emit enablePosition(false);
   emit enableProps(false);
+  emit enableEaseInOut(false);
   updateKeyBtn();
 }
 
 // slot gets called by body part dropdown list
 void qavimator::cb_PartChoice()
 {
-  // selectPart will fire partClicked event, so we don't bother
-  // about updating controls ourselves here
+  // selectPart will fire partClicked signal, so we don't bother
+  // about updating controls or currentPart string ourselves here
   animationView->selectPart(editPartCombo->currentText());
   animationView->setFocus();
   emit enableProps(false);
@@ -424,8 +433,9 @@ void qavimator::cb_PosRoller(int)
   setYPos(y);
   setZPos(z);
 
-  if (editPartCombo->currentText()) {
-    animationView->getAnimation()->setPosition(editPartCombo->currentText(), x, y, z);
+  if(!currentPart.isEmpty())
+  {
+    animationView->getAnimation()->setPosition(currentPart,x,y,z);
     animationView->repaint();
   }
 
@@ -453,8 +463,9 @@ void qavimator::cb_PosValue()
   setYPos(y);
   setZPos(z);
 
-  if (editPartCombo->currentText()) {
-    animationView->getAnimation()->setPosition(editPartCombo->currentText(), x, y, z);
+  if(!currentPart.isEmpty())
+  {
+    animationView->getAnimation()->setPosition(currentPart,x,y,z);
     animationView->repaint();
   }
 
@@ -466,15 +477,16 @@ void qavimator::updateInputs()
   double x=0, y=0, z=0;
   Animation *anim = animationView->getAnimation();
 
-  if (anim) {
+  if(anim && !currentPart.isEmpty())
+  {
     double xMin, xMax, yMin, yMax, zMin, zMax;
 
-    Rotation rot=anim->getRotation(editPartCombo->currentText());
+    Rotation rot=anim->getRotation(currentPart);
     x=rot.x;
     y=rot.y;
     z=rot.z;
 
-    RotationLimits rotLimits=anim->getRotationLimits(editPartCombo->currentText());
+    RotationLimits rotLimits=anim->getRotationLimits(currentPart);
     xMin=rotLimits.xMin;
     yMin=rotLimits.yMin;
     zMin=rotLimits.zMin;
@@ -482,7 +494,8 @@ void qavimator::updateInputs()
     yMax=rotLimits.yMax;
     zMax=rotLimits.zMax;
 
-    if (editPartCombo->currentText()=="hip") {
+    if(currentPart=="hip")
+    {
       xSlider->setRange(-359*PRECISION, 359*PRECISION);
       ySlider->setRange(-359*PRECISION, 359*PRECISION);
       zSlider->setRange(-359*PRECISION, 359*PRECISION);
@@ -502,7 +515,11 @@ void qavimator::updateInputs()
 
     framesSpin->setValue(anim->getNumberOfFrames());
   }
-  if (editPartCombo->currentText()=="hip") {
+  else
+    emit enableRotation(false);
+
+  if(currentPart=="hip")
+  {
     emit enablePosition(!protect);
     Position pos=anim->getPosition("hip");
 
@@ -535,11 +552,25 @@ void qavimator::updateInputs()
 
 void qavimator::updateKeyBtn()
 {
+  Animation* anim=animationView->getAnimation();
+
   // make sure we don't send a toggle signal on display update
   keyframeButton->blockSignals(true);
-  keyframeButton->setOn(animationView->getAnimation()->isKeyFrame(animationView->getSelectedPart()));
+
+  bool hasKeyframe=anim->isKeyFrame(animationView->getSelectedPart());
+  keyframeButton->setOn(hasKeyframe);
+
   // re-enable toggle signal
   keyframeButton->blockSignals(false);
+
+  if(hasKeyframe && !currentPart.isEmpty())
+  {
+    emit enableEaseInOut(true);
+    easeInCheck->setChecked(anim->easeIn(currentPart));
+    easeOutCheck->setChecked(anim->easeOut(currentPart));
+  }
+  else
+    emit enableEaseInOut(false);
 
 //  timeline->repaint();
 }
@@ -549,7 +580,7 @@ void qavimator::enableInputs(bool state)
   if(protect) state=false;
 
   emit enableRotation(state);
-  if (editPartCombo->currentText()=="hip") emit enablePosition(state);
+  if(currentPart=="hip") emit enablePosition(state);
 
   keyframeButton->setEnabled(state);
 }
@@ -640,14 +671,14 @@ void qavimator::easeInChanged(int change)
 {
   bool ease=false;
   if(change==QButton::On) ease=true;
-  animationView->getAnimation()->setEaseIn(editPartCombo->currentText(),ease);
+  animationView->getAnimation()->setEaseIn(currentPart,ease);
 }
 
 void qavimator::easeOutChanged(int change)
 {
   bool ease=false;
   if(change==QButton::On) ease=true;
-  animationView->getAnimation()->setEaseOut(editPartCombo->currentText(),ease);
+  animationView->getAnimation()->setEaseOut(currentPart,ease);
 }
 
 // ------ Menu Action Slots (Callbacks) -----------

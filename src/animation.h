@@ -91,6 +91,8 @@ class Animation : public QObject
 
   void setEaseIn(const QString& jointName,bool state);
   void setEaseOut(const QString& jointName,bool state);
+  bool easeIn(const QString& jointName);
+  bool easeOut(const QString& jointName);
 
   const int numKeyFrames(int jointNumber);
   void copyKeyFrame(int jointNumber,int from,int to);

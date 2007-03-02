@@ -52,6 +52,7 @@ class qavimator : public MainApplicationForm
     void enableRotation(bool state);
     void enablePosition(bool state);
     void enableProps(bool state);
+    void enableEaseInOut(bool state);
     void resetCamera();
     void protectFrame(bool state);
 
@@ -162,6 +163,8 @@ class qavimator : public MainApplicationForm
     QTimer timer;
     // list of animation ids mapped to combo box indexes
     QValueList<unsigned long> animationIds;
+
+    QString currentPart;
 
     Timeline* timeline;
 

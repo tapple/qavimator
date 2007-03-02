@@ -158,6 +158,28 @@ void Animation::setEaseOut(const QString& name,bool state)
   }
 }
 
+bool Animation::easeIn(const QString& name)
+{
+  BVHNode *node=bvh->bvhFindNode(frames,name);
+  if(node->isKeyframe(frame))
+  {
+    return node->easeIn(frame);
+  }
+  qDebug("Animation::easeIn("+name+"): requested easeIn for non-keyframe!");
+  return false;
+}
+
+bool Animation::easeOut(const QString& name)
+{
+  BVHNode *node=bvh->bvhFindNode(frames,name);
+  if(node->isKeyframe(frame))
+  {
+    return node->easeOut(frame);
+  }
+  qDebug("Animation::easeOut("+name+"): requested easeOut for non-keyframe!");
+  return false;
+}
+
 void Animation::setLoopPoint(int frame)
 {
   loopingPoint=frame;
@@ -326,12 +348,13 @@ void Animation::setRotation(const char *jointName, double x, double y, double z)
 
 Rotation Animation::getRotation(const char* jointName)
 {
-//  qDebug(QString("getRotation(%1)").arg(jointName));
-
-  BVHNode *node = bvh->bvhFindNode(frames, jointName);
-  if(node)
-    return node->frameData(frame).rotation();
-
+  if(jointName)
+  {
+    BVHNode* node=bvh->bvhFindNode(frames,jointName);
+    if(node)
+      return node->frameData(frame).rotation();
+  }
+  qDebug("Animation::getRotation(): jointName==0!");
   return Rotation();
 }
 
@@ -343,23 +366,30 @@ void Animation::useRotationLimits(bool flag)
 
 RotationLimits Animation::getRotationLimits(const char *jointName)
 {
-  double xMin,yMin,zMin,xMax,yMax,zMax;
+  if(jointName)
+  {
+    double xMin,yMin,zMin,xMax,yMax,zMax;
 
-  if (limits) {
-    BVHNode *node = bvh->bvhFindNode(frames, jointName);
-    if (node) {
-      bvh->bvhGetChannelLimits(node, BVH_XROT, &xMin, &xMax);
-      bvh->bvhGetChannelLimits(node, BVH_YROT, &yMin, &yMax);
-      bvh->bvhGetChannelLimits(node, BVH_ZROT, &zMin, &zMax);
+    if (limits)
+    {
+      BVHNode* node=bvh->bvhFindNode(frames,jointName);
+      if (node) {
+        bvh->bvhGetChannelLimits(node,BVH_XROT,&xMin,&xMax);
+        bvh->bvhGetChannelLimits(node,BVH_YROT,&yMin,&yMax);
+        bvh->bvhGetChannelLimits(node,BVH_ZROT,&zMin,&zMax);
+      }
     }
-  }
-  else {
-    xMin = yMin = zMin = -180;
-    xMax = yMax = zMax = 180;
-  }
+    else
+    {
+      xMin=yMin=zMin=-180;
+      xMax=yMax=zMax=180;
+    }
 
-  RotationLimits rotLimit(jointName,xMin,xMax,yMin,yMax,zMin,zMax);
-  return rotLimit;
+    RotationLimits rotLimit(jointName,xMin,xMax,yMin,yMax,zMin,zMax);
+    return rotLimit;
+  }
+  qDebug("Animation::getRotationLimits(): jointName==0!");
+  return RotationLimits(QString::null,0,0,0,0,0,0);
 }
 
 int Animation::getRotationOrder(const char *jointName)
@@ -658,10 +688,11 @@ void Animation::moveKeyFrame(int jointNumber,int from,int to,bool copy)
 
   // get the joint structure
   BVHNode* joint=getNode(jointNumber);
+  const FrameData& frameData=joint->frameData(frame);
 
   // get rotation and position of the body part
-  Rotation rot=getRotation(joint->name());
-  Position pos=getPosition(joint->name());
+  Rotation rot=frameData.rotation();
+  Position pos=frameData.position();
 
   // silently (true) delete key frame if not copy mode
   // we do copy mode here to avoid code duplication
@@ -671,6 +702,8 @@ void Animation::moveKeyFrame(int jointNumber,int from,int to,bool copy)
   blockSignals(true);
   setFrame(to);
   setRotation(joint->name(),rot.x,rot.y,rot.z);
+  joint->setEaseIn(frame,frameData.easeIn());
+  joint->setEaseOut(frame,frameData.easeOut());
   blockSignals(false);
   // now re-enable signals so we get updates on screen
   setPosition(joint->name(),pos.x,pos.y,pos.z);

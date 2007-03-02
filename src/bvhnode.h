@@ -91,6 +91,8 @@ class BVHNode
 
     void setEaseIn(int frame,bool state);
     void setEaseOut(int frame,bool state);
+    bool easeIn(int frame);
+    bool easeOut(int frame);
 
     const Rotation* getCachedRotation(int frame);
     const Position* getCachedPosition(int frame);
@@ -118,7 +120,7 @@ class BVHNode
 
   protected:
     void setName(const QString& newName);
-    double interpolate(double from,double to,int steps,int pos,bool interpolationType) const;
+    double interpolate(double from,double to,int steps,int pos,bool easeOut,bool easeIn) const;
 
     int getKeyframeNumberBefore(int frame) const;
     int getKeyframeNumberAfter(int frame) const;
