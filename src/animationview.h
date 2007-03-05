@@ -143,16 +143,12 @@ class AnimationView : public QGLWidget
     void draw();
 
   protected:
-    BVH* bvh;
-
-    bool leftMouseButton;
-    bool frameProtected;
-    char modifier;
-    unsigned int nextPropId;
-
-    QPtrList<Prop> propList;
-    QPoint clickPos;           // holds the mouse click position for dragging
-    QPoint returnPos;          // holds the mouse position to return to after dragging
+    typedef enum
+    {
+      MODE_PARTS,
+      MODE_SKELETON,
+      MODE_ROT_AXES
+    };
 
     virtual void paintGL();
     virtual void paintOverlayGL();
@@ -170,18 +166,21 @@ class AnimationView : public QGLWidget
     void drawAnimations();
     void drawFigure(Animation* anim, unsigned int index);
     void drawPart(Animation* anim, unsigned int index, int frame, BVHNode *motion,
-		  BVHNode *joints, int mode);
+                  BVHNode *joints, int mode);
     void drawProps();
     void drawProp(const Prop* prop) const;
     void drawDragHandles(const Prop* prop) const;
 
-  private:
-    typedef enum
-    {
-      MODE_PARTS,
-      MODE_SKELETON,
-      MODE_ROT_AXES
-    };
+    BVH* bvh;
+
+    bool leftMouseButton;
+    bool frameProtected;
+    char modifier;
+    unsigned int nextPropId;
+
+    QPtrList<Prop> propList;
+    QPoint clickPos;           // holds the mouse click position for dragging
+    QPoint returnPos;          // holds the mouse position to return to after dragging
 
     static const char figureFiles[NUM_FIGURES][256];
     QPtrList<Animation> animList;

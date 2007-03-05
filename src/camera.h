@@ -26,20 +26,22 @@
 
 using namespace Math3D;
 
-class Camera {
-public:
-  Camera();
-  void rotate(float x, float y);
-  void pan(float x, float y, float z);
-  void setModelView();
-  void reset();
+class Camera
+{
+  public:
+    Camera();
 
-  float xRotation() const;
-  float yRotation() const;
+    void rotate(float x, float y);
+    void pan(float x, float y, float z);
+    void setModelView();
+    void reset();
 
- private:
-  float rotX, rotY;
-  float panX, panY, panZ;
+    float xRotation() const;
+    float yRotation() const;
+
+  private:
+    float rotX, rotY;
+    float panX, panY, panZ;
 };
 
 #endif

@@ -379,17 +379,15 @@ void Timeline::drawTrack(int track)
               QPoint oldPos(oldFrame*KEY_WIDTH+KEY_WIDTH-1,y+LINE_HEIGHT/2);
               for(int x=0;x<frameDiff-KEY_WIDTH+1;x++)
               {
-                QPoint newPos(QPoint(x+oldFrame*KEY_WIDTH+KEY_WIDTH-1,y+sin(x*6.283/(frameDiff-KEY_WIDTH+1))*(LINE_HEIGHT/2-1)+LINE_HEIGHT/2));
+                QPoint newPos(x+oldFrame*KEY_WIDTH+KEY_WIDTH-1,
+                              (int)(y+sin(x*6.283/(frameDiff-KEY_WIDTH+1))*(LINE_HEIGHT/2-1)+LINE_HEIGHT/2)
+                             );
                 p.setPen(pen1);
                 p.drawLine(oldPos,newPos);
                 p.setPen(pen2);
                 p.drawLine(oldPos+QPoint(0,1),newPos+QPoint(0,1));
                 oldPos=newPos;
               }
-/*              p.drawLine(oldFrame*KEY_WIDTH+KEY_WIDTH-1,
-                         y,
-                         oldFrame*KEY_WIDTH+frameDiff-1,
-                         y+KEY_HEIGHT/2); */
             }
             else
             {
@@ -410,18 +408,15 @@ void Timeline::drawTrack(int track)
               QPoint oldPos(oldFrame*KEY_WIDTH+frameDiff,y+LINE_HEIGHT/2);
               for(int x=0;x<frameDiff-KEY_WIDTH+1;x++)
               {
-                QPoint newPos(x+oldFrame*KEY_WIDTH+frameDiff-1,y+sin(x*6.283/(frameDiff-KEY_WIDTH+1))*(LINE_HEIGHT/2-1)+LINE_HEIGHT/2);
+                QPoint newPos(x+oldFrame*KEY_WIDTH+frameDiff-1,
+                              (int)(y+sin(x*6.283/(frameDiff-KEY_WIDTH+1))*(LINE_HEIGHT/2-1)+LINE_HEIGHT/2)
+                             );
                 p.setPen(pen1);
                 p.drawLine(oldPos,newPos);
                 p.setPen(pen2);
                 p.drawLine(oldPos+QPoint(0,1),newPos+QPoint(0,1));
                 oldPos=newPos;
               }
-/*
-              p.drawLine(oldFrame*KEY_WIDTH+frameDiff-1,
-                         y+KEY_HEIGHT/2,
-                         frameNum*KEY_WIDTH-1,
-                         y); */
             }
             else
             {

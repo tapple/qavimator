@@ -45,42 +45,41 @@ class BVH
     void parseLimFile(BVHNode *root, const char *limFile) const;
 
     void setNumFrames(int numFrames);
-	int numFrames() const;
+    int numFrames() const;
     void setAllKeyFrames(BVHNode *node) const;
     void bvhIndent(FILE *f, int depth);
     void bvhWriteNode(BVHNode *node, FILE *f, int depth);
     void bvhWriteFrame(BVHNode *node, int frame, FILE *f);
     void bvhPrintNode(BVHNode *n, int depth);
 
-void bvhWrite(BVHNode *root, const char *file);
-BVHNode *bvhFindNode(BVHNode *root, const char *name) const;
+    void bvhWrite(BVHNode *root, const char *file);
+    BVHNode *bvhFindNode(BVHNode *root, const char *name) const;
 
-void bvhGetChannelLimits(BVHNode *node, BVHChannelType type,
-			 double *min, double *max);
-void bvhResetIK(BVHNode *root);
+    void bvhGetChannelLimits(BVHNode *node, BVHChannelType type, double *min, double *max);
+    void bvhResetIK(BVHNode *root);
 
     const QString& bvhGetName(BVHNode* node,int index);
     int bvhGetIndex(BVHNode* node,const QString& name);
-void bvhCopyOffsets(BVHNode *dst,BVHNode *src);
+    void bvhCopyOffsets(BVHNode *dst,BVHNode *src);
 
     void bvhGetFrameData(BVHNode* node,int frame);
     void bvhSetFrameData(BVHNode *node,int frame);
 
-// lex neva's stuff:
-BVHNode *animRead(const char *file, const char *limFile);
-BVHNode *avmRead(const char *file);
-void avmWrite(BVHNode *root, const char *file);
-void animWrite(BVHNode *root, const char *file);
-void bvhDelete(BVHNode *node);
-void bvhSetFrameTime(BVHNode *node, double frameTime);
+    // lex neva's stuff:
+    BVHNode *animRead(const char *file, const char *limFile);
+    BVHNode *avmRead(const char *file);
+    void avmWrite(BVHNode *root, const char *file);
+    void animWrite(BVHNode *root, const char *file);
+    void bvhDelete(BVHNode *node);
+    void bvhSetFrameTime(BVHNode *node, double frameTime);
 
-QStringList bvhTypeName;
-QStringList bvhChannelName;
-int nodeCount;
-int totalFrames;   // number of frames in this bvh/avm file
+    QStringList bvhTypeName;
+    QStringList bvhChannelName;
+    int nodeCount;
+    int totalFrames;   // number of frames in this bvh/avm file
 
-QValueList<Rotation> rotationCopyBuffer;
-QValueList<Position> positionCopyBuffer;
+    QValueList<Rotation> rotationCopyBuffer;
+    QValueList<Position> positionCopyBuffer;
 
   protected:
     void avmReadKeyFrame(BVHNode *root, FILE *f);

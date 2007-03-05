@@ -480,57 +480,6 @@ void Animation::addKeyFrame(BVHNode *joint)
   emit frameChanged();
 }
 
-/*
-// Re-calculate intermediate frames based on the values in keyframes
-// NOTE: keep around for sine reference, delete this stuff later
-void Animation::interpolateFrames(BVHNode *joint) {
-  int *kf;
-  double start, end, step;
-  int i, len, last;
-
-  for (int c = 0; c < joint->numChannels; c++) {
-    start = joint->frame[0][c];
-    last = 0;
-    kf = joint->keyFrames;
-    for (i=0; i<=joint->numKeyFrames; i++) {
-      if (i == joint->numKeyFrames) {  // last frame
-	if (i > 0 && *(kf-1) == joint->numFrames-1)
-	  break;  // last keyframe is last frame, we're done
-	end = joint->frame[joint->numFrames-1][c] = start;
-	len = joint->numFrames - last - 2;
-      }
-      else {
-	end = joint->frame[*kf][c];
-	len = *kf - last - 1;
-      }
-      if (len > 0) {
-
-#if SINE_INTERPOLATION == 1
-        step=3.1415/(len+1);
-        double diff=end-start;
-        double increment=4.71+step;
-
-        for (int j = last + 1; j <= last + len; j++) {
-          joint->frame[j][c] = start+(sin(increment)/2+0.5)*diff;
-          increment+=step;
-        }
-#else
-        step = (end - start) / (len + 1);
-        for (int j = last + 1; j <= last + len; j++) {
-          start += step;
-          joint->frame[j][c] = start;
-        }
-#endif
-
-      }
-      start = joint->frame[*kf][c];
-      last = *kf;
-      kf++;
-    }
-  }
-}
-*/
-
 bool Animation::isKeyFrameHelper(BVHNode *joint) {
   if (joint->isKeyframe(frame))
     return true;

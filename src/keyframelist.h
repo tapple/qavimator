@@ -32,10 +32,6 @@ class KeyframeList : public QMap<int,int>
   public:
     KeyframeList();
     ~KeyframeList();
-
-//    bool isKeyframe(int frame);
-//    void setKeyframe(int frame);
-//    void deleteKeyframe(int frame);
 };
 
 #endif

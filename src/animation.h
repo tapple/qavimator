@@ -40,69 +40,69 @@ class Animation : public QObject
   public:
     typedef enum { IK_LHAND=0, IK_RHAND, IK_LFOOT, IK_RFOOT, NUM_IK } IKPartType;
 
-  Animation(BVH* bvh,const char *bvhFile = NULL);
-  ~Animation();
+    Animation(BVH* bvh,const char *bvhFile = NULL);
+    ~Animation();
 
-  void loadBVH(const char *bvhFile);
-  void saveBVH(const char *bvhFile);
-  double frameTime();
-  int getNumberOfFrames() { return totalFrames; }
-  void setNumberOfFrames(int num);
-  int getFrame() { return frame; }
-  void setFrame(int frameNumber);
-  int stepForward();
-  void setLoopPoint(int frame);
-  int loopPoint();
-  void setIK(const char *jointName, bool flag);
-  bool getIK(const char *jointName);
-  const char *getPartName(int index) const;
-  int getPartIndex(const QString& part);
-  void setMirrored(bool mirror) { mirrored = mirror; }
-  bool getMirrored() { return mirrored; }
-  unsigned int getPartMirror(int index) { return partMirror[index]; }
-  const QString& getPartMirror(const QString& name);
-  BVHNode *getMotion() { return frames; }
-  BVHNode *getEndSite(const char *siteParentName);
-  BVHNode* getNode(int jointNumber);
+    void loadBVH(const char *bvhFile);
+    void saveBVH(const char *bvhFile);
+    double frameTime();
+    int getNumberOfFrames() { return totalFrames; }
+    void setNumberOfFrames(int num);
+    int getFrame() { return frame; }
+    void setFrame(int frameNumber);
+    int stepForward();
+    void setLoopPoint(int frame);
+    int loopPoint();
+    void setIK(const char *jointName, bool flag);
+    bool getIK(const char *jointName);
+    const char *getPartName(int index) const;
+    int getPartIndex(const QString& part);
+    void setMirrored(bool mirror) { mirrored = mirror; }
+    bool getMirrored() { return mirrored; }
+    unsigned int getPartMirror(int index) { return partMirror[index]; }
+    const QString& getPartMirror(const QString& name);
+    BVHNode *getMotion() { return frames; }
+    BVHNode *getEndSite(const char *siteParentName);
+    BVHNode* getNode(int jointNumber);
 
-  void copyFrame();
-  void pasteFrame();
+    void copyFrame();
+    void pasteFrame();
 
-  const FrameData keyframeDataByIndex(int jointNumber,int index);
+    const FrameData keyframeDataByIndex(int jointNumber,int index);
 
-  void setRotation(const char *jointName, double x, double y, double z);
-  Rotation getRotation(const char *jointName);
-  void useRotationLimits(bool flag);
-  bool useRotationLimits() { return limits; }
-  RotationLimits getRotationLimits(const char *jointName);
-  void setPosition(const char *jointName, double x, double y, double z);
-  Position getPosition(const char *jointName);
-  int getRotationOrder(const char *jointName);
-  void addKeyFrameAllJoints();
-  void addKeyFrame(BVHNode *joint);
-  bool isKeyFrame();
-  bool isKeyFrame(const char *jointName);
-  bool isKeyFrame(int jointNumber,int frame);
-  void delKeyFrameAllJoints();
-  void delKeyFrame(BVHNode *joint,bool silent=false); // silent = only send signal to timeline
-  bool toggleKeyFrameAllJoints();
-  bool toggleKeyFrame(const char *jointName);
-  void setFrameTime(double frameTime);
+    void setRotation(const char *jointName, double x, double y, double z);
+    Rotation getRotation(const char *jointName);
+    void useRotationLimits(bool flag);
+    bool useRotationLimits() { return limits; }
+    RotationLimits getRotationLimits(const char *jointName);
+    void setPosition(const char *jointName, double x, double y, double z);
+    Position getPosition(const char *jointName);
+    int getRotationOrder(const char *jointName);
+    void addKeyFrameAllJoints();
+    void addKeyFrame(BVHNode *joint);
+    bool isKeyFrame();
+    bool isKeyFrame(const char *jointName);
+    bool isKeyFrame(int jointNumber,int frame);
+    void delKeyFrameAllJoints();
+    void delKeyFrame(BVHNode *joint,bool silent=false); // silent = only send signal to timeline
+    bool toggleKeyFrameAllJoints();
+    bool toggleKeyFrame(const char *jointName);
+    void setFrameTime(double frameTime);
 
-  void setEaseIn(const QString& jointName,bool state);
-  void setEaseOut(const QString& jointName,bool state);
-  bool easeIn(const QString& jointName);
-  bool easeOut(const QString& jointName);
+    void setEaseIn(const QString& jointName,bool state);
+    void setEaseOut(const QString& jointName,bool state);
+    bool easeIn(const QString& jointName);
+    bool easeOut(const QString& jointName);
 
-  const int numKeyFrames(int jointNumber);
-  void copyKeyFrame(int jointNumber,int from,int to);
-  void moveKeyFrame(int jointNumber,int from,int to,bool copy=false);
+    const int numKeyFrames(int jointNumber);
+    void copyKeyFrame(int jointNumber,int from,int to);
+    void moveKeyFrame(int jointNumber,int from,int to,bool copy=false);
 
-  bool compareFrames(const char* jointName,int key1,int key2);
+    bool compareFrames(const char* jointName,int key1,int key2);
 
-  static bool isSecondLifeJoint(const BVHNode *joint);
+    static bool isSecondLifeJoint(const BVHNode *joint);
 
-  enum { MAX_PARTS = 64 };
+    enum { MAX_PARTS = 64 };
 
   public slots:
     void delKeyFrame(int jointNumber,int frame);
@@ -117,30 +117,30 @@ class Animation : public QObject
     void keyframeRemoved(int partIndex,int frameNumber);
 
   protected:
-  BVH* bvh;
-  BVHNode *frames;
+    BVH* bvh;
+    BVHNode *frames;
 
-  int frame;
-  int totalFrames;
-  int loopingPoint;
+    int frame;
+    int totalFrames;
+    int loopingPoint;
 
-  bool mirrored;
-  unsigned int partMirror[ MAX_PARTS + 1 ];
-  bool limits;
-  bool ikOn[NUM_IK];
-  IKTree ikTree;
+    bool mirrored;
+    unsigned int partMirror[ MAX_PARTS + 1 ];
+    bool limits;
+    bool ikOn[NUM_IK];
+    IKTree ikTree;
 
-  void recursiveAddKeyFrame(BVHNode *joint);
-  bool isKeyFrameHelper(BVHNode *joint);
-  void recursiveDelKeyFrame(BVHNode *joint);
-  void insertFrameHelper(BVHNode* joint,int frame);
-  void calcPartMirrors();
-  void setIK(IKPartType part, bool flag);
-  bool getIK(IKPartType part) { return ikOn[part]; }
-  void applyIK(const char *name);
-  void solveIK();
+    void recursiveAddKeyFrame(BVHNode *joint);
+    bool isKeyFrameHelper(BVHNode *joint);
+    void recursiveDelKeyFrame(BVHNode *joint);
+    void insertFrameHelper(BVHNode* joint,int frame);
+    void calcPartMirrors();
+    void setIK(IKPartType part, bool flag);
+    bool getIK(IKPartType part) { return ikOn[part]; }
+    void applyIK(const char *name);
+    void solveIK();
 
-  QString execPath;
+    QString execPath;
 };
 
 #endif

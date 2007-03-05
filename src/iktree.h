@@ -31,12 +31,14 @@
 #define MAX_CHILDREN 4
 #define MAX_EFFECTORS 5
 
-struct IKEffectorList {
+struct IKEffectorList
+{
   int num;
   int index[MAX_EFFECTORS];
 };
 
-struct IKBone {
+struct IKBone
+{
   BVHNode *node;
   double weight;
   MT_Vector3 offset;
@@ -47,27 +49,28 @@ struct IKBone {
   int child[MAX_CHILDREN];
 };
 
-class IKTree {
-public:
-  IKTree(BVHNode *root = NULL);
-  void set(BVHNode *root);
-  void setGoal(int frame, const char *name);
-  void solve(int frame);
-  void setJointLimits(bool flag) { jointLimits = flag; }
+class IKTree
+{
+  public:
+    IKTree(BVHNode *root = NULL);
 
-private:
-  enum {AXIS_X, AXIS_Y, AXIS_Z};
+    void set(BVHNode *root);
+    void setGoal(int frame, const char *name);
+    void solve(int frame);
+    void setJointLimits(bool flag) { jointLimits = flag; }
 
-  int numBones;
-  IKBone bone[MAX_BONES];
-  bool jointLimits;
+  protected:
+    enum {AXIS_X, AXIS_Y, AXIS_Z};
 
-  void reset(int frame);
-  void addJoint(BVHNode *node);
-  void solveJoint(int frame, int i, IKEffectorList &effList);
-  void toEuler(MT_Quaternion &q, BVHOrderType order,
-	       double &x, double &y, double &z);
-  void updateBones(int startIndex);
+    int numBones;
+    IKBone bone[MAX_BONES];
+    bool jointLimits;
+
+    void reset(int frame);
+    void addJoint(BVHNode *node);
+    void solveJoint(int frame, int i, IKEffectorList &effList);
+    void toEuler(MT_Quaternion &q, BVHOrderType order, double &x, double &y, double &z);
+    void updateBones(int startIndex);
 };
 
 #endif
