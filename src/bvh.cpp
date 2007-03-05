@@ -249,7 +249,8 @@ void BVH::setAllKeyFrames(BVHNode *node) const
     const Rotation* rot=node->getCachedRotation(i);
     const Position* pos=node->getCachedPosition(i);
 
-    node->addKeyframe(i,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
+    if(node->type!=BVH_END)
+      node->addKeyframe(i,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
   }
 
   for (int i=0;i<node->numChildren();i++)

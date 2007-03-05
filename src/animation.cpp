@@ -460,7 +460,9 @@ bool Animation::isSecondLifeJoint(const BVHNode* joint)
 
 void Animation::recursiveAddKeyFrame(BVHNode *joint)
 {
-  addKeyFrame(joint);
+  if(joint->type!=BVH_END)
+    addKeyFrame(joint);
+
   for (int i=0; i < joint->numChildren(); i++)
     recursiveAddKeyFrame(joint->child(i));
 }
