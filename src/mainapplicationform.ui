@@ -1623,6 +1623,8 @@
         <action name="editCutAction"/>
         <action name="editCopyAction"/>
         <action name="editPasteAction"/>
+        <separator/>
+        <action name="editOptimize_BVHAction"/>
     </item>
     <item text="Options" name="Options">
         <action name="optionsSkeletonAction"/>
@@ -2135,6 +2137,17 @@
             <string>Show Timeline</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>editOptimize_BVHAction</cstring>
+        </property>
+        <property name="text">
+            <string>Optimize BVH</string>
+        </property>
+        <property name="menuText">
+            <string>Optimize BVH</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -2460,6 +2473,12 @@
         <receiver>MainApplicationForm</receiver>
         <slot>easeOutChanged(int)</slot>
     </connection>
+    <connection>
+        <sender>editOptimize_BVHAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>editOptimize()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>selectAnimationCombo</tabstop>
@@ -2553,6 +2572,7 @@
     <slot>attachToComboBoxChanged( int )</slot>
     <slot>easeInChanged( int )</slot>
     <slot>easeOutChanged( int )</slot>
+    <slot>editOptimize()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

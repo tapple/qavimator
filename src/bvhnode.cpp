@@ -364,6 +364,44 @@ bool BVHNode::easeOut(int frame)
   return false;
 }
 
+bool BVHNode::compareFrames(int key1,int key2)
+{
+  const Rotation rot1=frameData(key1).rotation();
+  const Rotation rot2=frameData(key2).rotation();
+
+  if(rot1.x!=rot2.x) return false;
+  if(rot1.y!=rot2.y) return false;
+  if(rot1.z!=rot2.z) return false;
+
+  const Position pos1=frameData(key1).position();
+  const Position pos2=frameData(key2).position();
+
+  if(pos1.x!=pos2.x) return false;
+  if(pos1.y!=pos2.y) return false;
+  if(pos1.z!=pos2.z) return false;
+
+  return true;
+}
+
+void BVHNode::optimize()
+{
+  // get a list of all keyframe numbers
+  QValueList<int> keys=keyframeList();
+
+  int j=0;
+  int k=2;
+  for(int i=1;i<keys.count()-1;i++)
+  {
+    if(compareFrames(keys[j],keys[i]) && compareFrames(keys[j],keys[k]))
+      deleteKeyframe(keys[i]);
+    else
+    {
+      j=i;
+      k=i+2;
+    }
+  }
+}
+
 // ************************************************************************
 
 FrameData::FrameData()

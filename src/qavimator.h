@@ -111,6 +111,7 @@ class qavimator : public MainApplicationForm
 
     void editCopy();
     void editPaste();
+    void editOptimize();
 
     void optionsSkeleton(bool on);
     void optionsJointLimits(bool on);

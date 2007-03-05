@@ -961,6 +961,12 @@ void qavimator::editPaste()
   }
 }
 
+// Menu Action: Edit / Paste
+void qavimator::editOptimize()
+{
+  animationView->getAnimation()->optimize();
+}
+
 // Menu Action: Options / Skeleton
 void qavimator::optionsSkeleton(bool on)
 {

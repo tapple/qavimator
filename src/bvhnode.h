@@ -100,6 +100,9 @@ class BVHNode
     void cachePosition(Position* pos);
     void flushFrameCache();
 
+    bool compareFrames(int key1,int key2);
+    void optimize();
+
     void dumpKeyframes();
 
     BVHNodeType type;

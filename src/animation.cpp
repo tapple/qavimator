@@ -662,27 +662,11 @@ void Animation::moveKeyFrame(int jointNumber,int from,int to,bool copy)
   emit currentFrame(frame);
 }
 
-bool Animation::compareFrames(const char* jointName,int key1,int key2)
+bool Animation::compareFrames(const QString& jointName,int key1,int key2)
 {
   BVHNode *node=bvh->bvhFindNode(frames,jointName);
-  if(node)
-  {
-    const Rotation rot1=node->frameData(key1).rotation();
-    const Rotation rot2=node->frameData(key2).rotation();
-
-    if(rot1.x!=rot2.x) return false;
-    if(rot1.y!=rot2.y) return false;
-    if(rot1.z!=rot2.z) return false;
-
-    const Position pos1=node->frameData(key1).position();
-    const Position pos2=node->frameData(key2).position();
-
-    if(pos1.x!=pos2.x) return false;
-    if(pos1.y!=pos2.y) return false;
-    if(pos1.z!=pos2.z) return false;
-  }
-
-  return true;
+  if(node) return node->compareFrames(key1,key2);
+  return false;
 }
 
 const FrameData Animation::keyframeDataByIndex(int jointNumber,int index)
@@ -715,4 +699,21 @@ void Animation::insertFrame(int track,int pos)
     if(joint) joint->insertFrame(frame);
   }
   emit frameChanged();
+}
+
+void Animation::optimizeHelper(BVHNode* joint)
+{
+  if(joint->type!=BVH_END)
+  {
+    joint->optimize();
+  }
+
+  for(int i=0;i<joint->numChildren();i++)
+    optimizeHelper(joint->child(i));
+}
+
+void Animation::optimize()
+{
+  optimizeHelper(frames);
+//  emit frameChanged();
 }

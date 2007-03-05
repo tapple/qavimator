@@ -98,9 +98,11 @@ class Animation : public QObject
     void copyKeyFrame(int jointNumber,int from,int to);
     void moveKeyFrame(int jointNumber,int from,int to,bool copy=false);
 
-    bool compareFrames(const char* jointName,int key1,int key2);
+    bool compareFrames(const QString& jointName,int key1,int key2);
 
     static bool isSecondLifeJoint(const BVHNode *joint);
+
+    void optimize();
 
     enum { MAX_PARTS = 64 };
 
@@ -134,6 +136,8 @@ class Animation : public QObject
     bool isKeyFrameHelper(BVHNode *joint);
     void recursiveDelKeyFrame(BVHNode *joint);
     void insertFrameHelper(BVHNode* joint,int frame);
+    void optimizeHelper(BVHNode* joint);
+
     void calcPartMirrors();
     void setIK(IKPartType part, bool flag);
     bool getIK(IKPartType part) { return ikOn[part]; }
