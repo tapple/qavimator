@@ -390,7 +390,7 @@ void BVHNode::optimize()
 
   int j=0;
   int k=2;
-  for(int i=1;i<keys.count()-1;i++)
+  for(unsigned int i=1;i<keys.count()-1;i++)
   {
     if(compareFrames(keys[j],keys[i]) && compareFrames(keys[j],keys[k]))
       deleteKeyframe(keys[i]);
@@ -400,6 +400,54 @@ void BVHNode::optimize()
       k=i+2;
     }
   }
+
+  // get a list of all keyframe numbers left
+  keys=keyframeList();
+
+  Rotation oldRDifference;
+  Position oldPDifference;
+
+  QMap<int,FrameData>::const_iterator itBefore=keyframes.begin();
+  QMap<int,FrameData>::const_iterator itCurrent=itBefore;
+
+  double tolerance=0.01;
+
+  itCurrent++;
+  while(itCurrent!=keyframes.end())
+  {
+    int distance=itCurrent.key()-itBefore.key();
+    Rotation rDifference=Rotation::difference((*itBefore).rotation(),(*itCurrent).rotation());
+
+    rDifference.x/=distance;
+    rDifference.y/=distance;
+    rDifference.z/=distance;
+
+    if(fabs(rDifference.x-oldRDifference.x)<tolerance && 
+       fabs(rDifference.y-oldRDifference.y)<tolerance &&
+       fabs(rDifference.z-oldRDifference.z)<tolerance)
+    {
+
+      Position pDifference=Position::difference((*itBefore).position(),(*itCurrent).position());
+
+      pDifference.x/=distance;
+      pDifference.y/=distance;
+      pDifference.z/=distance;
+
+      if(fabs(pDifference.x-oldPDifference.x)<tolerance && 
+         fabs(pDifference.y-oldPDifference.y)<tolerance &&
+         fabs(pDifference.z-oldPDifference.z)<tolerance)
+      {
+        keyframes.remove(itBefore.key());
+      }
+
+      oldPDifference=pDifference;
+    }
+
+    itBefore=itCurrent;
+    itCurrent++;
+
+    oldRDifference=rDifference;
+  } // while
 }
 
 // ************************************************************************

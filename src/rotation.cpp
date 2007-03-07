@@ -34,6 +34,11 @@ Rotation::Rotation(double rx,double ry, double rz)
   z=rz;
 }
 
+Rotation Rotation::difference(const Rotation& rot1,const Rotation& rot2)
+{
+  return Rotation(rot2.x-rot1.x,rot2.y-rot1.y,rot2.z-rot1.z);
+}
+
 Rotation::~Rotation()
 {
 }
@@ -72,4 +77,9 @@ Position::Position(double px,double py, double pz)
 
 Position::~Position()
 {
+}
+
+Position Position::difference(const Position& pos1,const Position& pos2)
+{
+  return Position(pos2.x-pos1.x,pos2.y-pos1.y,pos2.z-pos1.z);
 }
