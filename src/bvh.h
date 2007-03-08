@@ -82,11 +82,19 @@ class BVH
     QValueList<Position> positionCopyBuffer;
 
   protected:
+    QStringList validNodes;
+
     void avmReadKeyFrame(BVHNode *root, FILE *f);
     void avmReadKeyFrameProperties(BVHNode *root, FILE *f);
 
     void avmWriteKeyFrame(BVHNode *root, FILE *f);
     void avmWriteKeyFrameProperties(BVHNode *root, FILE *f);
+
+    // removes all unknown nodes from the animation
+    void removeNoSLNodes(BVHNode* root);
+
+    // debugging function, dumps the node structure
+    void dumpNodes(BVHNode* node,QString indent);
 
     const QString& bvhGetNameHelper(BVHNode* node,int index);
     int bvhGetIndexHelper(BVHNode* node,const QString& name);

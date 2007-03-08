@@ -452,12 +452,6 @@ BVHNode *Animation::getEndSite(const char *rootName)
   return node;
 }
 
-bool Animation::isSecondLifeJoint(const BVHNode* joint)
-{
-  return !(!strcmp(joint->name(), "neckDummy") ||
-	   !strcmp(joint->name(), "figureHair"));
-}
-
 void Animation::recursiveAddKeyFrame(BVHNode *joint)
 {
   if(joint->type!=BVH_END)

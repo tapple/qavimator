@@ -42,6 +42,13 @@ BVH::BVH()
   bvhChannelName.append("Xrotation");
   bvhChannelName.append("Yrotation");
   bvhChannelName.append("Zrotation");
+
+  validNodes << "hip" << "abdomen" << "chest" << "neck" << "head"
+             << "lCollar" << "lShldr" << "lForeArm" << "lHand"
+             << "rCollar" << "rShldr" << "rForeArm" << "rHand"
+             << "lThigh" << "lShin" << "lFoot"
+             << "rThigh" << "rShin" << "rFoot"
+             << "Site";
 }
 
 BVH::~ BVH()
@@ -93,8 +100,11 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
 
   // add node with name
   BVHNode* node = new BVHNode(token(f,buffer));
-  // set node type
-  node->type=nodeType;
+  if(!validNodes.contains(node->name()))
+    node->type=BVH_NO_SL;
+  else
+    // set node type
+    node->type=nodeType;
 
   expect_token(f, "{");
   expect_token(f, "OFFSET");
@@ -142,6 +152,33 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
     }
   } while (child != NULL);
   return node;
+}
+
+void BVH::removeNoSLNodes(BVHNode* root)
+{
+  // walk through list of all child nodes
+  for(int i=0;i<root->numChildren();i++)
+  {
+    BVHNode* child=root->child(i);
+    // if this is an unsupported node, remove it
+    if(child->type==BVH_NO_SL)
+    {
+      // find all child joints of the unsupported child
+      for(int j=0;j<child->numChildren();j++)
+      {
+        // move child nodes to the current parent joint
+        root->insertChild(child->child(j),i);
+      }
+      // remove unsupported child node
+      root->removeChild(child);
+
+      // start checking for nodes at this point over again
+      removeNoSLNodes(root);
+      return;
+    }
+    // check next parent node
+    removeNoSLNodes(root->child(i));
+  }
 }
 
 void BVH::assignChannels(BVHNode *node, FILE *f, int frame)
@@ -348,6 +385,16 @@ void BVH::avmReadKeyFrameProperties(BVHNode *root, FILE *f)
   }
 }
 
+void BVH::dumpNodes(BVHNode* node,QString indent)
+{
+  qDebug(QString("%1 %2 (%3)").arg(indent).arg(node->name()).arg(node->numChildren()));
+  indent+="·--";
+  for(int i=0;i<node->numChildren();i++)
+  {
+    dumpNodes(node->child(i),indent);
+  }
+}
+
 /* .avm files look suspiciously like .bvh files, except
    with keyframe data tacked at the end -- Lex Neva */
 BVHNode* BVH::avmRead(const char *file)
@@ -412,6 +459,9 @@ BVHNode* BVH::animRead(const char *file, const char *limFile)
   if (limFile) {
     parseLimFile(root, limFile);
   }
+
+  removeNoSLNodes(root);
+//  dumpNodes(root,QString::null);
 
   return root;
 }

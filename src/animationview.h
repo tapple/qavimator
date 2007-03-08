@@ -187,6 +187,7 @@ class AnimationView : public QGLWidget
     Animation *animation; // this is the "currently selected" animation
     Camera camera;
     double changeX, changeY, changeZ;
+    BVHNode* joints[NUM_FIGURES];
 
     bool skeleton;
     bool selecting;

@@ -83,13 +83,19 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
 
   QString limFile=execPath+"/"+LIMITS_FILE;
 
+  // read SL reference models to restore joint positions, in case another model has joints
+  // we do not support (e.g. the SL example bvh files)
+  for(int i=0;i<NUM_FIGURES;i++)
+    joints[i]=bvh->animRead(QString(execPath+"/"+figureFiles[i]),limFile);
+
+  setFigure(figType);
+
 // FIXME:    mode(FL_DOUBLE | FL_MULTISAMPLE | FL_ALPHA | FL_DEPTH);
 
   leftMouseButton=false;
   frameProtected=false;
   modifier=0;
   objectNum=0;
-  setFigure(figType);
   if(anim) setAnimation(anim);
   setMouseTracking(true);
   setFocusPolicy(QWidget::StrongFocus);
@@ -708,16 +714,13 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
     glTranslatef(0, 2, 0);
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_DEPTH_TEST);
-    drawPart(anim, index, anim->getFrame(), anim->getMotion(), anim->getMotion(), //, joints[figType],
-	     MODE_PARTS);
+    drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_PARTS);
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_COLOR_MATERIAL);
-    drawPart(anim, index, anim->getFrame(), anim->getMotion(), anim->getMotion(), // joints[figType],
-	     MODE_ROT_AXES);
+    drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_ROT_AXES);
     selectName = index*ANIMATION_INCREMENT;
     glDisable(GL_DEPTH_TEST);
-    drawPart(anim, index, anim->getFrame(), anim->getMotion(), anim->getMotion(), // joints[figType],
-	     MODE_SKELETON);
+    drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_SKELETON);
 }
 
 // NOTE: joints == motion for now

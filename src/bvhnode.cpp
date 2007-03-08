@@ -81,7 +81,20 @@ BVHNode* BVHNode::child(int num)
 
 void BVHNode::addChild(BVHNode* newChild)
 {
+// qDebug(QString("BVHNode(%1): addChild(%2)").arg(name()).arg(newChild->name()));
   children.append(newChild);
+}
+
+void BVHNode::insertChild(BVHNode* newChild,int index)
+{
+// qDebug(QString("BVHNode(%1): insertChild(%2,%3)").arg(name()).arg(newChild->name()).arg(index));
+  children.insert(index,newChild);
+}
+
+void BVHNode::removeChild(BVHNode* child)
+{
+// qDebug(QString("BVHNode(%1): removeChild(%2)").arg(name()).arg(child->name()));
+  children.remove(child);
 }
 
 void BVHNode::addKeyframe(int frame,Position pos,Rotation rot)

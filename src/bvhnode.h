@@ -29,7 +29,7 @@
 
 #define MAX_FRAMES 1800
 
-typedef enum { BVH_ROOT=0, BVH_JOINT=1, BVH_END=2 } BVHNodeType;
+typedef enum { BVH_ROOT, BVH_JOINT, BVH_END, BVH_NO_SL } BVHNodeType;
 typedef enum { BVH_XPOS, BVH_YPOS, BVH_ZPOS, BVH_XROT, BVH_YROT, BVH_ZROT } BVHChannelType;
 typedef enum { BVH_XYZ=1, BVH_ZYX, BVH_XZY, BVH_YZX, BVH_YXZ, BVH_ZXY} BVHOrderType;
 
@@ -73,6 +73,8 @@ class BVHNode
     int numChildren() const;
     BVHNode* child(int num);
     void addChild(BVHNode* newChild);
+    void insertChild(BVHNode* newChild,int index);
+    void removeChild(BVHNode* child);
 
     const FrameData frameData(int frame) const;
     const FrameData keyframeDataByIndex(int index) const;
