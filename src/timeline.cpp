@@ -102,9 +102,7 @@ void Timeline::setAnimation(Animation* anim)
   if(animation)
   {
     disconnect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
-    disconnect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
-    disconnect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
-    disconnect(animation,SIGNAL(redrawTrack(int)),this,SLOT(drawTrack(int)));
+    disconnect(animation,SIGNAL(redrawTrack(int)),this,SLOT(redrawTrack(int)));
     disconnect(this,SIGNAL(deleteKeyframe(int,int)),animation,SLOT(delKeyFrame(int,int)));
     disconnect(this,SIGNAL(insertFrame(int,int)),animation,SLOT(insertFrame(int,int)));
     numOfFrames=0;
@@ -114,9 +112,7 @@ void Timeline::setAnimation(Animation* anim)
   if(animation)
   {
     connect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
-    connect(animation,SIGNAL(keyframeAdded(int,int)),this,SLOT(addKeyframe(int,int)));
-    connect(animation,SIGNAL(keyframeRemoved(int,int)),this,SLOT(removeKeyframe(int,int)));
-    connect(animation,SIGNAL(redrawTrack(int)),this,SLOT(drawTrack(int)));
+    connect(animation,SIGNAL(redrawTrack(int)),this,SLOT(redrawTrack(int)));
     connect(this,SIGNAL(deleteKeyframe(int,int)),animation,SLOT(delKeyFrame(int,int)));
     connect(this,SIGNAL(insertFrame(int,int)),animation,SLOT(insertFrame(int,int)));
     numOfFrames=animation->getNumberOfFrames();
@@ -162,14 +158,7 @@ void Timeline::drawPosition()
   p.drawRect(xpos+KEY_WIDTH/2-1,0,2,height());
 }
 
-void Timeline::addKeyframe(int track,int frame)
-{
-  clearPosition();
-  drawTrack(track);
-  drawPosition();
-}
-
-void Timeline::removeKeyframe(int track,int frame)
+void Timeline::redrawTrack(int track)
 {
   clearPosition();
   drawTrack(track);

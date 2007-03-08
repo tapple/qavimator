@@ -337,11 +337,11 @@ void Animation::setRotation(const char *jointName, double x, double y, double z)
       else
         node2->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
       // tell timeline that this keyframe has changed (added or changed is the same here)
-      emit keyframeAdded(getPartIndex(jointName),frame);
+      emit redrawTrack(getPartIndex(jointName));
     }
     for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
     // tell timeline that this keyframe has changed (added or changed is the same here)
-    emit keyframeAdded(getPartIndex(jointName),frame);
+    emit redrawTrack(getPartIndex(jointName));
     emit frameChanged();
   }
 }
@@ -418,7 +418,7 @@ void Animation::setPosition(const char *jointName, double x, double y, double z)
     }
     for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
     // tell timeline that this keyframe has changed (added or changed is the same here)
-    emit keyframeAdded(getPartIndex(jointName),frame);
+    emit redrawTrack(getPartIndex(jointName));
     emit frameChanged();
   }
 }
@@ -470,7 +470,7 @@ void Animation::addKeyFrame(BVHNode *joint)
 {
   joint->addKeyframe(frame,getPosition(joint->name()),getRotation(joint->name()));
 
-  emit keyframeAdded(getPartIndex(joint->name()),frame);
+  emit redrawTrack(getPartIndex(joint->name()));
   emit frameChanged();
 }
 
@@ -516,7 +516,7 @@ void Animation::delKeyFrame(BVHNode *joint,bool silent)
 
   // if silent is true then only send a signal to the timeline but not to the animation view
   if(!silent) emit frameChanged();
-  emit keyframeRemoved(getPartIndex(joint->name()),frame);
+  emit redrawTrack(getPartIndex(joint->name()));
 }
 
 void Animation::delKeyFrame(int jointNumber,int frame)

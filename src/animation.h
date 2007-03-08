@@ -113,8 +113,6 @@ class Animation : public QObject
     void currentFrame(int frame);
     void frameChanged();
     void redrawTrack(int track);
-    void keyframeAdded(int partIndex,int frameNumber);
-    void keyframeRemoved(int partIndex,int frameNumber);
 
   protected:
     BVH* bvh;
