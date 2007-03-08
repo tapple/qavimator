@@ -45,7 +45,6 @@ Timeline::Timeline(QWidget *parent, const char *name, WFlags)
   dragging=0;
   trackSelected=0;
 
-  tracks.clear();
   setFocusPolicy(QWidget::StrongFocus);
 }
 
@@ -140,48 +139,6 @@ void Timeline::clearPosition()
   positionSync=false;
 
   bitBlt(this,positionBarX,0,&backgroundBuffer,0,0,KEY_WIDTH,height());
-
-// old clear code
-/*
-  QPainter p(this);
-
-  for(int track=1;track<NUM_PARTS;track++)
-  {
-    int x=frameSelected*KEY_WIDTH;
-    int y=(track-1)*LINE_HEIGHT;
-    int light=(frameSelected/10) % 2;
-
-    p.fillRect(x,y,KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,QColorGroup::Background).dark(100+5*light));
-
-    QString trackName=animation->getPartName(track);
-    if(trackName!="Site")
-    {
-      // draw track lines first, according to keyframe interpolation position
-      QColor pen1;
-      QColor pen2;
-      if(!animation->compareFrames(trackName,previousKeyFrame(track,frameSelected),nextKeyFrame(track,frameSelected)))
-      {
-        pen1=palette().color(QPalette::Active,QColorGroup::Foreground);
-        pen2=palette().color(QPalette::Active,QColorGroup::Background).light(115);
-        // using fillRect instead of drawLine here, because the windows build seems to
-        // have problems with lines
-        p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen1));
-        p.fillRect(x,y+LINE_HEIGHT/2+1,KEY_WIDTH,1,QColor(pen2));
-      }
-      else
-      {
-        pen1=palette().color(QPalette::Active,QColorGroup::Background).dark(115);
-        pen2=palette().color(QPalette::Active,QColorGroup::Background).light(115);
-        // using fillRect instead of drawLine here, because the windows build seems to
-        // have problems with lines
-        p.fillRect(x,y+LINE_HEIGHT/2,KEY_WIDTH,1,QColor(pen1));
-        p.fillRect(x,y+LINE_HEIGHT/2+1,KEY_WIDTH,1,QColor(pen2));
-      }
-      // if applicable, draw keyframe next
-      if(isKeyFrame(track,frameSelected)) drawKeyframe(track,frameSelected);
-    }
-  } // for
-*/
 }
 
 void Timeline::drawPosition()
@@ -207,12 +164,6 @@ void Timeline::drawPosition()
 
 void Timeline::addKeyframe(int track,int frame)
 {
-  if(tracks.find(track)==tracks.end())
-  {
-    tracks[track]=KeyframeList();
-  }
-  tracks[track][frame]=1;
-
   clearPosition();
   drawTrack(track);
   drawPosition();
@@ -220,10 +171,6 @@ void Timeline::addKeyframe(int track,int frame)
 
 void Timeline::removeKeyframe(int track,int frame)
 {
-  tracks[track].erase(frame);
-
-  if(!tracks[track].count()) tracks.erase(track);
-
   clearPosition();
   drawTrack(track);
   drawPosition();

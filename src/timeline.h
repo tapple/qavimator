@@ -98,8 +98,6 @@ class Timeline : public QWidget
     int trackSelected;
     int frameSelected;
     int dragging;         // contains the current animation frame where dragging occurs
-
-    QMap<int,KeyframeList> tracks;
 };
 
 #endif
