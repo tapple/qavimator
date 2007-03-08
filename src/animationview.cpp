@@ -734,7 +734,8 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
     selectName++;
     glPushMatrix();
     glTranslatef(joints->offset[0], joints->offset[1], joints->offset[2]);
-    if (!Animation::isSecondLifeJoint(motion)) {
+    if(motion->type==BVH_NO_SL)
+    {
       selectName++;
       motion = motion->child(0);
     }
@@ -745,9 +746,20 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
         glVertex3f(-joints->offset[0], -joints->offset[1], -joints->offset[2]);
         glVertex3f(0,0,0);
       glEnd();
-      glColor4f(0, 1, 0, 1);
-      if (joints->type != BVH_ROOT)
+
+      if(joints->type!=BVH_ROOT)
+      {
+        // draw joint spheres in skeleton mode, red for selected parts,
+        // blue for hightlighted and green for all others
+        if(partSelected==selectName)
+          glColor4f(1,0,0,1);
+        else if(partHighlighted==selectName)
+          glColor4f(0,0,1,1);
+        else
+          glColor4f(0,1,0,1);
+
         glutSolidSphere(1, 16, 16);
+      }
     }
     if (joints->type == BVH_ROOT) {
       Position pos=motion->frameData(frame).position();
