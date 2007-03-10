@@ -47,12 +47,17 @@
 // occurance of the assert.
 int MT_QueryAssert(char *file, int line, char *predicate, int *do_assert)
 {
+/*
+
+// gives me compiler errors, but I couldn't care less on windows systems, really
+// if someone wants to fix it, go ahead :P
+
 #ifdef _WIN32
 	if (*do_assert)
 	{
-		char buffer[1024];
+		WCHAR buffer[1024];
 		snprintf(buffer, 1024, "ASSERT %s:%d: %s failed.\nWould you like to debug? (Cancel = ignore)", file, line, predicate);
-		int result = MessageBox(NULL, buffer, "ASSERT failed.", MB_YESNOCANCEL|MB_ICONERROR);
+		int result = MessageBox(NULL, buffer,(WCHAR*) "ASSERT failed.", MB_YESNOCANCEL|MB_ICONERROR);
 		if (result == IDCANCEL)
 		{
 			*do_assert = 0;
@@ -62,6 +67,7 @@ int MT_QueryAssert(char *file, int line, char *predicate, int *do_assert)
 		return result == IDYES;
 	}
 #endif
+*/
 	printf("ASSERT %s:%d: %s failed.\n", file, line, predicate);
 	return *do_assert;
 }
