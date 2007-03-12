@@ -420,12 +420,18 @@ void BVHNode::optimize()
   Rotation oldRDifference;
   Position oldPDifference;
 
+  // get first frame to compare
   QMap<int,FrameData>::const_iterator itBefore=keyframes.begin();
+  // never try to optimize frame 1
+  itBefore++;
+  // make current frame one frame after "before" frame
   QMap<int,FrameData>::const_iterator itCurrent=itBefore;
+  itCurrent++;
 
+  // defines how much difference from anticipated change is acceptable for optimizing
   double tolerance=0.01;
 
-  itCurrent++;
+  // loop as long as there are keyframes left
   while(itCurrent!=keyframes.end())
   {
     int distance=itCurrent.key()-itBefore.key();
