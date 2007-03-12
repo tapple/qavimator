@@ -19,8 +19,6 @@
  *
  */
 
-#define SINE_INTERPOLATION 0
-
 #include <qapplication.h>
 
 #include <iostream>
