@@ -171,7 +171,7 @@ void qavimator::readSettings()
   int height=600;
   int figureType=0;
   bool skeleton=false;
-  bool showTimeline=false;
+  bool showTimeline=true;
 
   jointLimits=true;
   loop=true;
