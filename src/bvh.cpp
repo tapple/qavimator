@@ -30,6 +30,7 @@
 #include <qmessagebox.h>
 
 #include "bvh.h"
+#include "animation.h"
 
 BVH::BVH()
 {
@@ -266,22 +267,12 @@ void BVH::parseLimFile(BVHNode *root, const char *limFile) const
   f.close();
 }
 
-void BVH::setNumFrames(int numFrames)
-{
-  totalFrames=numFrames;
-}
-
-int BVH::numFrames() const
-{
-  return totalFrames;
-}
-
 // in BVH files, this is necessary so that
 // all frames but the start and last aren't
 // blown away by interpolation
-void BVH::setAllKeyFrames(BVHNode *node) const
+void BVH::setAllKeyFramesHelper(BVHNode* node,int numberOfFrames) const
 {
-  for (int i=0;i<totalFrames;i++)
+  for(int i=0;i<numberOfFrames;i++)
   {
     const Rotation* rot=node->getCachedRotation(i);
     const Position* pos=node->getCachedPosition(i);
@@ -291,7 +282,12 @@ void BVH::setAllKeyFrames(BVHNode *node) const
   }
 
   for (int i=0;i<node->numChildren();i++)
-    setAllKeyFrames(node->child(i));
+    setAllKeyFramesHelper(node->child(i),numberOfFrames);
+}
+
+void BVH::setAllKeyFrames(Animation* anim) const
+{
+  setAllKeyFramesHelper(anim->getMotion(),anim->getNumberOfFrames());
 }
 
 BVHNode* BVH::bvhRead(const char *file)
@@ -312,7 +308,7 @@ BVHNode* BVH::bvhRead(const char *file)
 
   expect_token(f, "MOTION");
   expect_token(f, "Frames:");
-  totalFrames = atoi(token(f,buffer));
+  int totalFrames=atoi(token(f,buffer));
 
   expect_token(f, "Frame");
   expect_token(f, "Time:");
@@ -322,9 +318,10 @@ BVHNode* BVH::bvhRead(const char *file)
     assignChannels(root, f, i);
   }
 
-  setAllKeyFrames(root);
+  setAllKeyFramesHelper(root,totalFrames);
   fclose(f);
 
+  lastLoadedNumberOfFrames=totalFrames;
   return(root);
 }
 
@@ -415,7 +412,7 @@ BVHNode* BVH::avmRead(const char *file)
 
   expect_token(f, "MOTION");
   expect_token(f, "Frames:");
-  totalFrames = atoi(token(f,buffer));
+  int totalFrames=atoi(token(f,buffer));
 
   expect_token(f, "Frame");
   expect_token(f, "Time:");
@@ -432,6 +429,7 @@ BVHNode* BVH::avmRead(const char *file)
   }
   fclose(f);
 
+  lastLoadedNumberOfFrames=totalFrames;
   return(root);
 }
 
@@ -528,17 +526,19 @@ void BVH::bvhWriteFrame(BVHNode *node, int frame, FILE *f)
   }
 }
 
-void BVH::bvhWrite(BVHNode *root, const char *file)
+void BVH::bvhWrite(Animation* anim, const char *file)
 {
   int i;
   FILE *f = fopen(file, "wt");
 
+  BVHNode* root=anim->getMotion();
+
   fprintf(f, "HIERARCHY\n");
   bvhWriteNode(root, f, 0);
   fprintf(f, "MOTION\n");
-  fprintf(f, "Frames:\t%d\n", totalFrames);
+  fprintf(f, "Frames:\t%d\n", anim->getNumberOfFrames());
   fprintf(f, "Frame Time:\t%f\n", root->frameTime);
-  for (i=0; i<totalFrames; i++) {
+  for (i=0; i<anim->getNumberOfFrames(); i++) {
     bvhWriteFrame(root, i, f);
     fprintf(f, "\n");
   }
@@ -548,7 +548,7 @@ void BVH::bvhWrite(BVHNode *root, const char *file)
 void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f)
 {
   const QValueList<int> keys=root->keyframeList();
-  fprintf(f, "%d ", keys.count()-1);
+  fprintf(f, "%lu ", keys.count()-1);
 
   // skip frame 0 (always key frame) while saving
   for (unsigned int i=1; i<keys.count(); i++) {
@@ -567,7 +567,7 @@ void BVH::avmWriteKeyFrameProperties(BVHNode *root, FILE *f)
   const QValueList<int> keys=root->keyframeList();
 
   // NOTE: remember, ease in/out data always takes first frame into account
-  fprintf(f, "%d ", keys.count());
+  fprintf(f, "%lu ", keys.count());
 
   // NOTE: remember, ease in/out data always takes first frame into account
   for (unsigned int i=0; i<keys.count(); i++) {
@@ -585,16 +585,18 @@ void BVH::avmWriteKeyFrameProperties(BVHNode *root, FILE *f)
   }
 }
 
-void BVH::avmWrite(BVHNode *root, const char *file)
+void BVH::avmWrite(Animation* anim, const char *file)
 {
   FILE *f = fopen(file, "wt");
+
+  BVHNode* root=anim->getMotion();
 
   fprintf(f, "HIERARCHY\n");
   bvhWriteNode(root, f, 0);
   fprintf(f, "MOTION\n");
-  fprintf(f, "Frames:\t%d\n", totalFrames);
+  fprintf(f, "Frames:\t%d\n", anim->getNumberOfFrames());
   fprintf(f, "Frame Time:\t%f\n", root->frameTime);
-  for (int i=0; i<totalFrames; i++) {
+  for (int i=0; i<anim->getNumberOfFrames(); i++) {
     bvhWriteFrame(root, i, f);
     fprintf(f, "\n");
   }
@@ -606,7 +608,8 @@ void BVH::avmWrite(BVHNode *root, const char *file)
   fclose(f);
 }
 
-void BVH::animWrite(BVHNode *root, const char *file) {
+void BVH::animWrite(Animation* anim, const char *file)
+{
   char *fileType;
   char *extension;
 
@@ -615,9 +618,9 @@ void BVH::animWrite(BVHNode *root, const char *file) {
   extension = fileType + strlen(fileType) - 4;
 
   if (strcasecmp(extension, ".bvh") == 0) {
-    bvhWrite(root, file);
+    bvhWrite(anim,file);
   } else if (strcasecmp(extension, ".avm") == 0) {
-    avmWrite(root, file);
+    avmWrite(anim,file);
   }
 
   free(fileType);

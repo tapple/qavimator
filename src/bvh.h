@@ -28,6 +28,7 @@
 #include "bvhnode.h"
 
 class BVHNode;
+class Animation;
 
 class BVH
 {
@@ -46,13 +47,13 @@ class BVH
 
     void setNumFrames(int numFrames);
     int numFrames() const;
-    void setAllKeyFrames(BVHNode *node) const;
+    void setAllKeyFrames(Animation* anim) const;
     void bvhIndent(FILE *f, int depth);
     void bvhWriteNode(BVHNode *node, FILE *f, int depth);
     void bvhWriteFrame(BVHNode *node, int frame, FILE *f);
     void bvhPrintNode(BVHNode *n, int depth);
 
-    void bvhWrite(BVHNode *root, const char *file);
+    void bvhWrite(Animation* root,const char* file);
     BVHNode *bvhFindNode(BVHNode *root, const char *name) const;
 
     void bvhGetChannelLimits(BVHNode *node, BVHChannelType type, double *min, double *max);
@@ -68,15 +69,15 @@ class BVH
     // lex neva's stuff:
     BVHNode *animRead(const char *file, const char *limFile);
     BVHNode *avmRead(const char *file);
-    void avmWrite(BVHNode *root, const char *file);
-    void animWrite(BVHNode *root, const char *file);
+    void avmWrite(Animation* root,const char* file);
+    void animWrite(Animation* root,const char* file);
     void bvhDelete(BVHNode *node);
     void bvhSetFrameTime(BVHNode *node, double frameTime);
 
     QStringList bvhTypeName;
     QStringList bvhChannelName;
+	int lastLoadedNumberOfFrames;
     int nodeCount;
-    int totalFrames;   // number of frames in this bvh/avm file
 
     QValueList<Rotation> rotationCopyBuffer;
     QValueList<Position> positionCopyBuffer;
@@ -96,6 +97,7 @@ class BVH
     // debugging function, dumps the node structure
     void dumpNodes(BVHNode* node,QString indent);
 
+    void setAllKeyFramesHelper(BVHNode* node,int numberOfFrames) const;
     const QString& bvhGetNameHelper(BVHNode* node,int index);
     int bvhGetIndexHelper(BVHNode* node,const QString& name);
 

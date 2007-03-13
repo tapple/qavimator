@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 // #include "main.h"
+
 #include "animation.h"
 #include "rotation.h"
 #include "bvh.h"
@@ -54,7 +55,7 @@ Animation::Animation(BVH* newBVH,const char *bvhFile) :
   loadBVH(fileName);
   calcPartMirrors();
   useRotationLimits(true);
-  setNumberOfFrames(bvh->numFrames());
+  setNumberOfFrames(bvh->lastLoadedNumberOfFrames);
 
   ikTree.set(frames);
   setIK(IK_LHAND, false);
@@ -84,7 +85,7 @@ void Animation::loadBVH(const char *bvhFile)
 
 void Animation::saveBVH(const char *bvhFile)
 {
-  bvh->animWrite(frames, bvhFile);
+  bvh->animWrite(this,bvhFile);
 }
 
 double Animation::frameTime()
