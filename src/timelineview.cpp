@@ -54,13 +54,7 @@ TimelineView::~TimelineView()
 
 void TimelineView::scrollTo(int x)
 {
-  int currX=x-view->contentsX();
-  int offset=0;
-
-  if(currX < (view->width()/4))        offset=currX-view->width()/4;
-  else if(currX > (view->width()*3/4)) offset=currX-view->width()*3/4;
-
-  if(offset) view->scrollBy(offset,0);
+  view->ensureVisible(x,0,view->visibleWidth()*1/4,view->visibleHeight());
 }
 
 void TimelineView::doResize(const QSize& newSize)
