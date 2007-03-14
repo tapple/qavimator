@@ -60,7 +60,7 @@ class Animation : public QObject
     void setMirrored(bool mirror) { mirrored = mirror; }
     bool getMirrored() { return mirrored; }
     unsigned int getPartMirror(int index) { return partMirror[index]; }
-    const QString& getPartMirror(const QString& name);
+    const QString& getPartMirror(const QString& name) const;
     BVHNode *getMotion() { return frames; }
     BVHNode *getEndSite(const char *siteParentName);
     BVHNode* getNode(int jointNumber);
@@ -70,14 +70,14 @@ class Animation : public QObject
 
     const FrameData keyframeDataByIndex(int jointNumber,int index);
 
-    void setRotation(const char *jointName, double x, double y, double z);
-    Rotation getRotation(const char *jointName);
+    void setRotation(const QString& jointName,double x,double y,double z);
+    Rotation getRotation(const QString& jointName);
     void useRotationLimits(bool flag);
     bool useRotationLimits() { return limits; }
-    RotationLimits getRotationLimits(const char *jointName);
-    void setPosition(const char *jointName, double x, double y, double z);
-    Position getPosition(const char *jointName);
-    int getRotationOrder(const char *jointName);
+    RotationLimits getRotationLimits(const QString& jointName);
+    void setPosition(const QString& jointName,double x,double y,double z);
+    Position getPosition(const QString& jointName);
+    int getRotationOrder(const QString& jointName);
     void addKeyFrameAllJoints();
     void addKeyFrame(BVHNode *joint);
     bool isKeyFrame();

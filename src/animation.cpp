@@ -312,11 +312,11 @@ void Animation::solveIK()
   ikTree.solve(frame);
 }
 
-void Animation::setRotation(const char *jointName, double x, double y, double z)
+void Animation::setRotation(const QString& jointName, double x, double y, double z)
 {
   BVHNode *node = bvh->bvhFindNode(frames, jointName);
   BVHNode *node2 = NULL;
-  const char *mirrorName;
+  QString mirrorName;
   if (node) {
     //qDebug(QString("Animation::setRotation(")+jointName+")");
 
@@ -345,9 +345,9 @@ void Animation::setRotation(const char *jointName, double x, double y, double z)
   }
 }
 
-Rotation Animation::getRotation(const char* jointName)
+Rotation Animation::getRotation(const QString& jointName)
 {
-  if(jointName)
+  if(!jointName.isEmpty())
   {
     BVHNode* node=bvh->bvhFindNode(frames,jointName);
     if(node)
@@ -363,9 +363,9 @@ void Animation::useRotationLimits(bool flag)
   ikTree.setJointLimits(flag);
 }
 
-RotationLimits Animation::getRotationLimits(const char *jointName)
+RotationLimits Animation::getRotationLimits(const QString& jointName)
 {
-  if(jointName)
+  if(!jointName.isEmpty())
   {
     double xMin,yMin,zMin,xMax,yMax,zMax;
 
@@ -391,7 +391,7 @@ RotationLimits Animation::getRotationLimits(const char *jointName)
   return RotationLimits(QString::null,0,0,0,0,0,0);
 }
 
-int Animation::getRotationOrder(const char *jointName)
+int Animation::getRotationOrder(const QString& jointName)
 {
   BVHNode *node = bvh->bvhFindNode(frames, jointName);
   if (node) {
@@ -400,7 +400,7 @@ int Animation::getRotationOrder(const char *jointName)
   return 0;
 }
 
-void Animation::setPosition(const char *jointName, double x, double y, double z)
+void Animation::setPosition(const QString& jointName,double x,double y,double z)
 {
   BVHNode *node = bvh->bvhFindNode(frames, jointName);
   if (node) {
@@ -422,7 +422,7 @@ void Animation::setPosition(const char *jointName, double x, double y, double z)
   }
 }
 
-Position Animation::getPosition(const char *jointName)
+Position Animation::getPosition(const QString& jointName)
 {
   BVHNode *node = bvh->bvhFindNode(frames, jointName);
 
@@ -602,7 +602,7 @@ void Animation::calcPartMirrors()
   }
 }
 
-const QString& Animation::getPartMirror(const QString& name)
+const QString& Animation::getPartMirror(const QString& name) const
 {
   int index = bvh->bvhGetIndex(frames, name);
   if (index) index = partMirror[index];
