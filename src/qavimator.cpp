@@ -531,6 +531,7 @@ void qavimator::updateInputs()
     emit enablePosition(false);
   }
   playButton->setText(playing ? "||" : ">");
+  framesSpin->setValue(anim->getNumberOfFrames());
 
   updateKeyBtn();
 

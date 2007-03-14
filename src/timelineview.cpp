@@ -37,7 +37,7 @@ TimelineView::TimelineView(QWidget* parent,const char* name,WFlags f) : QFrame(p
   view=new QScrollView(this,"timeline_inner_view",WNoAutoErase|WStaticContents);
 
   view->setVScrollBarMode(QScrollView::AlwaysOff);
-  view->setHScrollBarMode(QScrollView::AlwaysOff);
+//  view->setHScrollBarMode(QScrollView::AlwaysOff);
 
   timeline=new Timeline(view->viewport(),"timeline");
 
