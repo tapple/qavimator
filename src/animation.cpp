@@ -30,8 +30,8 @@
 #include "rotation.h"
 #include "bvh.h"
 
-Animation::Animation(BVH* newBVH,const char *bvhFile) :
-  frame(0), totalFrames(0), mirrored(false)
+Animation::Animation(BVH* newBVH,const QString& bvhFile) :
+  frame(0),totalFrames(0),mirrored(false)
 {
 //  qDebug(QString("Animation::Animation(%1)").arg((long) this));
 
@@ -76,14 +76,14 @@ Animation::~Animation()
   }
 }
 
-void Animation::loadBVH(const char *bvhFile)
+void Animation::loadBVH(const QString& bvhFile)
 {
   QString limFile=execPath+"/"+LIMITS_FILE;
   frames = bvh->animRead(bvhFile, limFile);
   setFrame(0);
 }
 
-void Animation::saveBVH(const char *bvhFile)
+void Animation::saveBVH(const QString& bvhFile)
 {
   bvh->animWrite(this,bvhFile);
 }
@@ -189,7 +189,7 @@ int Animation::loopPoint()
   return loopingPoint;
 }
 
-void Animation::applyIK(const char *name)
+void Animation::applyIK(const QString& name)
 {
   BVHNode *node = bvh->bvhFindNode(frames, name);
 
@@ -247,54 +247,62 @@ void Animation::setIK(IKPartType part, bool flag)
   }
 }
 
-void Animation::setIK(const char *jointName, bool flag)
+void Animation::setIK(const QString& jointName,bool flag)
 {
-  if (!strcmp(jointName, "lHand")||
-      !strcmp(jointName, "lForeArm")||
-      !strcmp(jointName, "lShldr")||
-      !strcmp(jointName, "lCollar")) {
+  if(jointName=="lHand" ||
+     jointName=="lForeArm" ||
+     jointName=="lShldr" ||
+     jointName=="lCollar")
+  {
     setIK(IK_LHAND, flag);
   }
-  else if (!strcmp(jointName, "rHand")||
-	   !strcmp(jointName, "rForeArm")||
-	   !strcmp(jointName, "rShldr")||
-	   !strcmp(jointName, "rCollar")) {
+  else if(jointName=="rHand" ||
+          jointName=="rForeArm" ||
+          jointName=="rShldr" ||
+          jointName=="rCollar")
+  {
     setIK(IK_RHAND, flag);
   }
-  else if (!strcmp(jointName, "lThigh")||
-	   !strcmp(jointName, "lShin")||
-	   !strcmp(jointName, "lFoot")) {
+  else if(jointName=="lThigh" ||
+          jointName=="lShin" ||
+          jointName=="lFoot")
+  {
     setIK(IK_LFOOT, flag);
   }
-  else if (!strcmp(jointName, "rThigh")||
-	   !strcmp(jointName, "rShin")||
-	   !strcmp(jointName, "rFoot")) {
+  else if(jointName=="rThigh" ||
+          jointName=="rShin" ||
+          jointName=="rFoot")
+  {
     setIK(IK_RFOOT, flag);
   }
 }
 
-bool Animation::getIK(const char *jointName)
+bool Animation::getIK(const QString& jointName)
 {
-  if (!strcmp(jointName, "lHand")||
-      !strcmp(jointName, "lForeArm")||
-      !strcmp(jointName, "lShldr")||
-      !strcmp(jointName, "lCollar")) {
+  if(jointName=="lHand" ||
+     jointName=="lForeArm" ||
+     jointName=="lShldr" ||
+     jointName=="lCollar")
+  {
     return getIK(IK_LHAND);
   }
-  else if (!strcmp(jointName, "rHand")||
-	   !strcmp(jointName, "rForeArm")||
-	   !strcmp(jointName, "rShldr")||
-	   !strcmp(jointName, "rCollar")) {
+  else if(jointName=="rHand" ||
+          jointName=="rForeArm" ||
+          jointName=="rShldr" ||
+          jointName=="rCollar")
+  {
     return getIK(IK_RHAND);
   }
-  else if (!strcmp(jointName, "lThigh")||
-	   !strcmp(jointName, "lShin")||
-	   !strcmp(jointName, "lFoot")) {
+  else if(jointName=="lThigh" ||
+          jointName=="lShin" ||
+          jointName=="lFoot")
+  {
     return getIK(IK_LFOOT);
   }
-  else if (!strcmp(jointName, "rThigh")||
-	   !strcmp(jointName, "rShin")||
-	   !strcmp(jointName, "rFoot")) {
+  else if(jointName=="rThigh" ||
+          jointName=="rShin" ||
+          jointName=="rFoot")
+  {
     return getIK(IK_RFOOT);
   }
   return false;
@@ -442,7 +450,7 @@ int Animation::getPartIndex(const QString& part)
   return bvh->bvhGetIndex(frames, part);
 }
 
-BVHNode *Animation::getEndSite(const char *rootName)
+BVHNode* Animation::getEndSite(const QString& rootName)
 {
   BVHNode *node = bvh->bvhFindNode(frames, rootName);
   while (node && node->numChildren() > 0) {
@@ -486,13 +494,13 @@ bool Animation::isKeyFrameHelper(BVHNode *joint) {
   return false;
 }
 
-bool Animation::isKeyFrame(const char *jointName)
+bool Animation::isKeyFrame(const QString& jointName)
 {
-  if (jointName == NULL) {
+  if(jointName.isEmpty())
      return isKeyFrame();
-  } else {
+  else
+  {
     BVHNode *node = bvh->bvhFindNode(frames, jointName);
-
     return node->isKeyframe(frame);
   }
 }
@@ -546,10 +554,12 @@ void Animation::delKeyFrameAllJoints() {
   recursiveDelKeyFrame(frames);
 }
 
-bool Animation::toggleKeyFrame(const char *jointName) {
-  if (jointName == NULL) {
+bool Animation::toggleKeyFrame(const QString& jointName)
+{
+  if(jointName.isEmpty())
     return toggleKeyFrameAllJoints();
-  } else {
+  else
+  {
     BVHNode *node = bvh->bvhFindNode(frames, jointName);
 
     if (node->isKeyframe(frame)) {

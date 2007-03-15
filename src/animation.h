@@ -40,11 +40,11 @@ class Animation : public QObject
   public:
     typedef enum { IK_LHAND=0, IK_RHAND, IK_LFOOT, IK_RFOOT, NUM_IK } IKPartType;
 
-    Animation(BVH* bvh,const char *bvhFile = NULL);
+    Animation(BVH* bvh,const QString& bvhFile=QString::null);
     ~Animation();
 
-    void loadBVH(const char *bvhFile);
-    void saveBVH(const char *bvhFile);
+    void loadBVH(const QString& bvhFile);
+    void saveBVH(const QString& bvhFile);
     double frameTime();
     int getNumberOfFrames() { return totalFrames; }
     void setNumberOfFrames(int num);
@@ -53,16 +53,16 @@ class Animation : public QObject
     int stepForward();
     void setLoopPoint(int frame);
     int loopPoint();
-    void setIK(const char *jointName, bool flag);
-    bool getIK(const char *jointName);
+    void setIK(const QString& jointName, bool flag);
+    bool getIK(const QString& jointName);
     const QString& getPartName(int index) const;
     int getPartIndex(const QString& part);
     void setMirrored(bool mirror) { mirrored = mirror; }
     bool getMirrored() { return mirrored; }
     unsigned int getPartMirror(int index) { return partMirror[index]; }
     const QString& getPartMirror(const QString& name) const;
-    BVHNode *getMotion() { return frames; }
-    BVHNode *getEndSite(const char *siteParentName);
+    BVHNode* getMotion() { return frames; }
+    BVHNode* getEndSite(const QString& siteParentName);
     BVHNode* getNode(int jointNumber);
 
     void copyFrame();
@@ -81,12 +81,12 @@ class Animation : public QObject
     void addKeyFrameAllJoints();
     void addKeyFrame(BVHNode *joint);
     bool isKeyFrame();
-    bool isKeyFrame(const char *jointName);
+    bool isKeyFrame(const QString& jointName);
     bool isKeyFrame(int jointNumber,int frame);
     void delKeyFrameAllJoints();
     void delKeyFrame(BVHNode *joint,bool silent=false); // silent = only send signal to timeline
     bool toggleKeyFrameAllJoints();
-    bool toggleKeyFrame(const char *jointName);
+    bool toggleKeyFrame(const QString& jointName);
     void setFrameTime(double frameTime);
 
     void setEaseIn(const QString& jointName,bool state);
@@ -137,7 +137,7 @@ class Animation : public QObject
     void calcPartMirrors();
     void setIK(IKPartType part, bool flag);
     bool getIK(IKPartType part) { return ikOn[part]; }
-    void applyIK(const char *name);
+    void applyIK(const QString& name);
     void solveIK();
 
     QString execPath;
