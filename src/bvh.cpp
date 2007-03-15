@@ -94,8 +94,9 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
   if (!strcasecmp(type, "ROOT")) { nodeType = BVH_ROOT; }
   else if (!strcasecmp(type, "JOINT")) { nodeType = BVH_JOINT; }
   else if (!strcasecmp(type, "END")) { nodeType = BVH_END; }
-  else {
-    fprintf(stderr, "Bad BVH file: unknown node type: %s\n", type);
+  else
+  {
+    qDebug("Bad BVH file: unknown node type: %s\n",type);
     return NULL;
   }
 
@@ -226,7 +227,7 @@ void BVH::setChannelLimits(BVHNode *node,BVHChannelType type,double min,double m
 }
 
 // read joint limits file
-void BVH::parseLimFile(BVHNode *root, const char *limFile) const
+void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
 {
   QFile f(limFile);
   BVHNode *node;
@@ -290,7 +291,7 @@ void BVH::setAllKeyFrames(Animation* anim) const
   setAllKeyFramesHelper(anim->getMotion(),anim->getNumberOfFrames());
 }
 
-BVHNode* BVH::bvhRead(const char *file)
+BVHNode* BVH::bvhRead(const QString& file)
 {
   qDebug(QString("BVH::bvhRead(%1)").arg(file));
 
@@ -298,8 +299,9 @@ BVHNode* BVH::bvhRead(const char *file)
   FILE *f = fopen(file, "rt");
   BVHNode *root;
 
-  if (!f) {
-    fprintf(stderr, "BVH File not found: %s\n", file);
+  if(!f)
+  {
+    QMessageBox::critical(0,QObject::tr("File not found"),QObject::tr("BVH File not found: %1").arg(file.latin1()));
     return NULL;
   }
 
@@ -394,16 +396,17 @@ void BVH::dumpNodes(BVHNode* node,QString indent)
 
 /* .avm files look suspiciously like .bvh files, except
    with keyframe data tacked at the end -- Lex Neva */
-BVHNode* BVH::avmRead(const char *file)
+BVHNode* BVH::avmRead(const QString& file)
 {
-  qDebug(QString("BVH::avmRead(%1)").arg(file));
+  qDebug("BVH::avmRead(%s)",file.latin1());
 
   FILE *f = fopen(file, "rt");
   char buffer[1024];
   BVHNode *root;
 
-  if (!f) {
-    fprintf(stderr, "AVM File not found: %s\n", file);
+  if(!f)
+  {
+    qDebug("AVM File not found: %s\n", file.latin1());
     return NULL;
   }
 
@@ -433,30 +436,20 @@ BVHNode* BVH::avmRead(const char *file)
   return(root);
 }
 
-BVHNode* BVH::animRead(const char *file, const char *limFile)
+BVHNode* BVH::animRead(const QString& file,const QString& limFile)
 {
-  char *fileType;
-  char *extension;
-  BVHNode *root;
+  BVHNode* root;
 
   // rudimentary file type identification from filename
-  fileType = strdup(file);
-  extension = fileType + strlen(fileType) - 4;
-
-  if (strcasecmp(extension, ".bvh") == 0) {
+  if(file.findRev(".bvh",-4,false)!=-1)
     root = bvhRead(file);
-  } else if (strcasecmp(extension, ".avm") == 0) {
+  else if(file.findRev(".avm",-4,false)!=-1)
     root = avmRead(file);
-  } else {
-    free(fileType);
+  else
     return NULL;
-  }
 
-  free(fileType);
-
-  if (limFile) {
+  if(!limFile.isEmpty())
     parseLimFile(root, limFile);
-  }
 
   removeNoSLNodes(root);
 //  dumpNodes(root,QString::null);
@@ -526,7 +519,7 @@ void BVH::bvhWriteFrame(BVHNode *node, int frame, FILE *f)
   }
 }
 
-void BVH::bvhWrite(Animation* anim, const char *file)
+void BVH::bvhWrite(Animation* anim, const QString& file)
 {
   int i;
   FILE *f = fopen(file, "wt");
@@ -548,7 +541,7 @@ void BVH::bvhWrite(Animation* anim, const char *file)
 void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f)
 {
   const QValueList<int> keys=root->keyframeList();
-  fprintf(f, "%lu ", keys.count()-1);
+  fprintf(f, "%u ", keys.count()-1);
 
   // skip frame 0 (always key frame) while saving
   for (unsigned int i=1; i<keys.count(); i++) {
@@ -567,7 +560,7 @@ void BVH::avmWriteKeyFrameProperties(BVHNode *root, FILE *f)
   const QValueList<int> keys=root->keyframeList();
 
   // NOTE: remember, ease in/out data always takes first frame into account
-  fprintf(f, "%lu ", keys.count());
+  fprintf(f,"%u ",keys.count());
 
   // NOTE: remember, ease in/out data always takes first frame into account
   for (unsigned int i=0; i<keys.count(); i++) {
@@ -585,7 +578,7 @@ void BVH::avmWriteKeyFrameProperties(BVHNode *root, FILE *f)
   }
 }
 
-void BVH::avmWrite(Animation* anim, const char *file)
+void BVH::avmWrite(Animation* anim,const QString& file)
 {
   FILE *f = fopen(file, "wt");
 
@@ -608,22 +601,13 @@ void BVH::avmWrite(Animation* anim, const char *file)
   fclose(f);
 }
 
-void BVH::animWrite(Animation* anim, const char *file)
+void BVH::animWrite(Animation* anim,const QString& file)
 {
-  char *fileType;
-  char *extension;
-
   // rudimentary file type identification from filename
-  fileType = strdup(file);
-  extension = fileType + strlen(fileType) - 4;
-
-  if (strcasecmp(extension, ".bvh") == 0) {
+  if(file.findRev(".bvh",-4,false)!=-1)
     bvhWrite(anim,file);
-  } else if (strcasecmp(extension, ".avm") == 0) {
+  else if(file.findRev(".avm",-4,false)!=-1)
     avmWrite(anim,file);
-  }
-
-  free(fileType);
 }
 
 void BVH::bvhPrintNode(BVHNode *n, int depth)
@@ -638,17 +622,15 @@ void BVH::bvhPrintNode(BVHNode *n, int depth)
   }
 }
 
-BVHNode* BVH::bvhFindNode(BVHNode *root, const char *name) const
+BVHNode* BVH::bvhFindNode(BVHNode* root,const QString& name) const
 {
-  int i;
   BVHNode *node;
-  if (!root) return NULL;
-  if (!strcmp(root->name(), name))
-    return root;
+  if(!root) return NULL;
+  if(root->name()==name) return root;
 
-  for (i=0; i<root->numChildren(); i++) {
-    if ((node=bvhFindNode(root->child(i), name)))
-      return node;
+  for(int i=0;i<root->numChildren();i++)
+  {
+    if((node=bvhFindNode(root->child(i),name))) return node;
   }
 
   return NULL;

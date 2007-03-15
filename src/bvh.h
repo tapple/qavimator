@@ -37,13 +37,12 @@ class BVH
     BVH();
     ~BVH();
 
-    BVHNode *bvhRead(const char *file);
-    char* token(FILE *f,char* tokenBuf) const;
-    int expect_token(FILE *f, char *name) const;
+    BVHNode *bvhRead(const QString& file);
     BVHNode* bvhReadNode(FILE *f) const;
+
     void assignChannels(BVHNode *node, FILE *f, int frame);
     void setChannelLimits(BVHNode *node,BVHChannelType type,double min,double max) const;
-    void parseLimFile(BVHNode *root, const char *limFile) const;
+    void parseLimFile(BVHNode* root,const QString& limFile) const;
 
     void setNumFrames(int numFrames);
     int numFrames() const;
@@ -53,8 +52,8 @@ class BVH
     void bvhWriteFrame(BVHNode *node, int frame, FILE *f);
     void bvhPrintNode(BVHNode *n, int depth);
 
-    void bvhWrite(Animation* root,const char* file);
-    BVHNode *bvhFindNode(BVHNode *root, const char *name) const;
+    void bvhWrite(Animation* root,const QString& file);
+    BVHNode* bvhFindNode(BVHNode* root,const QString& name) const;
 
     void bvhGetChannelLimits(BVHNode *node, BVHChannelType type, double *min, double *max);
     void bvhResetIK(BVHNode *root);
@@ -67,16 +66,17 @@ class BVH
     void bvhSetFrameData(BVHNode *node,int frame);
 
     // lex neva's stuff:
-    BVHNode *animRead(const char *file, const char *limFile);
-    BVHNode *avmRead(const char *file);
-    void avmWrite(Animation* root,const char* file);
-    void animWrite(Animation* root,const char* file);
+    BVHNode* animRead(const QString& file,const QString& limFile);
+    BVHNode* avmRead(const QString& file);
+
+    void avmWrite(Animation* root,const QString& file);
+    void animWrite(Animation* root,const QString& file);
     void bvhDelete(BVHNode *node);
     void bvhSetFrameTime(BVHNode *node, double frameTime);
 
     QStringList bvhTypeName;
     QStringList bvhChannelName;
-	int lastLoadedNumberOfFrames;
+    int lastLoadedNumberOfFrames;
     int nodeCount;
 
     QValueList<Rotation> rotationCopyBuffer;
@@ -84,6 +84,9 @@ class BVH
 
   protected:
     QStringList validNodes;
+
+    char* token(FILE *f,char* tokenBuf) const;
+    int expect_token(FILE *f, char *name) const;
 
     void avmReadKeyFrame(BVHNode *root, FILE *f);
     void avmReadKeyFrameProperties(BVHNode *root, FILE *f);
