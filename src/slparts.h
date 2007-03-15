@@ -22,13 +22,15 @@
 #ifndef SLPARTS_H
 #define SLPARTS_H
 
+#include <qstring.h>
+
 #ifdef MACOSX
 #include <glu.h>
 #else
 #include <GL/glu.h>
 #endif
 
-void drawSLMalePart(const char *name);
-void drawSLFemalePart(const char *name);
+void drawSLMalePart(const QString& name);
+void drawSLFemalePart(const QString& name);
 
 #endif

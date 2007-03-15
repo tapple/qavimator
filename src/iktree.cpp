@@ -48,7 +48,7 @@ void IKTree::set(BVHNode *root)
     addJoint(root);
 }
 
-void IKTree::setGoal(int frame, const char *name)
+void IKTree::setGoal(int frame,const QString& name)
 {
   reset(frame);
 

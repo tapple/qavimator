@@ -621,8 +621,7 @@ const QString& Animation::getPartMirror(const QString& name) const
 
 const int Animation::numKeyFrames(int jointNumber)
 {
-  const char* jointName=getPartName(jointNumber);
-  BVHNode* node=bvh->bvhFindNode(frames,jointName);
+  BVHNode* node=bvh->bvhFindNode(frames,getPartName(jointNumber));
 //  qDebug(QString("joint number %1 has %2 keyframes").arg(jointNumber).arg(node->numKeyFrames));
   return node->numKeyframes();
 }
@@ -681,8 +680,7 @@ const FrameData Animation::keyframeDataByIndex(int jointNumber,int index)
 BVHNode* Animation::getNode(int jointNumber)
 {
   // get the joint structure
-  const char* jointName=getPartName(jointNumber);
-  return bvh->bvhFindNode(frames,jointName);
+  return bvh->bvhFindNode(frames,getPartName(jointNumber));
 }
 
 void Animation::insertFrameHelper(BVHNode* joint,int frame)

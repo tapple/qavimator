@@ -34,11 +34,12 @@ void doDraw(int num,const double* normals,const double* vertices)
   glEnd();
 }
 
-void drawSLFemalePart(const char *name) {
-  if (!strcasecmp(name, "End")) {
+void drawSLFemalePart(const QString& name)
+{
+  if(name=="End")
     return;
-  }
-  else if (!strcmp(name, "hip")) {
+  else if(name=="hip")
+  {
     const double normals[]={
       -0.984257, -0.154591, 0.085671,
       -0.992945, -0.116668, -0.021161,
@@ -1271,7 +1272,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(612,normals,vertices);
   }
-  else if (!strcmp(name, "abdomen")) {
+  else if(name=="abdomen")
+  {
     const double normals[]={
       0.770213, 0.430669, -0.470421,
       0.769569, 0.444615, -0.458347,
@@ -2900,7 +2902,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(810,normals,vertices);
   }
-  else if (!strcmp(name, "chest")) {
+  else if(name=="chest")
+  {
     const double normals[]={
       -0.182678, 0.135695, 0.973764,
       0.017888, 0.152416, 0.988155,
@@ -7610,10 +7613,11 @@ void drawSLFemalePart(const char *name) {
       -6.092624, 2.831821, -0.175346,
       -6.028016, 2.689873, 1.499407
     };
-    
+
     doDraw(2352,normals,vertices);
   }
-  else if (!strcmp(name, "neck")) {
+  else if(name=="neck")
+  {
     const double normals[]={
       0.535341, 0.161012, 0.829147,
       0.293755, 0.192475, 0.936302,
@@ -8168,7 +8172,7 @@ void drawSLFemalePart(const char *name) {
       -0.146139, -0.596242, -0.789392,
       0.000000, -0.560482, -0.828166
     };
-    
+
     const double vertices[]={
       1.573871, 0.038605, 1.857354,
       1.451224, -0.557106, 2.029141,
@@ -8723,15 +8727,12 @@ void drawSLFemalePart(const char *name) {
       -0.402844, 4.102226, -3.108731,
       0.000000, 4.118790, -3.109825
     };
-    
+
     doDraw(552,normals,vertices);
   }
-  else if (!strcmp(name, "head")) {
+  else if(name=="head")
+  {
     const double normals[]={
-
-
-
-
       0.000000, -0.978861, 0.204527,
       0.000000, -0.908936, 0.416936,
       0.250017, -0.934445, 0.253583,
@@ -19236,10 +19237,11 @@ void drawSLFemalePart(const char *name) {
       -0.553688, 0.491966, 3.771787,
       -0.281430, 0.573402, 3.829004
     };
-    
+
     doDraw(5250,normals,vertices);
   }
-  else if (!strcmp(name, "lCollar")) {
+  else if(name=="lCollar")
+  {
     const double normals[]={
       0.429268, -0.568080, 0.702150,
       0.640437, -0.746246, 0.181543,
@@ -20013,10 +20015,11 @@ void drawSLFemalePart(const char *name) {
       3.998957, -1.402897, 2.091007,
       4.672595, -1.243568, 1.840709
     };
-    
+
     doDraw(384,normals,vertices);
   }
-  else if (!strcmp(name, "lShldr")) {
+  else if(name=="lShldr")
+  {
     const double normals[]={
       -0.105761, 0.692970, 0.713167,
       -0.221379, 0.682122, 0.696923,
@@ -21915,7 +21918,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(945,normals,vertices);
   }
-  else if (!strcmp(name, "lForeArm")) {
+  else if(name=="lForeArm")
+  {
     const double normals[]={
       -0.041611, 0.555992, -0.830145,
       0.042226, 0.623572, -0.780625,
@@ -23221,7 +23225,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(648,normals,vertices);
   }
-  else if (!strcmp(name, "lHand")) {
+  else if(name=="lHand")
+  {
     const double normals[]={
       0.762188, 0.628369, -0.155634,
       0.907609, -0.370253, 0.197887,
@@ -26909,7 +26914,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(1839,normals,vertices);
   }
-  else if (!strcmp(name, "rCollar")) {
+  else if(name=="rCollar")
+  {
     const double normals[]={
       -0.429267, -0.568080, 0.702150,
       -0.234617, -0.795654, 0.558470,
@@ -27831,7 +27837,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(456,normals,vertices);
   }
-  else if (!strcmp(name, "rShldr")) {
+  else if(name=="rShldr")
+  {
     const double normals[]={
       0.096401, 0.697553, 0.710019,
       -0.021287, 0.299819, 0.953759,
@@ -29587,7 +29594,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(873,normals,vertices);
   }
-  else if (!strcmp(name, "rForeArm")) {
+  else if(name=="rForeArm")
+  {
     const double normals[]={
       0.042425, 0.555987, -0.830108,
       0.088150, 0.654636, -0.750787,
@@ -30893,7 +30901,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(648,normals,vertices);
   }
-  else if (!strcmp(name, "rHand")) {
+  else if(name=="rHand")
+  {
     const double normals[]={
       -0.762189, 0.628368, -0.155633,
       -0.797495, -0.272069, -0.538498,
@@ -34581,7 +34590,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(1839,normals,vertices);
   }
-  else if (!strcmp(name, "lThigh")) {
+  else if(name=="lThigh")
+  {
     const double normals[]={
       0.152507, -0.414257, -0.897292,
       0.152398, -0.343752, -0.926612,
@@ -36181,7 +36191,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(795,normals,vertices);
   }
-  else if (!strcmp(name, "lShin")) {
+  else if(name=="lShin")
+  {
     const double normals[]={
       -0.233230, 0.092772, 0.967986,
       -0.517405, -0.014210, 0.855622,
@@ -37931,7 +37942,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(870,normals,vertices);
   }
-  else if (!strcmp(name, "lFoot")) {
+  else if(name=="lFoot")
+  {
     const double normals[]={
       0.006572, 0.053453, -0.998549,
       0.000000, 0.312814, -0.949814,
@@ -38961,7 +38973,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(510,normals,vertices);
   }
-  else if (!strcmp(name, "rThigh")) {
+  else if(name=="rThigh")
+  {
     const double normals[]={
       -0.151738, -0.412678, -0.898150,
       -0.407592, -0.360146, -0.839145,
@@ -40561,7 +40574,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(795,normals,vertices);
   }
-  else if (!strcmp(name, "rShin")) {
+  else if(name=="rShin")
+  {
     const double normals[]={
       0.822774, -0.123955, 0.554688,
       0.794987, -0.099385, 0.598429,
@@ -42311,7 +42325,8 @@ void drawSLFemalePart(const char *name) {
 
     doDraw(870,normals,vertices);
   }
-  else if (!strcmp(name, "rFoot")) {
+  else if(name=="rFoot")
+  {
     const double normals[]={
       -0.006551, 0.053314, -0.998556,
       -0.655749, 0.072127, -0.751526,

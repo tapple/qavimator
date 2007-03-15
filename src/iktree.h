@@ -55,7 +55,7 @@ class IKTree
     IKTree(BVHNode *root = NULL);
 
     void set(BVHNode *root);
-    void setGoal(int frame, const char *name);
+    void setGoal(int frame, const QString& name);
     void solve(int frame);
     void setJointLimits(bool flag) { jointLimits = flag; }
 
