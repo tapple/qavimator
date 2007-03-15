@@ -39,14 +39,11 @@
 #define CTRL  2
 #define ALT   4
 
-const char AnimationView::figureFiles[NUM_FIGURES][256] = {
-  MALE_BVH,
-  FEMALE_BVH
-};
-
 AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
  : QGLWidget(parent,name)
 {
+  figureFiles << MALE_BVH << FEMALE_BVH;
+
   bvh=new BVH();
   if(!bvh)
   {
@@ -579,7 +576,7 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
       propSelected=0;
       propDragging=0;
 
-      QString part=getSelectedPart();
+      const QString& part=getSelectedPart();
       changeX = changeY = changeZ = 0;
       dragX = dragY = 0;
 
@@ -1018,12 +1015,12 @@ void AnimationView::setFigure(FigureType type)
     figType = type;
 }
 
-const char *AnimationView::getSelectedPart()
+const QString& AnimationView::getSelectedPart()
 {
   return getPartName(partSelected);
 }
 
-const char* AnimationView::getPartName(int index)
+const QString& AnimationView::getPartName(int index)
 {
   // get part name from animation, with respect to multiple animations in view
   return animation->getPartName(index % ANIMATION_INCREMENT);
@@ -1050,7 +1047,7 @@ void AnimationView::selectPart(int partNum)
   else selectPart(partName);
 }
 
-void AnimationView::selectPart(const char *part)
+void AnimationView::selectPart(const QString& part)
 {
   // make sure no prop is selected anymore
   propSelected=0;

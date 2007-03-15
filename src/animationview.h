@@ -108,10 +108,10 @@ class AnimationView : public QGLWidget
     void setFigure(FigureType type);
     void showSkeleton() { skeleton = true; }
     void hideSkeleton() { skeleton = false; }
-    void selectPart(const char *part);
+    void selectPart(const QString& part);
     void selectProp(const QString& prop);
-    const char *getSelectedPart();
-    const char *getPartName(int index);
+    const QString& getSelectedPart();
+    const QString& getPartName(int index);
     const QString& getSelectedPropName();
 
     const Prop* addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr,int attach);
@@ -182,7 +182,8 @@ class AnimationView : public QGLWidget
     QPoint clickPos;           // holds the mouse click position for dragging
     QPoint returnPos;          // holds the mouse position to return to after dragging
 
-    static const char figureFiles[NUM_FIGURES][256];
+    QStringList figureFiles;   // holds the names of the BVH files for male/female skeleton models
+
     QPtrList<Animation> animList;
     Animation *animation; // this is the "currently selected" animation
     Camera camera;

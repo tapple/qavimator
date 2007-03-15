@@ -55,7 +55,7 @@ class Animation : public QObject
     int loopPoint();
     void setIK(const char *jointName, bool flag);
     bool getIK(const char *jointName);
-    const char *getPartName(int index) const;
+    const QString& getPartName(int index) const;
     int getPartIndex(const QString& part);
     void setMirrored(bool mirror) { mirrored = mirror; }
     bool getMirrored() { return mirrored; }

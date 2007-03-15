@@ -383,7 +383,7 @@ void qavimator::cb_RotRoller(int)
   setZ(z);
 
   Animation *anim = animationView->getAnimation();
-  if (animationView->getSelectedPart())
+  if(!animationView->getSelectedPart().isEmpty())
   {
       anim->setRotation(animationView->getSelectedPart(), x, y, z);
       animationView->repaint();
@@ -414,7 +414,7 @@ void qavimator::cb_RotValue()
   setZ(z);
 
   Animation *anim = animationView->getAnimation();
-  if (animationView->getSelectedPart())
+  if(!animationView->getSelectedPart().isEmpty())
   {
       anim->setRotation(animationView->getSelectedPart(), x, y, z);
       animationView->repaint();

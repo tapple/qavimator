@@ -432,7 +432,7 @@ Position Animation::getPosition(const QString& jointName)
   return Position();
 }
 
-const char *Animation::getPartName(int index) const
+const QString& Animation::getPartName(int index) const
 {
   return bvh->bvhGetName(frames, index);
 }
