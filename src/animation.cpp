@@ -62,6 +62,8 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   setIK(IK_RHAND, false);
   setIK(IK_LFOOT, false);
   setIK(IK_RFOOT, false);
+
+  setDirty(false);
 }
 
 Animation::~Animation()
@@ -99,11 +101,13 @@ double Animation::frameTime()
 void Animation::setFrameTime(double frameTime) {
   if (frames)
     bvh->bvhSetFrameTime(frames, frameTime);
+  setDirty(true);
 }
 
 void Animation::setNumberOfFrames(int num)
 {
   totalFrames=num;
+  setDirty(true);
   emit numberOfFrames(num);
 }
 
@@ -140,6 +144,7 @@ void Animation::setEaseIn(const QString& name,bool state)
   BVHNode *node=bvh->bvhFindNode(frames,name);
   if(node->isKeyframe(frame))
   {
+    setDirty(true);
     node->setEaseIn(frame,state);
     // tell main class that the keyframe has changed
     emit redrawTrack(getPartIndex(name));
@@ -151,6 +156,7 @@ void Animation::setEaseOut(const QString& name,bool state)
   BVHNode *node=bvh->bvhFindNode(frames,name);
   if(node->isKeyframe(frame))
   {
+    setDirty(true);
     node->setEaseOut(frame,state);
     // tell main class that the keyframe has changed
     emit redrawTrack(getPartIndex(name));
@@ -182,6 +188,7 @@ bool Animation::easeOut(const QString& name)
 void Animation::setLoopPoint(int frame)
 {
   loopingPoint=frame;
+  setDirty(true);
 }
 
 int Animation::loopPoint()
@@ -210,6 +217,7 @@ void Animation::applyIK(const QString& name)
 */
       node->ikOn = false;
 
+      setDirty(true);
       addKeyFrame(node);
 //    }
   }
@@ -347,6 +355,7 @@ void Animation::setRotation(const QString& jointName, double x, double y, double
       emit redrawTrack(getPartIndex(jointName));
     }
     for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
+    setDirty(true);
     // tell timeline that this keyframe has changed (added or changed is the same here)
     emit redrawTrack(getPartIndex(jointName));
     emit frameChanged();
@@ -424,6 +433,7 @@ void Animation::setPosition(const QString& jointName,double x,double y,double z)
       node->addKeyframe(frame,Position(x,y,z),node->frameData(frame).rotation());
     }
     for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
+    setDirty(true);
     // tell timeline that this keyframe has changed (added or changed is the same here)
     emit redrawTrack(getPartIndex(jointName));
     emit frameChanged();
@@ -466,6 +476,8 @@ void Animation::recursiveAddKeyFrame(BVHNode *joint)
 
   for (int i=0; i < joint->numChildren(); i++)
     recursiveAddKeyFrame(joint->child(i));
+
+  setDirty(true);
 }
 
 void Animation::addKeyFrameAllJoints()
@@ -476,6 +488,8 @@ void Animation::addKeyFrameAllJoints()
 void Animation::addKeyFrame(BVHNode *joint)
 {
   joint->addKeyframe(frame,getPosition(joint->name()),getRotation(joint->name()));
+
+  setDirty(true);
 
   emit redrawTrack(getPartIndex(joint->name()));
   emit frameChanged();
@@ -519,7 +533,11 @@ bool Animation::isKeyFrame(int jointNumber,int frame)
 void Animation::delKeyFrame(BVHNode *joint,bool silent)
 {
   // never delete first keyframe
-  if(frame) joint->deleteKeyframe(frame);
+  if(frame)
+  {
+    joint->deleteKeyframe(frame);
+    setDirty(true);
+  }
 
   // if silent is true then only send a signal to the timeline but not to the animation view
   if(!silent) emit frameChanged();
@@ -528,7 +546,7 @@ void Animation::delKeyFrame(BVHNode *joint,bool silent)
 
 void Animation::delKeyFrame(int jointNumber,int frame)
 {
-  // frams should always be current frame, but better play safe for future enhancements
+  // frames should always be current frame, but better play safe for future enhancements
   setFrame(frame);
   if(jointNumber)
   {
@@ -699,6 +717,7 @@ void Animation::insertFrame(int track,int pos)
     BVHNode* joint=getNode(track);
     if(joint) joint->insertFrame(frame);
   }
+  setDirty(true);
   emit frameChanged();
 }
 
@@ -716,5 +735,16 @@ void Animation::optimizeHelper(BVHNode* joint)
 void Animation::optimize()
 {
   optimizeHelper(frames);
-//  emit frameChanged();
+  setDirty(true);
+}
+
+bool Animation::dirty() const
+{
+  return isDirty;
+}
+
+void Animation::setDirty(bool state)
+{
+  isDirty=state;
+  emit animationDirty(state);
 }

@@ -688,7 +688,7 @@ void qavimator::easeOutChanged(int change)
 void qavimator::fileNew()
 {
   clearProps();
-  clearOpenFiles();
+  if(!clearOpenFiles()) return;
 
   Animation* anim=new Animation(animationView->getBVH());
 
@@ -699,7 +699,7 @@ void qavimator::fileNew()
   selectAnimation(anim);
 
   // add new animation to internal list
-  animationIds.append((unsigned long) anim);
+  animationIds.append(anim);
   // add new animation to combo box
   addToOpenFiles(UNTITLED_NAME);
 
@@ -728,6 +728,8 @@ void qavimator::fileNew()
   emit enableRotation(false);
   emit enablePosition(false);
   emit enableProps(false);
+
+  anim->setDirty(false);
 }
 
 QString qavimator::selectFileToOpen(const QString& caption)
@@ -771,7 +773,7 @@ void qavimator::fileOpen(const QString& name)
   if(!file.isEmpty())
   {
     clearProps();
-    clearOpenFiles();
+    if(!clearOpenFiles()) return;
     fileAdd(file);
   }
 }
@@ -793,7 +795,7 @@ void qavimator::fileAdd(const QString& name)
   {
     addToOpenFiles(file);
     Animation* anim=new Animation(animationView->getBVH(),file);
-    animationIds.append((unsigned long) anim);
+    animationIds.append(anim);
 
     setCurrentFile(file);
 
@@ -821,6 +823,7 @@ void qavimator::fileAdd(const QString& name)
     editPartCombo->setCurrentItem(1);
     updateInputs();
     updateFps();
+    anim->setDirty(false);
   }
 }
 
@@ -934,10 +937,12 @@ void qavimator::fileSaveProps()
   }
 }
 
-
 // Menu Action: File / Exit
 void qavimator::fileExit()
 {
+  if(!clearOpenFiles())
+    return;
+
   QSettings settings;
   settings.setPath("DeZiRee","QAvimator",QSettings::User);
 
@@ -961,7 +966,6 @@ void qavimator::fileExit()
   settings.endGroup();
 
   // remove all widgets and close the main form
-  close();
   qApp->exit(0);
 }
 
@@ -1159,14 +1163,28 @@ void qavimator::removeFromOpenFiles(unsigned int which)
 }
 
 // empty out the open files list
-void qavimator::clearOpenFiles()
+bool qavimator::clearOpenFiles()
 {
+  for(unsigned int index=0;index<animationIds.count();index++)
+  {
+    if(animationIds.at(index)->dirty())
+    {
+      int answer=QMessageBox::question(this,tr("Unsaved Changes"),tr("There are some unsaved changes. Are you sure you want to continue and lose all unsaved data?"),QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton);
+      if(answer==QMessageBox::No)
+        return false;
+      else
+        break;
+    }
+  }
+
   timeline->setAnimation(0);
   animationView->clear();
   openFiles.clear();
   selectAnimationCombo->clear();
   animationIds.clear();
   setCurrentFile(UNTITLED_NAME);
+
+  return true;
 }
 
 // convenience function to set window title in a defined way
@@ -1339,7 +1357,7 @@ void qavimator::clearProps()
 void qavimator::selectAnimation(Animation* animation)
 {
   for(unsigned int index=0;index<animationIds.count();index++)
-    if(animationIds[index]==(unsigned long) animation) selectAnimationCombo->setCurrentItem(index);
+    if(animationIds.at(index)==animation) selectAnimationCombo->setCurrentItem(index);
 
   timeline->setAnimation(animation);
   updateInputs();
@@ -1358,4 +1376,13 @@ void qavimator::setLoopPoint(int frame)
   loopSpinBox->blockSignals(true);
   loopSpinBox->setValue(frame);
   loopSpinBox->blockSignals(false);
+}
+
+// prevent closing of main window if there are unsaved changes
+bool qavimator::close(bool doDelete)
+{
+  if(!clearOpenFiles())
+    return false;
+
+  return MainApplicationForm::close(doDelete);
 }

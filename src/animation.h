@@ -68,6 +68,9 @@ class Animation : public QObject
     void copyFrame();
     void pasteFrame();
 
+    bool dirty() const;
+    void setDirty(bool state);
+
     const FrameData keyframeDataByIndex(int jointNumber,int index);
 
     void setRotation(const QString& jointName,double x,double y,double z);
@@ -113,10 +116,14 @@ class Animation : public QObject
     void currentFrame(int frame);
     void frameChanged();
     void redrawTrack(int track);
+    void animationDirty(bool state);
 
   protected:
     BVH* bvh;
     BVHNode *frames;
+
+    // this flag shows if the animation has been worked on and not yet saved
+    bool isDirty;
 
     int frame;
     int totalFrames;

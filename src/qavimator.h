@@ -56,6 +56,10 @@ class qavimator : public MainApplicationForm
     void resetCamera();
     void protectFrame(bool state);
 
+  public slots:
+    // prevent closing of main window if there are unsaved changes
+    bool close(bool deDelete);
+
   protected slots:
     void readSettings();
 
@@ -132,7 +136,7 @@ class qavimator : public MainApplicationForm
     QString selectFileToOpen(const QString& caption);
     void addToOpenFiles(const QString& fileName);
     void removeFromOpenFiles(unsigned int which);
-    void clearOpenFiles();
+    bool clearOpenFiles();
 
     void setCurrentFile(const QString& fileName);
     void enableInputs(bool state);
@@ -164,7 +168,7 @@ class qavimator : public MainApplicationForm
     QString lastPath;
     QTimer timer;
     // list of animation ids mapped to combo box indexes
-    QValueList<unsigned long> animationIds;
+    QPtrList<Animation> animationIds;
 
     QString currentPart;
 
