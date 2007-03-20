@@ -730,6 +730,31 @@ void qavimator::fileNew()
   emit enableProps(false);
 }
 
+QString qavimator::selectFileToOpen(const QString& caption)
+{
+  QString file=QFileDialog::getOpenFileName(lastPath,
+                                            ANIM_FILTER,
+                                            this,
+                                            "file_open_dialog",
+                                            caption,
+                                            0,
+                                            false);
+
+  if(!file.isEmpty())
+  {
+    QFileInfo fileInfo(file);
+    if(!fileInfo.exists())
+    {
+      QMessageBox::warning(this,QObject::tr("Load Animation File"),QObject::tr("<qt>Animation file not found:<br />%1</qt>").arg(file));
+      file=QString::null;
+    }
+    else
+      lastPath=fileInfo.dirPath(false);
+  }
+
+  return file;
+}
+
 // Menu action: File / Open ...
 void qavimator::fileOpen()
 {
@@ -738,9 +763,17 @@ void qavimator::fileOpen()
 
 void qavimator::fileOpen(const QString& name)
 {
-  clearProps();
-  clearOpenFiles();
-  fileAdd(name);
+  QString file=name;
+
+  if(file.isEmpty())
+    file=selectFileToOpen(tr("Select Animation File to Load"));
+
+  if(!file.isEmpty())
+  {
+    clearProps();
+    clearOpenFiles();
+    fileAdd(file);
+  }
 }
 
 // Menu action: File / Add New Animation ...
@@ -752,54 +785,43 @@ void qavimator::fileAdd()
 void qavimator::fileAdd(const QString& name)
 {
   QString file=name;
-  if(!file)
+
+  if(file.isEmpty())
+    file=selectFileToOpen(tr("Select Animation File to Add"));
+
+  if(!file.isEmpty())
   {
-    file=QFileDialog::getOpenFileName(lastPath,
-                                      ANIM_FILTER,
-                                      this,
-                                      "file_open_dialog",
-                                      tr("Select Animation File"),
-                                      0,
-                                      false);
-  }
-  if (file) {
-    QFileInfo fileInfo(file);
-    if(fileInfo.exists())
+    addToOpenFiles(file);
+    Animation* anim=new Animation(animationView->getBVH(),file);
+    animationIds.append((unsigned long) anim);
+
+    setCurrentFile(file);
+
+    animationView->addAnimation(anim);
+    timeline->setAnimation(anim);
+    selectAnimation(anim);
+    anim->useRotationLimits(jointLimits);
+
+    // set the frame
+    if (animationView->getAnimation(1))
+      animationView->setFrame(animationView->getAnimation(0)->getFrame());
+    else if (protectFirstFrame)
     {
-      addToOpenFiles(file);
-      Animation* anim=new Animation(animationView->getBVH(),file);
-      animationIds.append((unsigned long) anim);
-
-      setCurrentFile(file);
-      lastPath=fileInfo.dirPath(false);
-      animationView->addAnimation(anim);
-      timeline->setAnimation(anim);
-      selectAnimation(anim);
-      anim->useRotationLimits(jointLimits);
-
-      // set the frame
-      if (animationView->getAnimation(1))
-        animationView->setFrame(animationView->getAnimation(0)->getFrame());
-      else if (protectFirstFrame)
-      {
-        animationView->setFrame(1);
-        setLoopPoint(2);
-      }
-      else
-      {
-        animationView->setFrame(0);
-        setLoopPoint(1);
-      }
-
-      // FIXME: code duplication
-      connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
-      editPartCombo->setCurrentItem(1);
-      updateInputs();
-      updateFps();
+      animationView->setFrame(1);
+      setLoopPoint(2);
     }
+    else
+    {
+      animationView->setFrame(0);
+      setLoopPoint(1);
+    }
+
+    // FIXME: code duplication
+    connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
+    editPartCombo->setCurrentItem(1);
+    updateInputs();
+    updateFps();
   }
-  // if no files are open create a new animation
-  if(!openFiles.count()) fileNew();
 }
 
 // Menu Action: File / Save

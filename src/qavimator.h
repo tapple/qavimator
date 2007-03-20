@@ -129,6 +129,7 @@ class qavimator : public MainApplicationForm
   protected:
     void setSliderValue(QSlider* slider,QLineEdit* edit,float value);
 
+    QString selectFileToOpen(const QString& caption);
     void addToOpenFiles(const QString& fileName);
     void removeFromOpenFiles(unsigned int which);
     void clearOpenFiles();
