@@ -41,7 +41,7 @@
 #include "timeline.h"
 #include "timelineview.h"
 
-#define ANIM_FILTER "Animation Files (*.bvh *.avm)"
+#define ANIM_FILTER "Animation Files (*.avm *.bvh)"
 #define PROP_FILTER "Props (*.prp)"
 #define PRECISION 100
 #define SVN_ID    "$Id$"
@@ -846,7 +846,12 @@ void qavimator::fileSaveAs()
                                             tr("Save Animation File"),
                                             0,
                                             false);
-  if (file) {
+  if(file)
+  {
+    // make sure file has proper extension (either .bvh or .avm)
+    if(file.findRev(QRegExp("\\.(avm|bvh)$"),-4)==-1)
+      file+=".avm";
+
     setCurrentFile(file);
     QFileInfo fileInfo(file);
     lastPath=fileInfo.dirPath(false);
@@ -861,7 +866,7 @@ void qavimator::fileLoadProps()
                                                 PROP_FILTER,
                                                 this,
                                                 "load_props_dialog",
-                                                tr("Select Props File"),
+                                                tr("Select Props File To Load"),
                                                 0,
                                                 false);
   if (fileName) {
@@ -911,7 +916,12 @@ void qavimator::fileSaveProps()
                                                 tr("Save Props"),
                                                 0,
                                                 false);
-  if (fileName) {
+  if(fileName)
+  {
+    // make sure file has proper extension (.prp)
+    if(fileName.findRev(".prp",-4)==-1)
+      fileName+=".prp";
+
     QFile file(fileName);
     if(file.open(IO_WriteOnly))
     {

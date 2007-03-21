@@ -88,6 +88,7 @@ void Animation::loadBVH(const QString& bvhFile)
 void Animation::saveBVH(const QString& bvhFile)
 {
   bvh->animWrite(this,bvhFile);
+  setDirty(false);
 }
 
 double Animation::frameTime()
