@@ -368,8 +368,8 @@ void qavimator::cb_PartChoice()
   animationView->selectPart(editPartCombo->currentText());
   animationView->setFocus();
   emit enableProps(false);
+  // only enable rotation, position (for the hip) will be enabled elsewhere
   emit enableRotation(true);
-  emit enablePosition(true);
 }
 
 void qavimator::cb_RotRoller(int)
