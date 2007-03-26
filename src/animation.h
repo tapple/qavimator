@@ -27,8 +27,8 @@
 #include "iktree.h"
 #include "rotation.h"
 
-#define DEFAULT_POSE "data/TPose.avm"
-// #define DEFAULT_POSE "data/Relaxed.avm"
+// #define DEFAULT_POSE "data/TPose.avm"
+#define DEFAULT_POSE "data/Relaxed.bvh"
 #define LIMITS_FILE "data/SL.lim"
 
 class BVH;

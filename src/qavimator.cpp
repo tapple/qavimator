@@ -510,10 +510,6 @@ void qavimator::updateInputs()
     setX(x);
     setY(y);
     setZ(z);
-
-    positionSlider->setMaxValue(anim->getNumberOfFrames()-1);
-
-    framesSpin->setValue(anim->getNumberOfFrames());
   }
   else
     emit enableRotation(false);
@@ -532,6 +528,7 @@ void qavimator::updateInputs()
   }
   playButton->setText(playing ? "||" : ">");
   framesSpin->setValue(anim->getNumberOfFrames());
+  positionSlider->setMaxValue(anim->getNumberOfFrames()-1);
 
   updateKeyBtn();
 
@@ -820,7 +817,9 @@ void qavimator::fileAdd(const QString& name)
 
     // FIXME: code duplication
     connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
-    editPartCombo->setCurrentItem(1);
+//    editPartCombo->setCurrentItem(0);
+//    currentPart=editPartCombo->text(0);
+    animationView->selectPart(editPartCombo->currentText());
     updateInputs();
     updateFps();
     anim->setDirty(false);
