@@ -817,8 +817,7 @@ void qavimator::fileAdd(const QString& name)
 
     // FIXME: code duplication
     connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
-//    editPartCombo->setCurrentItem(0);
-//    currentPart=editPartCombo->text(0);
+
     animationView->selectPart(editPartCombo->currentText());
     updateInputs();
     updateFps();
