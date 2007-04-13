@@ -53,7 +53,7 @@ void IKTree::setGoal(int frame,const QString& name)
   reset(frame);
 
   for (int i=0; i<numBones; i++) {
-    if (!strcmp(bone[i].node->name(), name)) {
+    if (bone[i].node->name()==name) {
       int j = bone[i].child[0];
       BVHNode *n = bone[j].node;
       n->ikGoalPos[0] = bone[j].pos[0];
@@ -78,27 +78,8 @@ void IKTree::reset(int frame)
     n = bone[i].node;
     Rotation rot=n->frameData(frame).rotation();
     Position pos=n->frameData(frame).position();
-/*
-    rad = rot.x * M_PI / 180;
-    q = identity;
-    q.setRotation(xAxis, rad);
-    bone[i].lRot = q * bone[i].lRot;
 
-    rad = rot.y * M_PI / 180;
-    q = identity;
-    q.setRotation(yAxis, rad);
-    bone[i].lRot = q * bone[i].lRot;
-
-    rad = rot.z * M_PI / 180;
-    q = identity;
-    q.setRotation(zAxis, rad);
-    bone[i].lRot = q * bone[i].lRot;
-
-    bone[i].pos[0] = pos.x;
-    bone[i].pos[1] = pos.y;
-    bone[i].pos[2] = pos.z;
-*/
-    for (int k=0; k<3; k++) {  // rotate each axis in order
+    for (int k=0; k<n->numChannels; k++) {  // rotate each axis in order
       q = identity;
       switch (n->channelType[k]) {
       case BVH_XROT:
@@ -207,10 +188,10 @@ void IKTree::solveJoint(int frame, int i, IKEffectorList &effList)
   double x, y, z;
   double ang = 0;
 
-  MT_Quaternion targetRot, q;
+  MT_Quaternion q;
   MT_Quaternion totalPosRot = MT_Quaternion(0,0,0,0);
   MT_Quaternion totalDirRot = MT_Quaternion(0,0,0,0);
-  MT_Vector3 axis;
+  MT_Vector3 axis(0,0,0);
   BVHNode *n;
   int numPosRot = 0, numDirRot = 0;
 
@@ -278,17 +259,21 @@ void IKTree::solveJoint(int frame, int i, IKEffectorList &effList)
     toEuler(targetRot, n->channelOrder, x, y, z);
     if (jointLimits) {
       bone[i].lRot = identity;
-      for (int k=0; k<3; k++) {  // clamp each axis in order
+      for (int k=0; k<n->numChannels; k++) {  // clamp each axis in order
         switch (n->channelType[k]) {
           case BVH_XROT: ang = x; axis = xAxis; break;
           case BVH_YROT: ang = y; axis = yAxis; break;
           case BVH_ZROT: ang = z; axis = zAxis; break;
           default: break;
         }
-        if (ang < n->channelMin[k]) ang = n->channelMin[k];
-        else if (ang > n->channelMax[k]) ang = n->channelMax[k];
-        q.setRotation(axis, ang * M_PI / 180);
-        bone[i].lRot = q * bone[i].lRot;
+        // null axis leads to crash in q.setRotation(), so check first
+        if(axis.length())
+        {
+          if (ang < n->channelMin[k]) ang = n->channelMin[k];
+          else if (ang > n->channelMax[k]) ang = n->channelMax[k];
+          q.setRotation(axis, ang * M_PI / 180);
+          bone[i].lRot = q * bone[i].lRot;
+        }
       }
     }
     else
@@ -312,9 +297,15 @@ void IKTree::solve(int frame)
     BVHNode *n = bone[i].node;
     Rotation rot=n->frameData(frame).rotation();
     toEuler(bone[i].lRot, n->channelOrder, x, y, z);
-    n->ikRot.x=x-rot.x;
-    n->ikRot.y=x-rot.y;
-    n->ikRot.z=x-rot.z;
+
+    for (int j=0; j<n->numChannels; j++) {  // rotate each axis in order
+      switch (n->channelType[j]) {
+        case BVH_XROT: n->ikRot.x = x - rot.x; break;
+        case BVH_YROT: n->ikRot.y = y - rot.y; break;
+        case BVH_ZROT: n->ikRot.z = z - rot.z; break;
+        default: break;
+      }
+    }
 
 /*
     for (int j=0; j<3; j++) {  // rotate each axis in order
@@ -326,7 +317,6 @@ void IKTree::solve(int frame)
       }
     } */
   }
-
   display = 1;
   updateBones(0);
   display = 0;

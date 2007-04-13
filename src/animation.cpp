@@ -357,7 +357,7 @@ void Animation::solveIK()
   if (ikOn[IK_LHAND]) getEndSite("lHand")->ikOn = true;
   if (ikOn[IK_RHAND]) getEndSite("rHand")->ikOn = true;
 
-  ikTree.setJointLimits(true);
+//  ikTree.setJointLimits(true);
   ikTree.solve(frame);
 }
 
