@@ -105,11 +105,23 @@ void Animation::setFrameTime(double frameTime) {
   setDirty(true);
 }
 
+int Animation::getNumberOfFrames()
+{
+// qDebug("getNumberOfFrames()=%d",totalFrames);
+  return totalFrames;
+}
+
 void Animation::setNumberOfFrames(int num)
 {
+// qDebug("setNumberOfFrames(%d)",num);
   totalFrames=num;
   setDirty(true);
   emit numberOfFrames(num);
+}
+
+int Animation::getFrame()
+{
+  return frame;
 }
 
 void Animation::setFrame(int frameNumber)
@@ -125,6 +137,21 @@ void Animation::setFrame(int frameNumber)
     emit currentFrame(frame);
     emit frameChanged();
   }
+}
+
+void Animation::setMirrored(bool mirror)
+{
+  mirrored=mirror;
+}
+
+bool Animation::getMirrored()
+{
+  return mirrored;
+}
+
+unsigned int Animation::getPartMirror(int index)
+{
+  return partMirror[index];
 }
 
 int Animation::stepForward()
@@ -317,6 +344,11 @@ bool Animation::getIK(const QString& jointName)
   return false;
 }
 
+bool Animation::getIK(IKPartType part)
+{
+  return ikOn[part];
+}
+
 void Animation::solveIK()
 {
   bvh->bvhResetIK(frames);
@@ -459,6 +491,11 @@ const QString& Animation::getPartName(int index) const
 int Animation::getPartIndex(const QString& part)
 {
   return bvh->bvhGetIndex(frames, part);
+}
+
+BVHNode* Animation::getMotion()
+{
+  return frames;
 }
 
 BVHNode* Animation::getEndSite(const QString& rootName)

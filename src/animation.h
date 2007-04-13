@@ -46,9 +46,9 @@ class Animation : public QObject
     void loadBVH(const QString& bvhFile);
     void saveBVH(const QString& bvhFile);
     double frameTime();
-    int getNumberOfFrames() { return totalFrames; }
+    int getNumberOfFrames();
     void setNumberOfFrames(int num);
-    int getFrame() { return frame; }
+    int getFrame();
     void setFrame(int frameNumber);
     int stepForward();
     void setLoopPoint(int frame);
@@ -57,11 +57,11 @@ class Animation : public QObject
     bool getIK(const QString& jointName);
     const QString& getPartName(int index) const;
     int getPartIndex(const QString& part);
-    void setMirrored(bool mirror) { mirrored = mirror; }
-    bool getMirrored() { return mirrored; }
-    unsigned int getPartMirror(int index) { return partMirror[index]; }
+    void setMirrored(bool mirror);
+    bool getMirrored();
+    unsigned int getPartMirror(int index);
     const QString& getPartMirror(const QString& name) const;
-    BVHNode* getMotion() { return frames; }
+    BVHNode* getMotion();
     BVHNode* getEndSite(const QString& siteParentName);
     BVHNode* getNode(int jointNumber);
 
@@ -76,7 +76,6 @@ class Animation : public QObject
     void setRotation(const QString& jointName,double x,double y,double z);
     Rotation getRotation(const QString& jointName);
     void useRotationLimits(bool flag);
-    bool useRotationLimits() { return limits; }
     RotationLimits getRotationLimits(const QString& jointName);
     void setPosition(const QString& jointName,double x,double y,double z);
     Position getPosition(const QString& jointName);
@@ -143,7 +142,7 @@ class Animation : public QObject
 
     void calcPartMirrors();
     void setIK(IKPartType part, bool flag);
-    bool getIK(IKPartType part) { return ikOn[part]; }
+    bool getIK(IKPartType part);
     void applyIK(const QString& name);
     void solveIK();
 

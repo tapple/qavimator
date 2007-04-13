@@ -588,6 +588,7 @@ void BVH::avmWrite(Animation* anim,const QString& file)
   bvhWriteNode(root, f, 0);
   fprintf(f, "MOTION\n");
   fprintf(f, "Frames:\t%d\n", anim->getNumberOfFrames());
+//  qDebug("Frames:\t%d\n", anim->getNumberOfFrames());
   fprintf(f, "Frame Time:\t%f\n", root->frameTime);
   for (int i=0; i<anim->getNumberOfFrames(); i++) {
     bvhWriteFrame(root, i, f);
