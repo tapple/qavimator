@@ -96,6 +96,9 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   if(anim) setAnimation(anim);
   setMouseTracking(true);
   setFocusPolicy(QWidget::StrongFocus);
+
+  // FIXME:: delete this when Settings:: class is done
+  fog=true;
 }
 
 AnimationView::~AnimationView()
@@ -131,11 +134,7 @@ void AnimationView::setAnimation(Animation *anim)
 
 void AnimationView::drawFloor()
 {
-  glDisable(GL_LIGHTING);
   glEnable(GL_DEPTH_TEST);
-  glEnable(GL_COLOR_MATERIAL);
-  glShadeModel(GL_FLAT);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glBegin(GL_QUADS);
   for (int i=-10; i<10; i++) {
     for (int j=-10; j<10; j++) {
@@ -344,16 +343,20 @@ void AnimationView::initializeGL()
 
     glEnable(GL_NORMALIZE);
 
-    glEnable(GL_FOG);
+    // FIXME: will be replaced with something like Settings::fog()
+    if(fog)
     {
-      GLfloat fogColor[4] = {0.5, 0.5, 0.5, 0.3};
-      int fogMode = GL_EXP; // GL_EXP2, GL_LINEAR
-      glFogi (GL_FOG_MODE, fogMode);
-      glFogfv (GL_FOG_COLOR, fogColor);
-      glFogf (GL_FOG_DENSITY, 0.005);
-      glHint (GL_FOG_HINT, GL_DONT_CARE);
-      glFogf (GL_FOG_START, 200.0);
-      glFogf (GL_FOG_END, 2000.0);
+      glEnable(GL_FOG);
+      {
+        GLfloat fogColor[4] = {0.5, 0.5, 0.5, 0.3};
+        int fogMode = GL_EXP; // GL_EXP2, GL_LINEAR
+        glFogi (GL_FOG_MODE, fogMode);
+        glFogfv (GL_FOG_COLOR, fogColor);
+        glFogf (GL_FOG_DENSITY, 0.005);
+        glHint (GL_FOG_HINT, GL_DONT_CARE);
+        glFogf (GL_FOG_START, 200.0);
+        glFogf (GL_FOG_END, 2000.0);
+      }
     }
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -368,6 +371,11 @@ void AnimationView::draw()
 
   glClearColor(0.5, 0.5, 0.5, 0.3); /* fog color */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glDisable(GL_LIGHTING);
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_COLOR_MATERIAL);
+  glShadeModel(GL_FLAT);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   camera.setModelView();
   if (!animList.isEmpty()) drawAnimations();

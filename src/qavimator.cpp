@@ -160,6 +160,7 @@ qavimator::~qavimator()
   fileExit();
 }
 
+// FIXME:: implement a static Settings:: class
 void qavimator::readSettings()
 {
   QSettings settings;
@@ -178,6 +179,9 @@ void qavimator::readSettings()
   protectFirstFrame=true;
   lastPath=QString::null;
 
+  // OpenGL presets
+  bool fog=true;
+
   bool settingsFound=settings.readBoolEntry("/settings");
   if(settingsFound)
   {
@@ -191,6 +195,9 @@ void qavimator::readSettings()
     int height=settings.readNumEntry("/mainwindow_height");
 
     lastPath=settings.readEntry("/last_path");
+
+    // OpenGL settings
+    fog=settings.readBoolEntry("/fog");
 
     // sanity
     if(width<50) width=50;
