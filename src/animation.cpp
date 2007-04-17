@@ -129,10 +129,11 @@ void Animation::setFrame(int frameNumber)
   if (frameNumber >= 0 && frameNumber < totalFrames &&
       frame != frameNumber)
   {
-    for (int i=0; i<NUM_IK; i++) {
-      setIK((IKPartType)i, false);
-    }
+//    for (int i=0; i<NUM_IK; i++) {
+//      setIK((IKPartType)i, false);
+//    }
     frame = frameNumber;
+    for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
 
     emit currentFrame(frame);
     emit frameChanged();
@@ -236,6 +237,7 @@ void Animation::applyIK(const QString& name)
       rot.y+=node->ikRot.y;
       rot.z+=node->ikRot.z;
 
+
       node->ikRot.x=0;
       node->ikRot.y=0;
       node->ikRot.z=0;
@@ -243,10 +245,12 @@ void Animation::applyIK(const QString& name)
       node->frame[frame][i] += node->ikRot[i];
       node->ikRot[i] = 0;
 */
-      node->ikOn = false;
+//      node->ikOn = false;
 
       setDirty(true);
       addKeyFrame(node);
+      node->setKeyframeRotation(frame,rot);
+      emit redrawTrack(getPartIndex(name));
 //    }
   }
 }
@@ -369,6 +373,8 @@ void Animation::setRotation(const QString& jointName, double x, double y, double
   if (node) {
     //qDebug(QString("Animation::setRotation(")+jointName+")");
 
+    for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
+
     if(node->isKeyframe(frame))
       node->setKeyframeRotation(frame,Rotation(x,y,z));
     else
@@ -387,7 +393,6 @@ void Animation::setRotation(const QString& jointName, double x, double y, double
       // tell timeline that this keyframe has changed (added or changed is the same here)
       emit redrawTrack(getPartIndex(jointName));
     }
-    for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
     setDirty(true);
     // tell timeline that this keyframe has changed (added or changed is the same here)
     emit redrawTrack(getPartIndex(jointName));
@@ -454,10 +459,7 @@ void Animation::setPosition(const QString& jointName,double x,double y,double z)
 {
   BVHNode *node = bvh->bvhFindNode(frames, jointName);
   if (node) {
-/*
     for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
-    addKeyFrame(node); */
-
     // new keyframe system
     if(node->isKeyframe(frame))
       node->setKeyframePosition(frame,Position(x,y,z));
@@ -465,7 +467,6 @@ void Animation::setPosition(const QString& jointName,double x,double y,double z)
     {
       node->addKeyframe(frame,Position(x,y,z),node->frameData(frame).rotation());
     }
-    for (int i=0; i<NUM_IK; i++) if (ikOn[i]) { solveIK(); break; }
     setDirty(true);
     // tell timeline that this keyframe has changed (added or changed is the same here)
     emit redrawTrack(getPartIndex(jointName));
