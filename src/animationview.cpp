@@ -140,9 +140,9 @@ void AnimationView::drawFloor()
   for (int i=-10; i<10; i++) {
     for (int j=-10; j<10; j++) {
       if ((i+j) % 2)
-	if(frameProtected) glColor4f(0.3, 0.0, 0.0, 1); else glColor4f(0.1, 0.1, 0.1, 1);
+	if(frameProtected) glColor4f(0.3, 0.0, 0.0, .7); else glColor4f(0.1, 0.1, 0.1, .7);
       else
-	if(frameProtected) glColor4f(0.8, 0.0, 0.0, 1); else glColor4f(0.6, 0.6, 0.6, 1);
+	if(frameProtected) glColor4f(0.8, 0.0, 0.0, .7); else glColor4f(0.6, 0.6, 0.6, .7);
 
       glVertex3f(i*40, 0, j*40);
       glVertex3f(i*40, 0, (j+1)*40);
@@ -370,9 +370,9 @@ void AnimationView::draw()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   camera.setModelView();
-  drawFloor();
   if (!animList.isEmpty()) drawAnimations();
   drawProps();
+  drawFloor();
 }
 
 void AnimationView::drawAnimations()
