@@ -120,9 +120,6 @@ class AnimationView : public QGLWidget
     Prop* getPropByName(const QString& name);
     Prop* getPropById(unsigned int id);
 
-    // OpenGL settings FIXME: (do this with a Settings:: class!)
-    bool fog;
-
   signals:
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
     void partClicked(int part);

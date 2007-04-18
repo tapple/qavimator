@@ -35,6 +35,8 @@
 #include "bvh.h"
 #include "slparts.h"
 
+#include "settings.h"
+
 #define SHIFT 1
 #define CTRL  2
 #define ALT   4
@@ -96,9 +98,6 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   if(anim) setAnimation(anim);
   setMouseTracking(true);
   setFocusPolicy(QWidget::StrongFocus);
-
-  // FIXME:: delete this when Settings:: class is done
-  fog=true;
 }
 
 AnimationView::~AnimationView()
@@ -134,14 +133,17 @@ void AnimationView::setAnimation(Animation *anim)
 
 void AnimationView::drawFloor()
 {
+  float alpha=1.0;
+  if(Settings::translucentFloor()) alpha=0.7;
+
   glEnable(GL_DEPTH_TEST);
   glBegin(GL_QUADS);
   for (int i=-10; i<10; i++) {
     for (int j=-10; j<10; j++) {
       if ((i+j) % 2)
-	if(frameProtected) glColor4f(0.3, 0.0, 0.0, .7); else glColor4f(0.1, 0.1, 0.1, .7);
+        if(frameProtected) glColor4f(0.3, 0.0, 0.0, alpha); else glColor4f(0.1, 0.1, 0.1, alpha);
       else
-	if(frameProtected) glColor4f(0.8, 0.0, 0.0, .7); else glColor4f(0.6, 0.6, 0.6, .7);
+        if(frameProtected) glColor4f(0.8, 0.0, 0.0, alpha); else glColor4f(0.6, 0.6, 0.6, alpha);
 
       glVertex3f(i*40, 0, j*40);
       glVertex3f(i*40, 0, (j+1)*40);
@@ -343,8 +345,7 @@ void AnimationView::initializeGL()
 
     glEnable(GL_NORMALIZE);
 
-    // FIXME: will be replaced with something like Settings::fog()
-    if(fog)
+    if(Settings::fog())
     {
       glEnable(GL_FOG);
       {

@@ -18,7 +18,8 @@ HEADERS += qavimator.h \
            timeline.h \
            timelineview.h \
            keyframelist.h \
-           bvhnode.h 
+           bvhnode.h \
+           settings.h 
 SOURCES += qavimator.cpp \
            main.cpp \
            animationview.cpp \
@@ -34,7 +35,8 @@ SOURCES += qavimator.cpp \
            timeline.cpp \
            timelineview.cpp \
            keyframelist.cpp \
-           bvhnode.cpp 
+           bvhnode.cpp \
+           settings.cpp 
 mainapplicationform.ui.target = mainapplicationform.ui
 mainapplicationform.ui.commands = $$IDL_COMPILER
 QT = qt3support

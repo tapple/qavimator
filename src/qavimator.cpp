@@ -40,6 +40,7 @@
 #include "prop.h"
 #include "timeline.h"
 #include "timelineview.h"
+#include "settings.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"
 #define PROP_FILTER "Props (*.prp)"
@@ -180,7 +181,8 @@ void qavimator::readSettings()
   lastPath=QString::null;
 
   // OpenGL presets
-  bool fog=true;
+  Settings::setFog(true);
+  Settings::setTranslucentFloor(true);
 
   bool settingsFound=settings.readBoolEntry("/settings");
   if(settingsFound)
@@ -197,7 +199,8 @@ void qavimator::readSettings()
     lastPath=settings.readEntry("/last_path");
 
     // OpenGL settings
-    fog=settings.readBoolEntry("/fog");
+    Settings::setFog(settings.readBoolEntry("/fog"));
+    Settings::setTranslucentFloor(settings.readBoolEntry("/translucent_floor"));
 
     // sanity
     if(width<50) width=50;
@@ -977,6 +980,10 @@ void qavimator::fileExit()
   settings.writeEntry("/mainwindow_height",size().height());
 
   settings.writeEntry("/last_path",lastPath);
+
+  // OpenGL settings
+  settings.writeEntry("/fog",Settings::fog());
+  settings.writeEntry("/translucent_floor",Settings::translucentFloor());
 
   settings.endGroup();
 
