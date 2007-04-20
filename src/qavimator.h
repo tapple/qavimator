@@ -140,8 +140,9 @@ class qavimator : public MainApplicationForm
 
     void setCurrentFile(const QString& fileName);
     void enableInputs(bool state);
-    void updateFps();
 
+    void updateFps();
+    void updatePercent(int currentFrame);
     void updateKeyBtn();
     void updateInputs();
     void updatePropSpins(const Prop* prop);

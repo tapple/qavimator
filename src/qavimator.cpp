@@ -110,9 +110,6 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(this,SIGNAL(enablePosition(bool)),positionGroupBox,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enableRotation(bool)),rotationGroupBox,SLOT(setEnabled(bool)));
 
-  connect(this,SIGNAL(enableRotation(bool)),fpsLabel,SLOT(setEnabled(bool)));
-  connect(this,SIGNAL(enableRotation(bool)),fpsSpin,SLOT(setEnabled(bool)));
-
   connect(positionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_FrameSlider(int)));
   connect(playButton,SIGNAL(clicked()),this,SLOT(cb_PlayBtn()));
 
@@ -583,6 +580,11 @@ void qavimator::updateKeyBtn()
 //  timeline->repaint();
 }
 
+void qavimator::updatePercent(int frame)
+{
+  percentLabel->setText(QString("(%1%)").arg((frame+1)*100/animationView->getAnimation()->getNumberOfFrames()));
+}
+
 void qavimator::enableInputs(bool state)
 {
   if(protect) state=false;
@@ -665,8 +667,10 @@ void qavimator::figureChanged(int shape)
 
 void qavimator::numFramesChanged(int num)
 {
+  if(num<1) num=1;
   animationView->getAnimation()->setNumberOfFrames(num);
   updateInputs();
+  updatePercent(animationView->getAnimation()->getFrame());
 }
 
 void qavimator::keyframeButtonToggled(bool)
@@ -1222,6 +1226,7 @@ void qavimator::setCurrentFrame(int frame)
   positionSlider->blockSignals(true);
   positionSlider->setValue(frame);
   currentFrameLabel->setText(QString::number(frame+1));
+  updatePercent(frame);
   positionSlider->blockSignals(false);
   timeline->setCurrentFrame(frame);
   animationView->setFrame(frame);
