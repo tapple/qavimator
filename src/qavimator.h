@@ -122,6 +122,7 @@ class qavimator : public MainApplicationForm
     void optionsLoop(bool on);
     void optionsProtectFirstFrame(bool on);
     void optionsShowTimeline(bool state);
+    void optionsConfigure();
 
     void newPropButtonClicked();
     void attachToComboBoxChanged(int attachPoint);

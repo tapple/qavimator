@@ -18,25 +18,50 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <iostream>
+#include <qcheckbox.h>
+#include <qspinbox.h>
 
 #include "settings.h"
+#include "settingsdialog.h"
 
-static bool m_fog=true;
-static int  m_floorTranslucency=25;
-
-Settings::Settings()
+SettingsDialog::SettingsDialog(QWidget* parent,const char* name,bool modal,WFlags f)
+: SettingsDialogForm(parent,name,modal,f)
 {
-  // should never be accessed
+  useFogCheckbox->setChecked(Settings::fog());
+  floorTranslucencySpin->setValue(Settings::floorTranslucency());
 }
 
-Settings::~Settings()
+SettingsDialog::~SettingsDialog()
 {
-  // should never be accessed
 }
 
-void Settings::setFog(bool on)                 { m_fog=on; }
-bool Settings::fog()                           { return m_fog; }
+void SettingsDialog::accept()
+{
+  qDebug("accept()");
 
-void Settings::setFloorTranslucency(int value) { m_floorTranslucency=value; }
-int  Settings::floorTranslucency()             { return m_floorTranslucency; }
+  Settings::setFog(useFogCheckbox->isChecked());
+  Settings::setFloorTranslucency(floorTranslucencySpin->value());
+}
+
+void SettingsDialog::acceptOk()
+{
+  qDebug("acceptOk()");
+  accept();
+  QDialog::accept();
+}
+
+void SettingsDialog::reject()
+{
+  qDebug("reject()");
+  QDialog::reject();
+}
+
+void SettingsDialog::useFogToggled(bool state)
+{
+  qDebug("useFogToggled(%d)",state);
+}
+
+void SettingsDialog::floorTranslucencyChanged(int value)
+{
+  qDebug("floorTranslucencyChanged(%d)",value);
+}

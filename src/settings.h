@@ -33,8 +33,9 @@ class Settings
 
     static void setFog(bool on);
     static bool fog();
-    static void setTranslucentFloor(bool on);
-    static bool translucentFloor();
+
+    static void setFloorTranslucency(int value);
+    static int  floorTranslucency();
 };
 
 #endif

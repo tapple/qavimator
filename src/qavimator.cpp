@@ -41,6 +41,7 @@
 #include "timeline.h"
 #include "timelineview.h"
 #include "settings.h"
+#include "settingsdialog.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"
 #define PROP_FILTER "Props (*.prp)"
@@ -179,7 +180,7 @@ void qavimator::readSettings()
 
   // OpenGL presets
   Settings::setFog(true);
-  Settings::setTranslucentFloor(true);
+  Settings::setFloorTranslucency(33);
 
   bool settingsFound=settings.readBoolEntry("/settings");
   if(settingsFound)
@@ -197,7 +198,7 @@ void qavimator::readSettings()
 
     // OpenGL settings
     Settings::setFog(settings.readBoolEntry("/fog"));
-    Settings::setTranslucentFloor(settings.readBoolEntry("/translucent_floor"));
+    Settings::setFloorTranslucency(settings.readNumEntry("/floor_translucency"));
 
     // sanity
     if(width<50) width=50;
@@ -987,7 +988,7 @@ void qavimator::fileExit()
 
   // OpenGL settings
   settings.writeEntry("/fog",Settings::fog());
-  settings.writeEntry("/translucent_floor",Settings::translucentFloor());
+  settings.writeEntry("/floor_translucency",Settings::floorTranslucency());
 
   settings.endGroup();
 
@@ -1073,6 +1074,15 @@ void qavimator::optionsShowTimeline(bool on)
   animationView->resize(oldSize.width(),oldSize.height()-1);
   qApp->processEvents();
   animationView->resize(oldSize);
+}
+
+// Menu Action: Options / Configure QAvimator
+void qavimator::optionsConfigure()
+{
+  SettingsDialog* dialog=new SettingsDialog(this,"qavimator_settings_dialog",true);
+  connect(dialog,SIGNAL(configChanged()),animationView,SLOT(draw()));
+  dialog->exec();
+  delete dialog;
 }
 
 // Menu Action: Help / About ...

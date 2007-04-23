@@ -133,8 +133,7 @@ void AnimationView::setAnimation(Animation *anim)
 
 void AnimationView::drawFloor()
 {
-  float alpha=1.0;
-  if(Settings::translucentFloor()) alpha=0.7;
+  float alpha=(100-Settings::floorTranslucency())/100.0;
 
   glEnable(GL_DEPTH_TEST);
   glBegin(GL_QUADS);
@@ -345,20 +344,6 @@ void AnimationView::initializeGL()
 
     glEnable(GL_NORMALIZE);
 
-    if(Settings::fog())
-    {
-      glEnable(GL_FOG);
-      {
-        GLfloat fogColor[4] = {0.5, 0.5, 0.5, 0.3};
-        int fogMode = GL_EXP; // GL_EXP2, GL_LINEAR
-        glFogi (GL_FOG_MODE, fogMode);
-        glFogfv (GL_FOG_COLOR, fogColor);
-        glFogf (GL_FOG_DENSITY, 0.005);
-        glHint (GL_FOG_HINT, GL_DONT_CARE);
-        glFogf (GL_FOG_START, 200.0);
-        glFogf (GL_FOG_END, 2000.0);
-      }
-    }
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     setProjection();
@@ -369,6 +354,23 @@ void AnimationView::initializeGL()
 void AnimationView::draw()
 {
   if (!isValid()) initializeGL();
+
+  if(Settings::fog())
+  {
+    glEnable(GL_FOG);
+    {
+      GLfloat fogColor[4] = {0.5, 0.5, 0.5, 0.3};
+      int fogMode = GL_EXP; // GL_EXP2, GL_LINEAR
+      glFogi (GL_FOG_MODE, fogMode);
+      glFogfv (GL_FOG_COLOR, fogColor);
+      glFogf (GL_FOG_DENSITY, 0.005);
+      glHint (GL_FOG_HINT, GL_DONT_CARE);
+      glFogf (GL_FOG_START, 200.0);
+      glFogf (GL_FOG_END, 2000.0);
+    }
+  }
+  else
+    glDisable(GL_FOG);
 
   glClearColor(0.5, 0.5, 0.5, 0.3); /* fog color */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -1,0 +1,223 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>SettingsDialogForm</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>SettingsDialogForm</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>347</width>
+            <height>182</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Form1</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QPushButton" row="1" column="1">
+            <property name="name">
+                <cstring>pushButton10</cstring>
+            </property>
+            <property name="text">
+                <string>&amp;OK</string>
+            </property>
+            <property name="accel">
+                <string>Alt+O</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="1" column="3">
+            <property name="name">
+                <cstring>pushButton9</cstring>
+            </property>
+            <property name="text">
+                <string>&amp;Cancel</string>
+            </property>
+            <property name="accel">
+                <string>Alt+C</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="1" column="2">
+            <property name="name">
+                <cstring>pushButton8</cstring>
+            </property>
+            <property name="text">
+                <string>&amp;Apply</string>
+            </property>
+            <property name="accel">
+                <string>Alt+A</string>
+            </property>
+        </widget>
+        <widget class="QTabWidget" row="0" column="0" rowspan="1" colspan="4">
+            <property name="name">
+                <cstring>tabWidget4</cstring>
+            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>OpenGL</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <spacer row="1" column="0">
+                        <property name="name">
+                            <cstring>spacer4</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>70</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLayoutWidget" row="0" column="0">
+                        <property name="name">
+                            <cstring>layout10</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout9</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>useFogCheckbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Use Fog</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout7</cstring>
+                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>floorTranslucencyLabel</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Floor Translucency:</string>
+                                                </property>
+                                            </widget>
+                                            <widget class="QSpinBox">
+                                                <property name="name">
+                                                    <cstring>floorTranslucencySpin</cstring>
+                                                </property>
+                                                <property name="suffix">
+                                                    <string>%</string>
+                                                </property>
+                                            </widget>
+                                        </hbox>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer9</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>406</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                </grid>
+            </widget>
+        </widget>
+        <spacer row="1" column="0">
+            <property name="name">
+                <cstring>spacer5</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>61</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>pushButton10</sender>
+        <signal>clicked()</signal>
+        <receiver>SettingsDialogForm</receiver>
+        <slot>acceptOk()</slot>
+    </connection>
+    <connection>
+        <sender>pushButton8</sender>
+        <signal>clicked()</signal>
+        <receiver>SettingsDialogForm</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>pushButton9</sender>
+        <signal>clicked()</signal>
+        <receiver>SettingsDialogForm</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>useFogCheckbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>SettingsDialogForm</receiver>
+        <slot>useFogToggled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>floorTranslucencySpin</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>SettingsDialogForm</receiver>
+        <slot>floorTranslucencyChanged(int)</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">settingsdialogform.ui.h</include>
+</includes>
+<slots>
+    <slot>accept()</slot>
+    <slot>acceptOk()</slot>
+    <slot>reject()</slot>
+    <slot>useFogToggled( bool )</slot>
+    <slot>floorTranslucencyChanged( int )</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

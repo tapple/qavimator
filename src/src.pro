@@ -3,8 +3,10 @@
 # Unterordner relativ zum Projektordner: ./src
 # Das Target ist eine Anwendung:  ../bin/qavimator
 
-FORMS += mainapplicationform.ui 
-IDLS += mainapplicationform.ui 
+FORMS += mainapplicationform.ui \
+         settingsdialogform.ui 
+IDLS += mainapplicationform.ui \
+        settingsdialogform.ui 
 HEADERS += qavimator.h \
            animationview.h \
            animation.h \
@@ -19,7 +21,8 @@ HEADERS += qavimator.h \
            timelineview.h \
            keyframelist.h \
            bvhnode.h \
-           settings.h 
+           settings.h \
+           settingsdialog.h 
 SOURCES += qavimator.cpp \
            main.cpp \
            animationview.cpp \
@@ -36,7 +39,8 @@ SOURCES += qavimator.cpp \
            timelineview.cpp \
            keyframelist.cpp \
            bvhnode.cpp \
-           settings.cpp 
+           settings.cpp \
+           settingsdialog.cpp 
 mainapplicationform.ui.target = mainapplicationform.ui
 mainapplicationform.ui.commands = $$IDL_COMPILER
 QT = qt3support

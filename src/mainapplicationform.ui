@@ -1712,6 +1712,7 @@
         <action name="optionsLoopAction"/>
         <action name="optionsProtectFirstFrameAction"/>
         <action name="optionsShowTimelineAction"/>
+        <action name="optionsConfigure_QAvimator_Action"/>
     </item>
     <separator/>
     <item text="&amp;Help" name="helpMenu">
@@ -2228,6 +2229,17 @@
             <string>Optimize BVH</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>optionsConfigure_QAvimator_Action</cstring>
+        </property>
+        <property name="text">
+            <string>Configure QAvimator ...</string>
+        </property>
+        <property name="menuText">
+            <string>Configure QAvimator ...</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -2559,6 +2571,12 @@
         <receiver>MainApplicationForm</receiver>
         <slot>editOptimize()</slot>
     </connection>
+    <connection>
+        <sender>optionsConfigure_QAvimator_Action</sender>
+        <signal>activated()</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>optionsConfigure()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>selectAnimationCombo</tabstop>
@@ -2599,6 +2617,9 @@
     <tabstop>propZRotSpin</tabstop>
     <tabstop>avatarPropsTab</tabstop>
 </tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
+</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -2650,6 +2671,7 @@
     <slot>easeInChanged( int )</slot>
     <slot>easeOutChanged( int )</slot>
     <slot>editOptimize()</slot>
+    <slot>optionsConfigure()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

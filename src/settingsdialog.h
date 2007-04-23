@@ -18,25 +18,35 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <iostream>
+#ifndef SETTINGSDIALOG_H
+#define SETTINGSDIALOG_H
 
-#include "settings.h"
+#include <qdialog.h>
 
-static bool m_fog=true;
-static int  m_floorTranslucency=25;
+#include "settingsdialogform.h"
 
-Settings::Settings()
+/*
+  @author Zi Ree <Zi Ree @ Second Life>
+*/
+
+class SettingsDialog : public SettingsDialogForm
 {
-  // should never be accessed
-}
+  Q_OBJECT
 
-Settings::~Settings()
-{
-  // should never be accessed
-}
+  public:
+    SettingsDialog(QWidget* parent=0,const char* name=0,bool modal=false,WFlags f=0);
+    ~SettingsDialog();
 
-void Settings::setFog(bool on)                 { m_fog=on; }
-bool Settings::fog()                           { return m_fog; }
+  signals:
+    configChanged();
 
-void Settings::setFloorTranslucency(int value) { m_floorTranslucency=value; }
-int  Settings::floorTranslucency()             { return m_floorTranslucency; }
+  protected slots:
+    void accept();
+    void acceptOk();
+    void reject();
+
+    void useFogToggled(bool state);
+    void floorTranslucencyChanged(int value);
+};
+
+#endif
