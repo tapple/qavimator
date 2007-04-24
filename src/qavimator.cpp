@@ -1080,9 +1080,14 @@ void qavimator::optionsShowTimeline(bool on)
 void qavimator::optionsConfigure()
 {
   SettingsDialog* dialog=new SettingsDialog(this,"qavimator_settings_dialog",true);
-  connect(dialog,SIGNAL(configChanged()),animationView,SLOT(draw()));
+  connect(dialog,SIGNAL(configChanged()),this,SLOT(configChanged()));
   dialog->exec();
   delete dialog;
+}
+
+void qavimator::configChanged()
+{
+  animationView->repaint();
 }
 
 // Menu Action: Help / About ...

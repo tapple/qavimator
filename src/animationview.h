@@ -138,6 +138,8 @@ class AnimationView : public QGLWidget
     void resetCamera();
     void protectFrame(bool on);
     void selectPart(int part);
+
+  protected slots:
     void draw();
 
   protected:

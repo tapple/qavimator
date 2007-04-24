@@ -131,6 +131,9 @@
                                                 <property name="suffix">
                                                     <string>%</string>
                                                 </property>
+                                                <property name="maxValue">
+                                                    <number>100</number>
+                                                </property>
                                             </widget>
                                         </hbox>
                                     </widget>

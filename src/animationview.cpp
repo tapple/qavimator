@@ -353,7 +353,7 @@ void AnimationView::initializeGL()
 
 void AnimationView::draw()
 {
-  if (!isValid()) initializeGL();
+  if(!isValid()) initializeGL();
 
   if(Settings::fog())
   {
@@ -381,7 +381,7 @@ void AnimationView::draw()
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   camera.setModelView();
-  if (!animList.isEmpty()) drawAnimations();
+  if(!animList.isEmpty()) drawAnimations();
   drawProps();
   drawFloor();
 }

@@ -20,6 +20,7 @@
 
 #include <qcheckbox.h>
 #include <qspinbox.h>
+#include <qapplication.h>
 
 #include "settings.h"
 #include "settingsdialog.h"
@@ -41,6 +42,8 @@ void SettingsDialog::accept()
 
   Settings::setFog(useFogCheckbox->isChecked());
   Settings::setFloorTranslucency(floorTranslucencySpin->value());
+  emit configChanged();
+  qApp->processEvents();
 }
 
 void SettingsDialog::acceptOk()

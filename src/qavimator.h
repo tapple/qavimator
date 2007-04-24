@@ -62,6 +62,7 @@ class qavimator : public MainApplicationForm
 
   protected slots:
     void readSettings();
+    void configChanged();
 
     void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimits,Position pos);
     void partDragged(const QString& partName,double changeX,double changeY,double changeZ);

@@ -38,7 +38,7 @@ class SettingsDialog : public SettingsDialogForm
     ~SettingsDialog();
 
   signals:
-    configChanged();
+    void configChanged();
 
   protected slots:
     void accept();
