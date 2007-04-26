@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>762</width>
-            <height>782</height>
+            <height>817</height>
         </rect>
     </property>
     <property name="caption">
@@ -58,16 +58,21 @@
                             <property name="sizePolicy">
                                 <sizepolicy>
                                     <hsizetype>7</hsizetype>
-                                    <vsizetype>1</vsizetype>
+                                    <vsizetype>0</vsizetype>
                                     <horstretch>0</horstretch>
                                     <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
                             <property name="minimumSize">
                                 <size>
-                                    <width>0</width>
-                                    <height>35</height>
+                                    <width>360</width>
+                                    <height>258</height>
                                 </size>
+                            </property>
+                            <property name="font">
+                                <font>
+                                    <pointsize>9</pointsize>
+                                </font>
                             </property>
                             <property name="focusPolicy">
                                 <enum>StrongFocus</enum>
@@ -111,6 +116,17 @@
                                     <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>30</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="font">
+                                <font>
+                                    <bold>1</bold>
+                                </font>
+                            </property>
                             <property name="text">
                                 <string>&gt;</string>
                             </property>
@@ -129,6 +145,17 @@
                                     <horstretch>0</horstretch>
                                     <verstretch>0</verstretch>
                                 </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>30</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="font">
+                                <font>
+                                    <bold>1</bold>
+                                </font>
                             </property>
                             <property name="text">
                                 <string>&amp;K</string>
@@ -1621,8 +1648,17 @@
                                     <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
                             <property name="text">
                                 <string>0</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
                             </property>
                         </widget>
                         <widget class="QLabel">
@@ -1669,8 +1705,17 @@
                                     <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>55</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
                             <property name="text">
                                 <string>(0%)</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
                             </property>
                         </widget>
                     </hbox>
@@ -1741,14 +1786,6 @@
         <action name="editUndoAction"/>
         <action name="editRedoAction"/>
         <action name="resetCameraAction"/>
-    </toolbar>
-    <toolbar dock="2">
-        <property name="name">
-            <cstring>Toolbar</cstring>
-        </property>
-        <property name="label">
-            <string>Toolbar</string>
-        </property>
     </toolbar>
 </toolbars>
 <customwidgets>
@@ -2617,9 +2654,6 @@
     <tabstop>propZRotSpin</tabstop>
     <tabstop>avatarPropsTab</tabstop>
 </tabstops>
-<includes>
-    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
-</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
