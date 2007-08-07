@@ -311,6 +311,7 @@ BVHNode* BVH::bvhRead(const QString& file)
   expect_token(f, "MOTION");
   expect_token(f, "Frames:");
   int totalFrames=atoi(token(f,buffer));
+  lastLoadedNumberOfFrames=totalFrames;
 
   expect_token(f, "Frame");
   expect_token(f, "Time:");
@@ -323,7 +324,6 @@ BVHNode* BVH::bvhRead(const QString& file)
   setAllKeyFramesHelper(root,totalFrames);
   fclose(f);
 
-  lastLoadedNumberOfFrames=totalFrames;
   return(root);
 }
 
@@ -342,9 +342,12 @@ void BVH::avmReadKeyFrame(BVHNode *root, FILE *f)
     token(f,buffer);
     int key=atoi(buffer);
 
-    const Rotation* rot=root->getCachedRotation(key);
-    const Position* pos=root->getCachedPosition(key);
-    root->addKeyframe(key,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
+    if(key<lastLoadedNumberOfFrames)
+    {
+      const Rotation* rot=root->getCachedRotation(key);
+      const Position* pos=root->getCachedPosition(key);
+      root->addKeyframe(key,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
+    }
   }
 
   // all keyframes are found, flush the node's cache to free up memory
@@ -416,6 +419,7 @@ BVHNode* BVH::avmRead(const QString& file)
   expect_token(f, "MOTION");
   expect_token(f, "Frames:");
   int totalFrames=atoi(token(f,buffer));
+  lastLoadedNumberOfFrames=totalFrames;
 
   expect_token(f, "Frame");
   expect_token(f, "Time:");
@@ -432,7 +436,6 @@ BVHNode* BVH::avmRead(const QString& file)
   }
   fclose(f);
 
-  lastLoadedNumberOfFrames=totalFrames;
   return(root);
 }
 
