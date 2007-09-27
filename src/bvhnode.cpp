@@ -398,24 +398,29 @@ bool BVHNode::compareFrames(int key1,int key2)
 
 void BVHNode::optimize()
 {
+  // PASS 1 - remove identical keyframes
+
   // get a list of all keyframe numbers
   QValueList<int> keys=keyframeList();
+  QValueList<int> keysToDelete;
 
+  // build a list of all identical keyframes to delete
   int j=0;
   int k=2;
   for(unsigned int i=1;i<keys.count()-1;i++)
   {
     if(compareFrames(keys[j],keys[i]) && compareFrames(keys[j],keys[k]))
-      deleteKeyframe(keys[i]);
-    else
-    {
-      j=i;
-      k=i+2;
-    }
+      keysToDelete.append(keys[i]);
+
+    j++;
+    k++;
   }
 
-  // get a list of all keyframe numbers left
-  keys=keyframeList();
+  // delete keyframes on the delete list
+  for(unsigned int i=0;i<keysToDelete.count();i++)
+    deleteKeyframe(keysToDelete[i]);
+
+  // PASS 2 - remove keyframes that are superfluous due to linear interpolation
 
   Rotation oldRDifference;
   Position oldPDifference;
@@ -424,7 +429,7 @@ void BVHNode::optimize()
   QMap<int,FrameData>::const_iterator itBefore=keyframes.begin();
   // never try to optimize frame 1
   itBefore++;
-  // make current frame one frame after "before" frame
+  // make "current" frame one frame after "before" frame
   QMap<int,FrameData>::const_iterator itCurrent=itBefore;
   itCurrent++;
 
