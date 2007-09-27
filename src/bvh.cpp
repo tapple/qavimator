@@ -544,15 +544,27 @@ void BVH::bvhWrite(Animation* anim, const QString& file)
 void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f)
 {
   const QValueList<int> keys=root->keyframeList();
-  fprintf(f, "%u ", keys.count()-1);
-
-  // skip frame 0 (always key frame) while saving
-  for (unsigned int i=1; i<keys.count(); i++) {
-    fprintf(f, "%d ", keys[i]);
+  // no key frames (usually at joint ends), just write a 0\n line
+  if(keys.count()==0)
+  {
+    fprintf(f, "0\n");
   }
-  fprintf(f, "\n");
+  // write line of key files
+  else
+  {
+    // write number of key files
+    fprintf(f, "%u ", keys.count()-1);
 
-  for (int i=0;i<root->numChildren();i++) {
+    // skip frame 0 (always key frame) while saving and write all keys in a row
+    for (unsigned int i=1; i<keys.count(); i++)
+    {
+      fprintf(f, "%d ", keys[i]);
+    }
+    fprintf(f, "\n");
+  }
+
+  for (int i=0;i<root->numChildren();i++)
+  {
     avmWriteKeyFrame(root->child(i), f);
   }
 }
