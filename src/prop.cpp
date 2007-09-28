@@ -54,6 +54,8 @@ void Prop::draw(State state) const
 
   glPushMatrix();
 
+  glTranslatef(x,y,z);
+
   glRotatef(xr, 1, 0, 0);
   glRotatef(yr, 0, 1, 0);
   glRotatef(zr, 0, 0, 1);
@@ -68,29 +70,25 @@ void Prop::draw(State state) const
   else
     glColor4f(0.6, 0.3, 0.3, 1);
 
-
   // each prop type has its own base sizes and positions
   if(type==Box)
   {
-    glTranslatef(x,y,z);
     glScalef(xs,ys,zs);
     glutSolidCube(1);
   }
   else if(type==Sphere)
   {
-    glTranslatef(x,y,z);
     glScalef(xs/2,ys/2,zs/2);
     glutSolidSphere(1,16,16);
   }
   else if(type==Cone)
   {
-    glTranslatef(x,y,z-5);
+    glTranslatef(0,0,-5);
     glScalef(xs/2,ys/2,zs/2);
     glutSolidCone(1,2,16,16);
   }
   else if(type==Torus)
   {
-    glTranslatef(x,y,z);
     glScalef(xs/4,ys/4,zs/2);
     glutSolidTorus(1,1,16,16);
   }
