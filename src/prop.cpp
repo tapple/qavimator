@@ -20,8 +20,10 @@
 
 #ifdef MACOSX
 #include <glu.h>
+#include <glut.h>
 #else
 #include <GL/glu.h>
+#include <GL/glut.h>
 #endif
 
 #include <qstring.h>
@@ -34,7 +36,6 @@ Prop::Prop(unsigned int propId,PropType newType,const QString& newName)
   propName=newName;
   id=propId;
   attachmentPoint=0;
-  createVertices();
 }
 
 Prop::~Prop()
@@ -53,16 +54,12 @@ void Prop::draw(State state) const
 
   glPushMatrix();
 
-  glTranslatef(x,y,z);
-
   glRotatef(xr, 1, 0, 0);
   glRotatef(yr, 0, 1, 0);
   glRotatef(zr, 0, 0, 1);
 
   // load prop's id, so we can pick it later
   glLoadName(id);
-
-  glBegin(GL_QUADS);
 
   if(state==Normal)
     glColor4f(0.3,0.4,1.0, 1);
@@ -71,17 +68,32 @@ void Prop::draw(State state) const
   else
     glColor4f(0.6, 0.3, 0.3, 1);
 
-  QPtrList<Vertex> vertices=getVertices(type);
 
-  for(unsigned int index=0;index<vertices.count();index++)
+  // each prop type has its own base sizes and positions
+  if(type==Box)
   {
-    Vertex* v=vertices.at(index);
-    glVertex3f(v->x()*xs,
-               v->y()*ys,
-               v->z()*zs);
-  } // for
-
-  glEnd();
+    glTranslatef(x,y,z);
+    glScalef(xs,ys,zs);
+    glutSolidCube(1);
+  }
+  else if(type==Sphere)
+  {
+    glTranslatef(x,y,z);
+    glScalef(xs/2,ys/2,zs/2);
+    glutSolidSphere(1,16,16);
+  }
+  else if(type==Cone)
+  {
+    glTranslatef(x,y,z-5);
+    glScalef(xs/2,ys/2,zs/2);
+    glutSolidCone(1,2,16,16);
+  }
+  else if(type==Torus)
+  {
+    glTranslatef(x,y,z);
+    glScalef(xs/4,ys/4,zs/2);
+    glutSolidTorus(1,1,16,16);
+  }
 
   glPopMatrix();
 }
@@ -117,48 +129,25 @@ const QString& Prop::name() const
   return propName;
 }
 
-const QPtrList<Vertex> Prop::getVertices(PropType type) const
+void Prop::attach(unsigned int where)
 {
-  QPtrList<Vertex> vertices;
-  if(type==Box)
+  attachmentPoint=where;
+  if(where)
   {
-    vertices=boxVertices;
+    setPosition(0,0,0);
   }
-  return vertices;
+  else
+  {
+    setPosition(10,40,10);
+  }
 }
 
-void Prop::createVertices()
+unsigned int Prop::isAttached() const
 {
-  boxVertices.append(new Vertex(-0.5,-0.5,-0.5));
-  boxVertices.append(new Vertex( 0.5,-0.5,-0.5));
-  boxVertices.append(new Vertex( 0.5, 0.5,-0.5));
-  boxVertices.append(new Vertex(-0.5, 0.5,-0.5));
-
-  boxVertices.append(new Vertex(-0.5,-0.5,-0.5));
-  boxVertices.append(new Vertex(-0.5,-0.5, 0.5));
-  boxVertices.append(new Vertex(-0.5, 0.5, 0.5));
-  boxVertices.append(new Vertex(-0.5, 0.5,-0.5));
-
-  boxVertices.append(new Vertex( 0.5,-0.5,-0.5));
-  boxVertices.append(new Vertex( 0.5,-0.5, 0.5));
-  boxVertices.append(new Vertex( 0.5, 0.5, 0.5));
-  boxVertices.append(new Vertex( 0.5, 0.5,-0.5));
-
-  boxVertices.append(new Vertex(-0.5,-0.5, 0.5));
-  boxVertices.append(new Vertex( 0.5,-0.5, 0.5));
-  boxVertices.append(new Vertex( 0.5, 0.5, 0.5));
-  boxVertices.append(new Vertex(-0.5, 0.5, 0.5));
-
-  boxVertices.append(new Vertex(-0.5,-0.5,-0.5));
-  boxVertices.append(new Vertex( 0.5,-0.5,-0.5));
-  boxVertices.append(new Vertex( 0.5,-0.5, 0.5));
-  boxVertices.append(new Vertex(-0.5,-0.5, 0.5));
-
-  boxVertices.append(new Vertex(-0.5, 0.5,-0.5));
-  boxVertices.append(new Vertex( 0.5, 0.5,-0.5));
-  boxVertices.append(new Vertex( 0.5, 0.5, 0.5));
-  boxVertices.append(new Vertex(-0.5, 0.5, 0.5));
+  return attachmentPoint;
 }
+
+// ------------------- Class Vertex ----------------------
 
 Vertex::Vertex(double xc,double yc,double zc)
 {
@@ -184,22 +173,4 @@ double Vertex::y()
 double Vertex::z()
 {
   return zp;
-}
-
-void Prop::attach(unsigned int where)
-{
-  attachmentPoint=where;
-  if(where)
-  {
-    setPosition(0,0,0);
-  }
-  else
-  {
-    setPosition(10,40,10);
-  }
-}
-
-unsigned int Prop::isAttached() const
-{
-  return attachmentPoint;
 }

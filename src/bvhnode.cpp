@@ -405,15 +405,17 @@ void BVHNode::optimize()
   QValueList<int> keysToDelete;
 
   // build a list of all identical keyframes to delete
-  int j=0;
-  int k=2;
-  for(unsigned int i=1;i<keys.count()-1;i++)
+  for(unsigned int i=1;i<keys.count();i++)
   {
-    if(compareFrames(keys[j],keys[i]) && compareFrames(keys[j],keys[k]))
+    // if we're comparing the last keyframe, it only makes sense to check for the one before
+    if(i==keys.count()-1)
+    {
+      if(compareFrames(keys[i],keys[i-1]))
+        keysToDelete.append(keys[i]);
+    }
+    // otherwise check for the one before and the one after
+    else if(compareFrames(keys[i],keys[i-1]) && compareFrames(keys[i],keys[i+1]))
       keysToDelete.append(keys[i]);
-
-    j++;
-    k++;
   }
 
   // delete keyframes on the delete list
@@ -427,11 +429,21 @@ void BVHNode::optimize()
 
   // get first frame to compare
   QMap<int,FrameData>::const_iterator itBefore=keyframes.begin();
+
+if(itBefore==keyframes.end()) return;
+
   // never try to optimize frame 1
   itBefore++;
+
+
+if(itBefore==keyframes.end()) return;
+
+
   // make "current" frame one frame after "before" frame
   QMap<int,FrameData>::const_iterator itCurrent=itBefore;
   itCurrent++;
+
+if(itCurrent==keyframes.end()) return;
 
   // defines how much difference from anticipated change is acceptable for optimizing
   double tolerance=0.01;
@@ -440,6 +452,7 @@ void BVHNode::optimize()
   while(itCurrent!=keyframes.end())
   {
     int distance=itCurrent.key()-itBefore.key();
+
     Rotation rDifference=Rotation::difference((*itBefore).rotation(),(*itCurrent).rotation());
 
     rDifference.x/=distance;
@@ -461,6 +474,7 @@ void BVHNode::optimize()
          fabs(pDifference.y-oldPDifference.y)<tolerance &&
          fabs(pDifference.z-oldPDifference.z)<tolerance)
       {
+qDebug("%s %d %d",name().latin1(),itBefore.key(),itCurrent.key());
         keyframes.remove(itBefore.key());
       }
 

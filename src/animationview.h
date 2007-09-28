@@ -205,8 +205,6 @@ class AnimationView : public QGLWidget
     bool xSelect, ySelect, zSelect;
     FigureType figType;
 
-    int objectNum;
-
     bool inAnimList(Animation *anim);
     void setProjection();
     void setModelView();

@@ -1253,10 +1253,22 @@ void qavimator::setCurrentFrame(int frame)
   emit protectFrame(protect);
 }
 
-// this slot gets called when someone clicks the "New Prop" button
+// this slot gets called when someone clicks one of the "New Prop" buttons
 void qavimator::newPropButtonClicked()
 {
-  const Prop* prop=animationView->addProp(Prop::Box,10,40,10, 10,10,10, 0,0,0, 0);
+  // get the internal button name
+  QString whatButton=sender()->name();
+
+  // predefine safe value
+  Prop::PropType type=Prop::Box;
+
+  if(whatButton=="newBoxPropButton") type=Prop::Box;
+  else if(whatButton=="newSpherePropButton") type=Prop::Sphere;
+  else if(whatButton=="newConePropButton") type=Prop::Cone;
+  else if(whatButton=="newTorusPropButton") type=Prop::Torus;
+
+  const Prop* prop=animationView->addProp(type,10,40,10, 10,10,10, 0,0,0, 0);
+
   if(prop)
   {
     propNameCombo->insertItem(prop->name());

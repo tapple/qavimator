@@ -94,7 +94,6 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   leftMouseButton=false;
   frameProtected=false;
   modifier=0;
-  objectNum=0;
   if(anim) setAnimation(anim);
   setMouseTracking(true);
   setFocusPolicy(QWidget::StrongFocus);
@@ -222,10 +221,17 @@ void AnimationView::setFrameTime(double time)
 const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr,int attach)
 {
   QString name;
+  QString baseName;
 
+  if(type==Prop::Box) baseName="Box";
+  else if(type==Prop::Sphere) baseName="Sphere";
+  else if(type==Prop::Cone) baseName="Cone";
+  else if(type==Prop::Torus) baseName="Torus";
+
+  int objectNum=0;
   do
   {
-    name="Object "+QString::number(objectNum++);
+    name=baseName+" "+QString::number(objectNum++);
   } while(getPropByName(name));
 
   Prop* newProp=new Prop(nextPropId,type,name);
