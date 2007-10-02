@@ -1,0 +1,21 @@
+body
+{
+  font: sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+h1
+{
+  text-align: center;
+}
+
+h2
+{
+  text-align: center;
+}
+
+.menu_item
+{
+  font-weight: bold;
+}
