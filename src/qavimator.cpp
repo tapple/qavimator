@@ -725,10 +725,16 @@ void qavimator::fileNew()
   playing=false;
 
   if(protectFirstFrame)
+  {
     // skip first frame, since it's protected anyway
     animationView->setFrame(1);
+    setLoopPoint(2);
+  }
   else
+  {
     animationView->setFrame(0);
+    setLoopPoint(1);
+  }
 
   // show frame as unprotected
   emit protectFrame(false);
