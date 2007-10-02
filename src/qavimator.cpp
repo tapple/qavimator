@@ -1019,6 +1019,7 @@ void qavimator::editPaste()
 void qavimator::editOptimize()
 {
   animationView->getAnimation()->optimize();
+  updateInputs();
 }
 
 // Menu Action: Options / Skeleton

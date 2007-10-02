@@ -765,6 +765,7 @@ void Animation::optimizeHelper(BVHNode* joint)
   if(joint->type!=BVH_END)
   {
     joint->optimize();
+    emit redrawTrack(getPartIndex(joint->name()));
   }
 
   for(int i=0;i<joint->numChildren();i++)

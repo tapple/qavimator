@@ -427,23 +427,18 @@ void BVHNode::optimize()
   Rotation oldRDifference;
   Position oldPDifference;
 
-  // get first frame to compare
+  // get first frame to compare - we even compare frame 1 here because we need
+  // the initial "distance" and "difference" values. The first keyframe will
+  // never be deleted, though
   QMap<int,FrameData>::const_iterator itBefore=keyframes.begin();
 
-if(itBefore==keyframes.end()) return;
-
-  // never try to optimize frame 1
-  itBefore++;
-
-
-if(itBefore==keyframes.end()) return;
-
+  if(itBefore==keyframes.end()) return;
 
   // make "current" frame one frame after "before" frame
   QMap<int,FrameData>::const_iterator itCurrent=itBefore;
   itCurrent++;
 
-if(itCurrent==keyframes.end()) return;
+  if(itCurrent==keyframes.end()) return;
 
   // defines how much difference from anticipated change is acceptable for optimizing
   double tolerance=0.01;
@@ -474,8 +469,8 @@ if(itCurrent==keyframes.end()) return;
          fabs(pDifference.y-oldPDifference.y)<tolerance &&
          fabs(pDifference.z-oldPDifference.z)<tolerance)
       {
-qDebug("%s %d %d",name().latin1(),itBefore.key(),itCurrent.key());
-        keyframes.remove(itBefore.key());
+        // never delete the key in the first frame
+        if(itBefore.key()!=0) keyframes.remove(itBefore.key());
       }
 
       oldPDifference=pDifference;
