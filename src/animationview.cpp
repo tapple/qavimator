@@ -725,6 +725,9 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
     glEnable(GL_LIGHT1);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+float scale=anim->getAvatarScale();
+glScalef(scale,scale,scale);
+
     glTranslatef(0, 2, 0);
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_DEPTH_TEST);
@@ -735,6 +738,8 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
     selectName = index*ANIMATION_INCREMENT;
     glDisable(GL_DEPTH_TEST);
     drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_SKELETON);
+
+glScalef(1.0,1.0,1.0);
 }
 
 // NOTE: joints == motion for now

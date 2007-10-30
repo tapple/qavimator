@@ -56,6 +56,7 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   calcPartMirrors();
   useRotationLimits(true);
   setNumberOfFrames(bvh->lastLoadedNumberOfFrames);
+  setAvatarScale(bvh->lastLoadedAvatarScale);
 
   ikTree.set(frames);
   setIK(IK_LHAND, false);
@@ -787,4 +788,14 @@ void Animation::setDirty(bool state)
 {
   isDirty=state;
   emit animationDirty(state);
+}
+
+float Animation::getAvatarScale()
+{
+  return avatarScale;
+}
+
+void Animation::setAvatarScale(float newScale)
+{
+  avatarScale=newScale;
 }

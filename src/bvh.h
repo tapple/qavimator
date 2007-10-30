@@ -77,6 +77,7 @@ class BVH
     QStringList bvhTypeName;
     QStringList bvhChannelName;
     int lastLoadedNumberOfFrames;
+    float lastLoadedAvatarScale;
     int nodeCount;
 
     QValueList<Rotation> rotationCopyBuffer;

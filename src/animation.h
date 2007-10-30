@@ -61,6 +61,10 @@ class Animation : public QObject
     bool getMirrored();
     unsigned int getPartMirror(int index);
     const QString& getPartMirror(const QString& name) const;
+
+    float getAvatarScale();
+    void setAvatarScale(float newScale);
+
     BVHNode* getMotion();
     BVHNode* getEndSite(const QString& siteParentName);
     BVHNode* getNode(int jointNumber);
@@ -123,6 +127,9 @@ class Animation : public QObject
 
     // this flag shows if the animation has been worked on and not yet saved
     bool isDirty;
+
+    // display the avatar at another scale (1.0 is default)
+    float avatarScale;
 
     int frame;
     int totalFrames;

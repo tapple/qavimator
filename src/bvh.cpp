@@ -434,6 +434,33 @@ BVHNode* BVH::avmRead(const QString& file)
     if(expect_token(f, "Properties"))
       avmReadKeyFrameProperties(root, f);
   }
+
+// read remaining properties
+while(!feof(f))
+{
+  buffer[0]=0;
+  if(fgets(buffer,1023,f))
+  {
+    if(buffer[strlen(buffer)-1]=='\n') buffer[strlen(buffer)-1]=0;
+    QString property(buffer);
+    QString propertyName=property.section(' ',0,0);
+    QString propertyValue=property.section(' ',1,1);
+
+    if(!propertyName.isEmpty())
+    {
+      qDebug("Found extended property '%s' with value '%s'.",propertyName.latin1(),propertyValue.latin1());
+
+      if(propertyName=="Scale:")
+      {
+        lastLoadedAvatarScale=propertyValue.toFloat();
+qDebug("%f",lastLoadedAvatarScale);
+      }
+      else
+        qDebug("Unknown extended property, ignoring.");
+    }
+  }
+} // while
+
   fclose(f);
 
   return(root);
@@ -442,6 +469,9 @@ BVHNode* BVH::avmRead(const QString& file)
 BVHNode* BVH::animRead(const QString& file,const QString& limFile)
 {
   BVHNode* root;
+
+  // default avatar scale for BVH and AVM files
+  lastLoadedAvatarScale=1.0;
 
   // rudimentary file type identification from filename
   if(file.findRev(".bvh",-4,false)!=-1)
@@ -613,6 +643,8 @@ void BVH::avmWrite(Animation* anim,const QString& file)
   avmWriteKeyFrame(root, f);
   fprintf(f, "Properties\n");
   avmWriteKeyFrameProperties(root, f);
+
+fprintf(f,"Scale: %f\n",anim->getAvatarScale());
 
   fclose(f);
 }
