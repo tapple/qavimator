@@ -435,31 +435,28 @@ BVHNode* BVH::avmRead(const QString& file)
       avmReadKeyFrameProperties(root, f);
   }
 
-// read remaining properties
-while(!feof(f))
-{
-  buffer[0]=0;
-  if(fgets(buffer,1023,f))
+  // read remaining properties
+  while(!feof(f))
   {
-    if(buffer[strlen(buffer)-1]=='\n') buffer[strlen(buffer)-1]=0;
-    QString property(buffer);
-    QString propertyName=property.section(' ',0,0);
-    QString propertyValue=property.section(' ',1,1);
-
-    if(!propertyName.isEmpty())
+    buffer[0]=0;
+    if(fgets(buffer,1023,f))
     {
-      qDebug("Found extended property '%s' with value '%s'.",propertyName.latin1(),propertyValue.latin1());
+      if(buffer[strlen(buffer)-1]=='\n') buffer[strlen(buffer)-1]=0;
+      QString property(buffer);
+      QString propertyName=property.section(' ',0,0);
+      QString propertyValue=property.section(' ',1,1);
 
-      if(propertyName=="Scale:")
+      if(!propertyName.isEmpty())
       {
-        lastLoadedAvatarScale=propertyValue.toFloat();
-qDebug("%f",lastLoadedAvatarScale);
+        if(propertyName=="Scale:")
+        {
+          lastLoadedAvatarScale=propertyValue.toFloat();
+        }
+        else
+          qDebug("Unknown extended property, ignoring.");
       }
-      else
-        qDebug("Unknown extended property, ignoring.");
     }
-  }
-} // while
+  } // while
 
   fclose(f);
 
@@ -643,8 +640,6 @@ void BVH::avmWrite(Animation* anim,const QString& file)
   avmWriteKeyFrame(root, f);
   fprintf(f, "Properties\n");
   avmWriteKeyFrameProperties(root, f);
-
-fprintf(f,"Scale: %f\n",anim->getAvatarScale());
 
   fclose(f);
 }
