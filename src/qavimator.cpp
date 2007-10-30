@@ -538,6 +538,11 @@ void qavimator::updateInputs()
   framesSpin->setValue(anim->getNumberOfFrames());
   positionSlider->setMaxValue(anim->getNumberOfFrames()-1);
 
+  // prevent feedback loop
+  scaleSpin->blockSignals(true);
+  scaleSpin->setValue(anim->getAvatarScale()*100);
+  scaleSpin->blockSignals(false);
+
   updateKeyBtn();
 
   if (playing)
@@ -655,6 +660,7 @@ void qavimator::animationChanged(int which)
   if ((unsigned int) which >= openFiles.count()) return;
     setCurrentFile(*openFiles.at(which));
     animationView->selectAnimation(which);
+    updateInputs();
 }
 
 void qavimator::figureChanged(int shape)
@@ -663,6 +669,12 @@ void qavimator::figureChanged(int shape)
     animationView->setFigure(AnimationView::FEMALE);
   else
     animationView->setFigure(AnimationView::MALE);
+  animationView->repaint();
+}
+
+void qavimator::scaleChanged(int percent)
+{
+  animationView->getAnimation()->setAvatarScale(percent/100.0);
   animationView->repaint();
 }
 

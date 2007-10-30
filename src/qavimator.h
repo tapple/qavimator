@@ -95,6 +95,7 @@ class qavimator : public MainApplicationForm
     void animationChanged(int which);
 
     void figureChanged(int shape);
+    void scaleChanged(int percent);
     void numFramesChanged(int num);
     void keyframeButtonToggled(bool on);
 
