@@ -150,7 +150,10 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   {
     fileOpen(qApp->argv()[1]);
   }
-  else fileNew();
+
+  // if opening of files didn't work or no files were specified on the
+  // command line, open a new one
+  if(openFiles.count()==0) fileNew();
 }
 
 qavimator::~qavimator()
@@ -823,6 +826,12 @@ void qavimator::fileAdd(const QString& name)
 
   if(!file.isEmpty())
   {
+    // handling of non-existant file names
+    if(!QFile::exists(file))
+    {
+      QMessageBox::warning(this,QObject::tr("Load Animation File"),QObject::tr("<qt>Animation file not found:<br />%1</qt>").arg(file));
+      return;
+    }
     addToOpenFiles(file);
     Animation* anim=new Animation(animationView->getBVH(),file);
     animationIds.append(anim);
