@@ -431,16 +431,24 @@ void Timeline::mouseMoveEvent(QMouseEvent* e)
       // update dragging position
       dragging=frame;
 
-      if(shift)
+      // make sure we don't overwrite already existing frames
+      if(!animation->isKeyFrame(trackSelected,frame))
       {
-        shift=false;
-        animation->copyKeyFrame(trackSelected,frameSelected,frame);
-      }
-      else
-        animation->moveKeyFrame(trackSelected,frameSelected,frame);
+        // check if the user holds the shift key
+        if(shift)
+        {
+          // reset shift key status so we don't constantly create copies
+          shift=false;
+          // copy selected frame to new place
+          animation->copyKeyFrame(trackSelected,frameSelected,frame);
+        }
+        else
+          // move selected frame to new place
+          animation->moveKeyFrame(trackSelected,frameSelected,frame);
 
-      // remember new position
-      frameSelected=frame;
+        // remember new position
+        frameSelected=frame;
+      }
     }
   }
   // no dragging so check if new position would be out of bounds
