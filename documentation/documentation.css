@@ -17,6 +17,11 @@ h2
   text-align: center;
 }
 
+img
+{
+  margin: 8px;
+}
+
 .menu_item
 {
   font-weight: bold;
