@@ -42,6 +42,13 @@ img
   color: #c0c0c0;
 }
 
+.glossary_navigator
+{
+  font-weight: bold;
+  font-size: 8pt;
+  text-align: center;
+}
+
 .glossary_term
 {
   font-weight: bold;
