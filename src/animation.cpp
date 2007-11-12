@@ -44,7 +44,12 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
 
   QString fileName;
 
+  // optionally have the support files for qavimator in FSH location
+#ifndef _LINUX_FSH
   execPath=qApp->applicationDirPath();
+#else
+  execPath="/usr/share/qavimator";
+#endif
 
   // load BVH that defines motion
   if (bvhFile)
