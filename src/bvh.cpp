@@ -86,9 +86,6 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
   const char *type = token(f,buffer);
   if (!strcmp(type, "}")) { return NULL; }
 
-  char order[4];
-  int i;
-
   // check for node type first
   BVHNodeType nodeType;
   if (!strcasecmp(type, "ROOT")) { nodeType = BVH_ROOT; }
@@ -118,35 +115,39 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
   if (node->type != BVH_END) {
     expect_token(f, "CHANNELS");
     node->numChannels = atoi(token(f,buffer));
-    char *op = order;
-    for (i=0; i<node->numChannels; i++) {
+
+    // rotation order for this node
+    QString order(QString::null);
+    for(int i=0;i<node->numChannels;i++)
+    {
       node->channelMin[i] = -10000;
       node->channelMax[i] = 10000;
       type = token(f,buffer);
-      if (!strcasecmp(type, "Xposition")) {node->channelType[i] = BVH_XPOS;}
-      else if (!strcasecmp(type, "Yposition")) {node->channelType[i]=BVH_YPOS;}
-      else if (!strcasecmp(type, "Zposition")) {node->channelType[i]=BVH_ZPOS;}
-      else if (!strcasecmp(type, "Xrotation")) {
+      if     (!strcasecmp(type,"Xposition")) node->channelType[i]=BVH_XPOS;
+      else if(!strcasecmp(type,"Yposition")) node->channelType[i]=BVH_YPOS;
+      else if(!strcasecmp(type,"Zposition")) node->channelType[i]=BVH_ZPOS;
+      else if(!strcasecmp(type,"Xrotation")) {
 	node->channelType[i]=BVH_XROT;
-	*(op++) = 'X';
+        order+='X';
       }
       else if (!strcasecmp(type, "Yrotation")) {
 	node->channelType[i]=BVH_YROT;
-	*(op++) = 'Y';
+        order+='Y';
       }
       else if (!strcasecmp(type, "Zrotation")) {
 	node->channelType[i]=BVH_ZROT;
-	*(op++) = 'Z';
+        order+='Z';
       }
     }
-    *op = '\0';
-    if (!strcmp(order, "XYZ")) node->channelOrder = BVH_XYZ;
-    else if (!strcmp(order, "ZYX")) node->channelOrder = BVH_ZYX;
-    else if (!strcmp(order, "YZX")) node->channelOrder = BVH_YZX;
-    else if (!strcmp(order, "XZY")) node->channelOrder = BVH_XZY;
-    else if (!strcmp(order, "YXZ")) node->channelOrder = BVH_YXZ;
-    else if (!strcmp(order, "ZXY")) node->channelOrder = BVH_ZXY;
+
+    if     (order=="XYZ") node->channelOrder=BVH_XYZ;
+    else if(order=="ZYX") node->channelOrder=BVH_ZYX;
+    else if(order=="YZX") node->channelOrder=BVH_YZX;
+    else if(order=="XZY") node->channelOrder=BVH_XZY;
+    else if(order=="YXZ") node->channelOrder=BVH_YXZ;
+    else if(order=="ZXY") node->channelOrder=BVH_ZXY;
   }
+
   BVHNode* child = NULL;
   do {
     if ((child = bvhReadNode(f))) {
