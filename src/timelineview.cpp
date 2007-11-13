@@ -114,16 +114,23 @@ void TimelineTracks::drawTrack(int track)
   if(trackName!="Site")
   {
     QPainter p(this);
+    QColorGroup::ColorRole textColor=QColorGroup::Foreground;
 
     int y=(track-1)*LINE_HEIGHT+2;
 
     if(track==selectedTrack)
+    {
       p.fillRect(0,y,width(),LINE_HEIGHT,palette().color(QPalette::Active,QColorGroup::Highlight));
+#ifdef QT_OS_WIN32
+      // on windows systems use contrast color to track highlight color
+      textColor=QColorGroup::HighlightedText;
+#endif
+    }
     else
       p.eraseRect(0,y,width(),LINE_HEIGHT);
 
     // draw track name
-    p.setPen(palette().color(QPalette::Active,QColorGroup::Foreground));
+    p.setPen(palette().color(QPalette::Active,textColor));
     p.drawText(0,y+KEY_HEIGHT,trackName);
   }
 }

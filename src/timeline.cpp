@@ -177,8 +177,15 @@ void Timeline::drawKeyframe(int track,int frame)
   // calculate x position
   int xpos=frame*KEY_WIDTH;
 
-//  QColor color(Qt::black);
-  QColor color(palette().color(QPalette::Active,QColorGroup::Foreground));
+  QColorGroup::ColorRole keyColor=QColorGroup::Foreground;
+
+#ifdef QT_OS_WIN32
+  // on windows systems use text highlight color to contrast with track highlight
+  if(trackSelected==track)
+    keyColor=QColorGroup::HighlightedText;
+#endif
+
+  QColor color(palette().color(QPalette::Active,keyColor));
   // draw the key frame
   if(frame==0)
   {
