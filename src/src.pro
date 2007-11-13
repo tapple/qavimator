@@ -44,8 +44,8 @@ SOURCES += qavimator.cpp \
 mainapplicationform.ui.target = mainapplicationform.ui
 mainapplicationform.ui.commands = $$IDL_COMPILER
 QT = qt3support
-TARGETDEPS += ../libquat/liblibquat.a
-LIBS += ../libquat/liblibquat.a \
+TARGETDEPS += ../libquat/libquat.a
+LIBS += ../libquat/libquat.a \
 -lglut \
 -lGLU
 INCLUDEPATH += ../libquat \

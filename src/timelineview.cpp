@@ -121,7 +121,7 @@ void TimelineTracks::drawTrack(int track)
     if(track==selectedTrack)
     {
       p.fillRect(0,y,width(),LINE_HEIGHT,palette().color(QPalette::Active,QColorGroup::Highlight));
-#ifdef QT_OS_WIN32
+#ifdef Q_OS_WIN32
       // on windows systems use contrast color to track highlight color
       textColor=QColorGroup::HighlightedText;
 #endif

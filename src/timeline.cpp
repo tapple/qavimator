@@ -179,7 +179,7 @@ void Timeline::drawKeyframe(int track,int frame)
 
   QColorGroup::ColorRole keyColor=QColorGroup::Foreground;
 
-#ifdef QT_OS_WIN32
+#ifdef Q_OS_WIN32
   // on windows systems use text highlight color to contrast with track highlight
   if(trackSelected==track)
     keyColor=QColorGroup::HighlightedText;
@@ -260,8 +260,17 @@ void Timeline::drawTrack(int track)
 
   // normal tracks get default background color
   QColorGroup::ColorRole baseColor=QColorGroup::Background;
+  // normal tracks get default foreground colors for keyframe transition lines
+  QColorGroup::ColorRole lineColor=QColorGroup::Foreground;
   // selected tracks get other color, unless it's a "Site" track (end of limbs group)
-  if(track==trackSelected && trackName!="Site") baseColor=QColorGroup::Highlight;
+  if(track==trackSelected && trackName!="Site")
+  {
+    baseColor=QColorGroup::Highlight;
+#ifdef Q_OS_WIN32
+    // additionally, set inverse highlight color for transition lines on windows for contrast
+    lineColor=QColorGroup::HighlightedText;
+#endif
+  }
 
   QPainter p(this);
 
@@ -314,7 +323,7 @@ void Timeline::drawTrack(int track)
             const FrameData& oldFrameData=joint->keyframeDataByIndex(key-1);
             int frameDiff=(frameNum-oldFrame+1)*KEY_WIDTH/2;
 
-            QColor pen1(palette().color(QPalette::Active,QColorGroup::Foreground));
+            QColor pen1(palette().color(QPalette::Active,lineColor));
             QColor pen2(palette().color(QPalette::Active,baseColor).light(115));
 
             if(oldFrameData.easeOut())
