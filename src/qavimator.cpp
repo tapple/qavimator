@@ -537,7 +537,10 @@ void qavimator::updateInputs()
   else {
     emit enablePosition(false);
   }
-  playButton->setText(playing ? "||" : ">");
+
+// disabled, needs to be replaced with a pause pixmap
+//  playButton->setText(playing ? "||" : ">");
+
   framesSpin->setValue(anim->getNumberOfFrames());
   positionSlider->setMaxValue(anim->getNumberOfFrames()-1);
 
