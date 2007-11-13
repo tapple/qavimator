@@ -52,3 +52,6 @@ qt \
 thread \
 staticlib
 TEMPLATE = lib
+
+# make sure the generated name will be "libquat.a"
+TARGET = quat
