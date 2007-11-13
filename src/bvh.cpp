@@ -253,18 +253,23 @@ void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
     double weight=parameters[1].toDouble();
 
     node = bvhFindNode(root, name);
-    node->ikWeight = weight;
-
-    for(int i=0;i<3;i++)
+    if(node)
     {
-      QString channel=parameters[i*3+2];
-      double min=parameters[i*3+3].toDouble();
-      double max=parameters[i*3+4].toDouble();
+      node->ikWeight = weight;
 
-      if(channel.startsWith("X")) setChannelLimits(node, BVH_XROT, min, max);
-      else if(channel.startsWith("Y")) setChannelLimits(node, BVH_YROT, min, max);
-      else if(channel.startsWith("Z")) setChannelLimits(node, BVH_ZROT, min, max);
+      for(int i=0;i<3;i++)
+      {
+        QString channel=parameters[i*3+2];
+        double min=parameters[i*3+3].toDouble();
+        double max=parameters[i*3+4].toDouble();
+
+        if(channel.startsWith("X")) setChannelLimits(node, BVH_XROT, min, max);
+        else if(channel.startsWith("Y")) setChannelLimits(node, BVH_YROT, min, max);
+        else if(channel.startsWith("Z")) setChannelLimits(node, BVH_ZROT, min, max);
+      } // for
     }
+    else
+      qDebug("Node %s not in animation. This will lead to problems!",name);
   }
   f.close();
 }
