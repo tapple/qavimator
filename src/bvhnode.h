@@ -85,6 +85,7 @@ class BVHNode
     void setKeyframePosition(int frame,const Position& pos);
     void setKeyframeRotation(int frame,const Rotation& rot);
     void insertFrame(int frame); // moves all key frames starting at "frame" one frame further
+    void deleteFrame(int frame); // removes frame at position and moves all further frames one down
     bool isKeyframe(int frame) const;
     int numKeyframes() const;
 

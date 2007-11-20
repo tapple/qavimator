@@ -69,6 +69,7 @@ class Animation : public QObject
     BVHNode* getEndSite(const QString& siteParentName);
     BVHNode* getNode(int jointNumber);
 
+    void cutFrame();
     void copyFrame();
     void pasteFrame();
 
@@ -113,6 +114,7 @@ class Animation : public QObject
   public slots:
     void delKeyFrame(int jointNumber,int frame);
     void insertFrame(int jointNumber,int frame);
+    void deleteFrame(int jointNumber,int frame);
 
   signals:
     void numberOfFrames(int num);
@@ -145,6 +147,7 @@ class Animation : public QObject
     bool isKeyFrameHelper(BVHNode *joint);
     void recursiveDelKeyFrame(BVHNode *joint);
     void insertFrameHelper(BVHNode* joint,int frame);
+    void deleteFrameHelper(BVHNode* joint,int frame);
     void optimizeHelper(BVHNode* joint);
 
     void calcPartMirrors();

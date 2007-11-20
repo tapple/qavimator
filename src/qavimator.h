@@ -115,6 +115,7 @@ class qavimator : public MainApplicationForm
     void fileSaveProps();
     void fileExit();
 
+    void editCut();
     void editCopy();
     void editPaste();
     void editOptimize();

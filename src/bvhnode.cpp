@@ -169,6 +169,36 @@ void BVHNode::insertFrame(int frame)
   } while(itLook!=itCurrent);
 }
 
+// delete a frame and move all keys back one frame
+void BVHNode::deleteFrame(int frame)
+{
+//  qDebug("BVHNode::deleteFrame(%d)",frame);
+  // if this is a keyframe, remove it
+  if(isKeyframe(frame)) deleteKeyframe(frame);
+
+  // find next keyframe number
+  frame=getKeyframeNumberAfter(frame);
+  // past the end? then do nothing
+  if(frame==-1) return;
+  // set up iterator with the following keyframe
+  QMap<int,FrameData>::iterator itCurrent=keyframes.find(frame);
+
+  // loop until we reach the end of the keyframe list
+  while(itCurrent!=keyframes.end())
+  {
+    // get current keyframe's position
+    int frame=(*itCurrent).frameNumber();
+    // decrement frame number in frame data
+    (*itCurrent).setFrameNumber(frame-1);
+    // increment iterator here already, so it does not get invalidated by remove() later
+    itCurrent++;
+    // copy frame data into previous frame
+    keyframes[frame-1]=keyframes[frame];
+    // remove old frame
+    keyframes.remove(frame);
+  }
+}
+
 bool BVHNode::isKeyframe(int frame) const
 {
   return keyframes.contains(frame);

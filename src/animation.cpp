@@ -649,6 +649,14 @@ bool Animation::toggleKeyFrameAllJoints() {
   }
 }
 
+void Animation::cutFrame()
+{
+  // copy frame data into copy buffer
+  copyFrame();
+  // always delete frame from all tracks
+  deleteFrame(0,frame);
+}
+
 void Animation::copyFrame()
 {
   bvh->bvhGetFrameData(frames,frame);
@@ -761,6 +769,32 @@ void Animation::insertFrame(int track,int pos)
   {
     BVHNode* joint=getNode(track);
     if(joint) joint->insertFrame(frame);
+  }
+  setDirty(true);
+  emit frameChanged();
+}
+
+// recursively remove frames from joint and all its children
+void Animation::deleteFrameHelper(BVHNode* joint,int frame)
+{
+//  qDebug("Animation::deleteFrameHelper(joint %s,frame %d)",joint->name().latin1(),frame);
+  joint->deleteFrame(frame);
+  for(int i=0;i<joint->numChildren();i++)
+    deleteFrameHelper(joint->child(i),frame);
+  emit redrawTrack(getPartIndex(joint->name()));
+}
+
+// delete frame from a joint, if track==0 rdelete from all joints
+void Animation::deleteFrame(int track,int pos)
+{
+//  qDebug("Animation::deleteFrame(joint %d,frame %d)",track,frame);
+
+  if(track==0)
+    deleteFrameHelper(frames,pos);
+  else
+  {
+    BVHNode* joint=getNode(track);
+    if(joint) joint->deleteFrame(pos);
   }
   setDirty(true);
   emit frameChanged();

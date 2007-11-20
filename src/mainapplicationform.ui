@@ -2118,7 +2118,7 @@
             <cstring>editCutAction</cstring>
         </property>
         <property name="enabled">
-            <bool>false</bool>
+            <bool>true</bool>
         </property>
         <property name="iconSet">
             <iconset>image16</iconset>

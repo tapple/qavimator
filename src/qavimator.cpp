@@ -1026,11 +1026,20 @@ void qavimator::fileExit()
   qApp->exit(0);
 }
 
+// Menu Action: Edit / Cut
+void qavimator::editCut()
+{
+//  qDebug("qavimator::editCut()");
+  animationView->getAnimation()->cutFrame();
+  frameDataValid=true;
+  updateInputs();
+}
+
 // Menu Action: Edit / Copy
 void qavimator::editCopy()
 {
   animationView->getAnimation()->copyFrame();
-  frameDataValid = true;
+  frameDataValid=true;
   updateInputs();
 }
 
