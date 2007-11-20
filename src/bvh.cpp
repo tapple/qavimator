@@ -269,7 +269,7 @@ void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
       } // for
     }
     else
-      qDebug("Node %s not in animation. This will lead to problems!",name);
+      qDebug("Node %s not in animation. This will lead to problems!",name.latin1());
   }
   f.close();
 }
