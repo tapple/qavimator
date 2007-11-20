@@ -85,6 +85,10 @@ class Timeline : public QWidget
     int numOfFrames;
     int currentFrame;
 
+    // keyframe drawing clip area
+    int firstVisibleKeyX;
+    int visibleKeysX;
+
     bool drawn;
 
     bool leftMouseButton;

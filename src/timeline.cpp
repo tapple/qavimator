@@ -52,7 +52,7 @@ Timeline::~Timeline()
 {
 }
 
-void Timeline::paintEvent(QPaintEvent*)
+void Timeline::paintEvent(QPaintEvent* e)
 {
   if(!animation) return;
 
@@ -70,10 +70,22 @@ void Timeline::paintEvent(QPaintEvent*)
     emit resized(newSize);
   }
 
+  // clip keyframe drawing to "dirty" area of redraw
+  firstVisibleKeyX=e->rect().x()/KEY_WIDTH;
+  visibleKeysX=e->rect().width()/KEY_WIDTH;
+
   for(int part=1;part<NUM_PARTS;part++)
   {
     drawTrack(part);
   } // for
+
+  // reset keyframe clipping to have new or updated transition lines painted properly
+  firstVisibleKeyX=0;
+  visibleKeysX=numOfFrames;
+
+// draw updated rectangle as debug info
+// QPainter p(this);
+// p.drawRect(e->rect());
 
   // redraw position as soon as repaint event has ended, because inside this event, all painting is
   // clipped to e->region()
@@ -253,6 +265,7 @@ void Timeline::drawTrack(int track)
 {
   // do not draw track number 0
   if(!track) return;
+//  qDebug("first %d vis %d",firstVisibleKeyX,visibleKeysX);
 //  qDebug(QString("drawTrack(%1)").arg(track));
 
   // if this is a "Site end" marker (end of group of limbs) do nothing more
@@ -277,8 +290,13 @@ void Timeline::drawTrack(int track)
   int light=0;
   int y=(track-1)*LINE_HEIGHT;
 
+  // find widget coordinates of clipped area and decide if we paint light or dark background
+  int firstGreyShade=(firstVisibleKeyX/10);
+  light=firstGreyShade % 2;
+  firstGreyShade*=KEY_WIDTH*10;
+
   // draw alternatingly light / dark background
-  for(int x=0;x<width();x+=10*KEY_WIDTH)
+  for(int x=firstGreyShade;x<(firstGreyShade+visibleKeysX+10)*KEY_WIDTH;x+=10*KEY_WIDTH)
   {
     // draw a filled rectangle in background color, alternatingly darkened by 5 %
     p.fillRect(x,y,x+10*KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,baseColor).dark(100+5*light));
@@ -288,9 +306,9 @@ void Timeline::drawTrack(int track)
   // if this is a "Site end" marker (end of group of limbs) do nothing more
   if(trackName=="Site") return;
 
-  // draw straight line as track marker
-  p.fillRect(0,y+LINE_HEIGHT/2,width(),1,palette().color(QPalette::Active,baseColor).dark(115));
-  p.fillRect(0,y+LINE_HEIGHT/2+1,width(),1,palette().color(QPalette::Active,baseColor).light(115));
+  // draw straight line as track marker within "dirty" redraw region
+  p.fillRect(firstVisibleKeyX*KEY_WIDTH,y+LINE_HEIGHT/2,(visibleKeysX+1)*KEY_WIDTH,1,palette().color(QPalette::Active,baseColor).dark(115));
+  p.fillRect(firstVisibleKeyX*KEY_WIDTH,y+LINE_HEIGHT/2+1,(visibleKeysX+1)*KEY_WIDTH,1,palette().color(QPalette::Active,baseColor).light(115));
 
   // get the list of key frames
   const BVHNode* joint=animation->getNode(track);
@@ -383,15 +401,17 @@ void Timeline::drawTrack(int track)
             }
           }
         }
-        // draw the key frame
-        drawKeyframe(track,frameNum);
+        // only draw keyframes if they are in "dirty" clipping region
+        if(frameNum>=firstVisibleKeyX && frameNum<=(firstVisibleKeyX+visibleKeysX))
+          // draw the key frame
+          drawKeyframe(track,frameNum);
       }
       // remember this frame number as previous key frame
       oldFrame=frameNum;
     } // for
 
-    // last frame is always a key frame
-    drawKeyframe(track,numOfFrames-1);
+    // last frame is always a key frame, so draw it if it's inside the clipping region
+    if(firstVisibleKeyX+visibleKeysX>=(numOfFrames-1)) drawKeyframe(track,numOfFrames-1);
   }
 }
 
