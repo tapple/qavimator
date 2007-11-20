@@ -7,8 +7,8 @@ export PATH=$QTDIR/bin:$PATH
 
 cd libquat/
 $QTDIR/bin/qmake
-make
+make $@
 
 cd ..
 $QTDIR/bin/qmake
-make
+make $@
