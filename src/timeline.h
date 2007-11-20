@@ -79,6 +79,7 @@ class Timeline : public QWidget
     void clearPosition();
     void drawKeyframe(int track,int frame);
     void drawTrack(int track);
+    bool isDirty(int frame);      // returns true if frame is inside "dirty" redraw region
 
     Animation* animation;
 

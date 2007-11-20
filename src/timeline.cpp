@@ -336,7 +336,11 @@ void Timeline::drawTrack(int track)
         if(frameNum>0)
         {
           // check if it differs from the previous frame, if it does, draw a line there
-          if(!animation->compareFrames(trackName,frameNum,oldFrame))
+          // but only if this line is inside the "dirty" redraw region
+          if(
+              (frameNum>firstVisibleKeyX && oldFrame<(firstVisibleKeyX+visibleKeysX)) &&
+              !animation->compareFrames(trackName,frameNum,oldFrame)
+            )
           {
             const FrameData& oldFrameData=joint->keyframeDataByIndex(key-1);
             int frameDiff=(frameNum-oldFrame+1)*KEY_WIDTH/2;
@@ -402,7 +406,7 @@ void Timeline::drawTrack(int track)
           }
         }
         // only draw keyframes if they are in "dirty" clipping region
-        if(frameNum>=firstVisibleKeyX && frameNum<=(firstVisibleKeyX+visibleKeysX))
+        if(isDirty(frameNum))
           // draw the key frame
           drawKeyframe(track,frameNum);
       }
@@ -411,8 +415,14 @@ void Timeline::drawTrack(int track)
     } // for
 
     // last frame is always a key frame, so draw it if it's inside the clipping region
-    if(firstVisibleKeyX+visibleKeysX>=(numOfFrames-1)) drawKeyframe(track,numOfFrames-1);
+    if(isDirty(numOfFrames-1)) drawKeyframe(track,numOfFrames-1);
   }
+}
+
+// returns true if frame is inside "dirty" redraw region
+bool Timeline::isDirty(int frame)
+{
+  return (frame>=firstVisibleKeyX && frame<=(firstVisibleKeyX+visibleKeysX));
 }
 
 void Timeline::mousePressEvent(QMouseEvent* e)
