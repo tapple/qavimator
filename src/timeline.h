@@ -56,7 +56,7 @@ class Timeline : public QWidget
     void trackClicked(int track);
     void resized(const QSize& newSize);
     void animationChanged(Animation* anim);
-    void deleteKeyframe(int track,int frame);
+    void deleteFrame(int track,int frame);
     void insertFrame(int track,int frame);
 
   public slots:
