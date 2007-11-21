@@ -26,6 +26,7 @@
 #define QAVIMATOR_H
 
 #include <qtimer.h>
+#include <qfileinfo.h>
 
 #define UNTITLED_NAME "Untitled.avm"
 #define PLAY_IMAGE "data/play.png"
@@ -142,6 +143,7 @@ class qavimator : public MainApplicationForm
     void removeFromOpenFiles(unsigned int which);
     bool clearOpenFiles();
 
+    bool checkFileOverwrite(const QFileInfo& fileInfo);
     void setCurrentFile(const QString& fileName);
     void enableInputs(bool state);
 

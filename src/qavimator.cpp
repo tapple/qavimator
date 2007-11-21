@@ -891,14 +891,21 @@ void qavimator::fileSaveAs()
                                             false);
   if(file)
   {
+    QFileInfo fileInfo(file);
     // make sure file has proper extension (either .bvh or .avm)
+    // TODO: use QFileInfo::extension() for this
     if(file.findRev(QRegExp("\\.(avm|bvh)$"),-4)==-1)
       file+=".avm";
 
-    setCurrentFile(file);
-    QFileInfo fileInfo(file);
-    lastPath=fileInfo.dirPath(false);
-    animationView->getAnimation()->saveBVH(file);
+    // if the file didn't exist yet or the user accepted to overwrite it, save it 
+    if(checkFileOverwrite(fileInfo))
+    {
+      setCurrentFile(file);
+      lastPath=fileInfo.dirPath(false);
+      animationView->getAnimation()->saveBVH(file);
+      // update animation selector combo box
+      selectAnimationCombo->changeItem(fileInfo.baseName(true),selectAnimationCombo->currentItem());
+    }
   }
 }
 
@@ -964,6 +971,10 @@ void qavimator::fileSaveProps()
     // make sure file has proper extension (.prp)
     if(fileName.findRev(".prp",-4)==-1)
       fileName+=".prp";
+
+    // check if file exists
+    QFileInfo fileInfo(fileName);
+    if(!checkFileOverwrite(fileInfo)) return;
 
     QFile file(fileName);
     if(file.open(IO_WriteOnly))
@@ -1134,6 +1145,19 @@ void qavimator::configChanged()
 void qavimator::helpAbout()
 {
   QMessageBox::about(this,QObject::tr("About QAvimator"),QObject::tr("QAvimator - Animation editor for Second Life<br />%1").arg(SVN_ID));
+}
+
+// checks if a file already exists at the given path and displays a warning message
+// returns true if it's ok to save/overwrite, else returns false
+bool qavimator::checkFileOverwrite(const QFileInfo& fileInfo)
+{
+  // get file info
+  if(fileInfo.exists())
+  {
+    int answer=QMessageBox::question(this,tr("File Exists"),tr("A file with the name \"%1\" does already exist. Do you want to overwrite it?").arg(fileInfo.fileName()),QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton);
+    if(answer==QMessageBox::No) return false;
+  }
+  return true;
 }
 
 void qavimator::setX(float x)
