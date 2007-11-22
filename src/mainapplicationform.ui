@@ -1990,7 +1990,7 @@
 <customwidgets>
     <customwidget>
         <class>AnimationView</class>
-        <header location="global">animationview.h</header>
+        <header location="local">animationview.h</header>
         <sizehint>
             <width>-1</width>
             <height>-1</height>
@@ -2006,7 +2006,7 @@
     </customwidget>
     <customwidget>
         <class>TimelineView</class>
-        <header location="global">timelineview.h</header>
+        <header location="local">timelineview.h</header>
         <sizehint>
             <width>-1</width>
             <height>-1</height>
@@ -2796,12 +2796,6 @@
         <slot>optionsShowTimeline(bool)</slot>
     </connection>
     <connection>
-        <sender>loopInSpinBox</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>MainApplicationForm</receiver>
-        <slot>setLoopPoint(int)</slot>
-    </connection>
-    <connection>
         <sender>deletePropButton</sender>
         <signal>clicked()</signal>
         <receiver>MainApplicationForm</receiver>
@@ -2861,6 +2855,18 @@
         <receiver>MainApplicationForm</receiver>
         <slot>scaleChanged(int)</slot>
     </connection>
+    <connection>
+        <sender>loopInSpinBox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>setLoopInPoint(int)</slot>
+    </connection>
+    <connection>
+        <sender>loopOutSpinBox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>MainApplicationForm</receiver>
+        <slot>setLoopOutPoint(int)</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>selectAnimationCombo</tabstop>
@@ -2901,6 +2907,9 @@
     <tabstop>propZRotSpin</tabstop>
     <tabstop>avatarPropsTab</tabstop>
 </tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
+</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>
@@ -2954,6 +2963,8 @@
     <slot>optionsConfigure()</slot>
     <slot>newPropButtonClicked()</slot>
     <slot>scaleChanged( int )</slot>
+    <slot>setLoopInPoint( int )</slot>
+    <slot>setLoopOutPoint( int )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>

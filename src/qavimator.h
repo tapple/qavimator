@@ -101,7 +101,8 @@ class qavimator : public MainApplicationForm
     void keyframeButtonToggled(bool on);
 
     void setCurrentFrame(int frame);
-    void setLoopPoints(int inFrame,int outFrame); // outFrame==-1: sets to end of animation
+    void setLoopInPoint(int inFrame);
+    void setLoopOutPoint(int outFrame);
 
     // ------- Menu Action Slots (Callbacks) --------
     void fileNew();
@@ -148,7 +149,6 @@ class qavimator : public MainApplicationForm
     void enableInputs(bool state);
 
     void updateFps();
-    void updatePercent(int currentFrame);
     void updateKeyBtn();
     void updateInputs();
     void updatePropSpins(const Prop* prop);

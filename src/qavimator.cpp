@@ -598,12 +598,6 @@ void qavimator::updateKeyBtn()
 //  timeline->repaint();
 }
 
-void qavimator::updatePercent(int frame)
-{
-// TODO: Move this to Loop In / Out percent labels
-//  percentLabel->setText(QString("(%1%)").arg((frame+1)*100/animationView->getAnimation()->getNumberOfFrames()));
-}
-
 void qavimator::enableInputs(bool state)
 {
   if(protect) state=false;
@@ -639,9 +633,12 @@ void qavimator::cb_timeout()
 
 void qavimator::cb_PlayBtn()
 {
+  Animation* anim=animationView->getAnimation();
+
+  anim->setLoop(loop);
   playing = !playing;
   if (playing)
-    timer.start((int)(animationView->getAnimation()->frameTime()*1000));
+    timer.start((int)(anim->frameTime()*1000));
   else
   {
     // take care of locks, key frames ...
@@ -689,9 +686,14 @@ void qavimator::scaleChanged(int percent)
 void qavimator::numFramesChanged(int num)
 {
   if(num<1) num=1;
-  animationView->getAnimation()->setNumberOfFrames(num);
+  Animation* anim=animationView->getAnimation();
+  anim->setNumberOfFrames(num);
+
+  // re-check loop boundaries
+  setLoopInPoint(anim->getLoopInPoint()+1);
+  setLoopOutPoint(anim->getLoopOutPoint()+1);
+
   updateInputs();
-  updatePercent(animationView->getAnimation()->getFrame());
 }
 
 void qavimator::keyframeButtonToggled(bool)
@@ -748,13 +750,14 @@ void qavimator::fileNew()
   {
     // skip first frame, since it's protected anyway
     animationView->setFrame(1);
-    setLoopPoints(2,-1);
+    setLoopInPoint(2);
   }
   else
   {
     animationView->setFrame(0);
-    setLoopPoints(1,-1);
+    setLoopInPoint(1);
   }
+  setLoopOutPoint(anim->getNumberOfFrames());
 
   // show frame as unprotected
   emit protectFrame(false);
@@ -848,19 +851,23 @@ void qavimator::fileAdd(const QString& name)
     selectAnimation(anim);
     anim->useRotationLimits(jointLimits);
 
-    // set the frame
-    if (animationView->getAnimation(1))
-      animationView->setFrame(animationView->getAnimation(0)->getFrame());
-    else if (protectFirstFrame)
+    // no loop in point? must be a BVH or an older avm. set a sane default
+    if(anim->getLoopInPoint()==-1)
     {
-      animationView->setFrame(1);
-      setLoopPoints(2,-1);
+      if (protectFirstFrame)
+      {
+        animationView->setFrame(1);
+        setLoopInPoint(2);
+      }
+      else
+      {
+        animationView->setFrame(0);
+        setLoopInPoint(1);
+      }
     }
     else
-    {
-      animationView->setFrame(0);
-      setLoopPoints(1,-1);
-    }
+      setLoopInPoint(anim->getLoopInPoint());
+    setLoopOutPoint(anim->getLoopOutPoint());
 
     // FIXME: code duplication
     connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
@@ -900,7 +907,7 @@ void qavimator::fileSaveAs()
     if(extension!="avm" && extension!="bvh")
       file+=".avm";
 
-    // if the file didn't exist yet or the user accepted to overwrite it, save it 
+    // if the file didn't exist yet or the user accepted to overwrite it, save it
     if(checkFileOverwrite(fileInfo))
     {
       setCurrentFile(file);
@@ -1308,7 +1315,6 @@ void qavimator::setCurrentFrame(int frame)
   positionSlider->blockSignals(true);
   positionSlider->setValue(frame);
   currentFrameLabel->setText(QString::number(frame+1));
-  updatePercent(frame);
   positionSlider->blockSignals(false);
   timeline->setCurrentFrame(frame);
   animationView->setFrame(frame);
@@ -1518,24 +1524,46 @@ void qavimator::selectAnimation(Animation* animation)
   updateInputs();
 }
 
-// set loop in and loop out points
-void qavimator::setLoopPoints(int inFrame,int outFrame)
+// set loop in point (user view, so always +1)
+void qavimator::setLoopInPoint(int inFrame)
 {
   Animation* anim=animationView->getAnimation();
-  int numOfFrames=anim->getNumberOfFrames()+1;
+  int numOfFrames=anim->getNumberOfFrames();
+  int outFrame=anim->getLoopOutPoint();
+//  qDebug("qavimator::setLoopInPoint(%d) (%d frames)",inFrame,numOfFrames);
 
   if(inFrame>numOfFrames) inFrame=numOfFrames;
+  if(inFrame>outFrame) inFrame=outFrame+1;
   if(inFrame<1) inFrame=1;
 
-  if(outFrame>numOfFrames || outFrame==-1) outFrame=numOfFrames;
-  if(outFrame<1) outFrame=1;
-
-  anim->setLoopPoints(inFrame-1,outFrame-1);
+  anim->setLoopInPoint(inFrame-1);
 
   loopInSpinBox->blockSignals(true);
   loopInSpinBox->setValue(inFrame);
-  loopOutSpinBox->setValue(outFrame);
   loopInSpinBox->blockSignals(false);
+
+  loopInPercentLabel->setText(QString("(%1%)").arg(inFrame*100/numOfFrames));
+}
+
+// set loop out point (user view, so always +1)
+void qavimator::setLoopOutPoint(int outFrame)
+{
+  Animation* anim=animationView->getAnimation();
+  int numOfFrames=anim->getNumberOfFrames();
+  int inFrame=anim->getLoopInPoint();
+//  qDebug("qavimator::setLoopOutPoint(%d) (%d frames)",outFrame,numOfFrames);
+
+  if(outFrame>numOfFrames) outFrame=numOfFrames;
+  if((outFrame-1)<inFrame) outFrame=inFrame+1;
+  if(outFrame<1) outFrame=1;
+
+  anim->setLoopOutPoint(outFrame-1);
+
+  loopOutSpinBox->blockSignals(true);
+  loopOutSpinBox->setValue(outFrame);
+  loopOutSpinBox->blockSignals(false);
+
+  loopOutPercentLabel->setText(QString("(%1%)").arg(outFrame*100/numOfFrames));
 }
 
 // prevent closing of main window if there are unsaved changes

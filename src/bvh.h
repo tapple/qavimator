@@ -78,6 +78,8 @@ class BVH
     QStringList bvhTypeName;
     QStringList bvhChannelName;
     int lastLoadedNumberOfFrames;
+    int lastLoadedLoopIn;
+    int lastLoadedLoopOut;
     float lastLoadedAvatarScale;
     Animation::FigureType lastLoadedFigureType;
     int nodeCount;

@@ -63,6 +63,8 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   setNumberOfFrames(bvh->lastLoadedNumberOfFrames);
   setAvatarScale(bvh->lastLoadedAvatarScale);
   setFigureType(bvh->lastLoadedFigureType);
+  setLoopInPoint(bvh->lastLoadedLoopIn);
+  setLoopOutPoint(bvh->lastLoadedLoopOut);
 
   ikTree.set(frames);
   setIK(IK_LHAND, false);
@@ -70,6 +72,7 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   setIK(IK_LFOOT, false);
   setIK(IK_RFOOT, false);
 
+  setLoop(false);
   setDirty(false);
 }
 
@@ -168,7 +171,10 @@ int Animation::stepForward()
   {
     int nextFrame=(frame + 1) % totalFrames;
 
-    if(!nextFrame || nextFrame==loopOutPoint) nextFrame=loopInPoint;
+    if(loop)
+    {
+      if(!nextFrame || nextFrame>loopOutPoint) nextFrame=loopInPoint;
+    }
     setFrame(nextFrame);
 
     return nextFrame;
@@ -223,16 +229,23 @@ bool Animation::easeOut(const QString& name)
   return false;
 }
 
-void Animation::setLoopPoints(int inFrame,int outFrame)
+void Animation::setLoopInPoint(int inFrame)
 {
+//  qDebug("Animation::setLoopInPoint(%d)",inFrame);
   loopInPoint=inFrame;
-  loopOutPoint=outFrame;
   setDirty(true);
 }
 
 int Animation::getLoopInPoint()
 {
   return loopInPoint;
+}
+
+void Animation::setLoopOutPoint(int outFrame)
+{
+//  qDebug("Animation::setLoopOutPoint(%d)",outFrame);
+  loopOutPoint=outFrame;
+  setDirty(true);
 }
 
 int Animation::getLoopOutPoint()
@@ -836,6 +849,11 @@ void Animation::setDirty(bool state)
 {
   isDirty=state;
   emit animationDirty(state);
+}
+
+void Animation::setLoop(bool on)
+{
+  loop=on;
 }
 
 float Animation::getAvatarScale()

@@ -426,6 +426,9 @@ BVHNode* BVH::avmRead(const QString& file)
   int totalFrames=atoi(token(f,buffer));
   lastLoadedNumberOfFrames=totalFrames;
 
+  lastLoadedLoopIn=-1;  // indicates "no loop points set"
+  lastLoadedLoopOut=totalFrames;
+
   expect_token(f, "Frame");
   expect_token(f, "Time:");
   root->frameTime = atof(token(f,buffer));
@@ -460,6 +463,14 @@ BVHNode* BVH::avmRead(const QString& file)
         else if(propertyName=="Figure:")
         {
           lastLoadedFigureType=static_cast<Animation::FigureType>(propertyValue.toInt());
+        }
+        else if(propertyName=="LoopIn:")
+        {
+          lastLoadedLoopIn=propertyValue.toInt();
+        }
+        else if(propertyName=="LoopOut:")
+        {
+          lastLoadedLoopOut=propertyValue.toInt();
         }
         else
           qDebug("Unknown extended property '%s' (%s), ignoring.",propertyName.latin1(),propertyValue.latin1());
@@ -655,6 +666,8 @@ void BVH::avmWrite(Animation* anim,const QString& file)
   // write remaining properties
   fprintf(f, "Scale: %f\n",anim->getAvatarScale());
   fprintf(f, "Figure: %d\n",anim->getFigureType());
+  fprintf(f, "LoopIn: %d\n",anim->getLoopInPoint());
+  fprintf(f, "LoopOut: %d\n",anim->getLoopOutPoint());
 
   fclose(f);
 }

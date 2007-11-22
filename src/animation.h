@@ -52,8 +52,9 @@ class Animation : public QObject
     int getFrame();
     void setFrame(int frameNumber);
     int stepForward();
-    void setLoopPoints(int inFrame,int outFrame);
+    void setLoopInPoint(int inFrame);
     int getLoopInPoint();
+    void setLoopOutPoint(int outFrame);
     int getLoopOutPoint();
     void setIK(const QString& jointName, bool flag);
     bool getIK(const QString& jointName);
@@ -80,6 +81,7 @@ class Animation : public QObject
 
     bool dirty() const;
     void setDirty(bool state);
+    void setLoop(bool loop);
 
     const FrameData keyframeDataByIndex(int jointNumber,int index);
 
@@ -142,6 +144,8 @@ class Animation : public QObject
 
     int frame;
     int totalFrames;
+
+    bool loop;            // should we loop when using stepForward()?
     int loopInPoint;
     int loopOutPoint;
 
