@@ -62,6 +62,7 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   useRotationLimits(true);
   setNumberOfFrames(bvh->lastLoadedNumberOfFrames);
   setAvatarScale(bvh->lastLoadedAvatarScale);
+  setFigureType(bvh->lastLoadedFigureType);
 
   ikTree.set(frames);
   setIK(IK_LHAND, false);
@@ -837,4 +838,16 @@ float Animation::getAvatarScale()
 void Animation::setAvatarScale(float newScale)
 {
   avatarScale=newScale;
+}
+
+Animation::FigureType Animation::getFigureType()
+{
+  return figureType;
+}
+
+void Animation::setFigureType(FigureType type)
+{
+  // safety check if figure is valid
+  if(type>=0 && type<NUM_FIGURES)
+    figureType=type;
 }

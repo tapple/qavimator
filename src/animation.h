@@ -39,6 +39,7 @@ class Animation : public QObject
 
   public:
     typedef enum { IK_LHAND=0, IK_RHAND, IK_LFOOT, IK_RFOOT, NUM_IK } IKPartType;
+    typedef enum { FIGURE_MALE=0, FIGURE_FEMALE,NUM_FIGURES } FigureType;
 
     Animation(BVH* bvh,const QString& bvhFile=QString::null);
     ~Animation();
@@ -64,6 +65,9 @@ class Animation : public QObject
 
     float getAvatarScale();
     void setAvatarScale(float newScale);
+
+    FigureType getFigureType();
+    void setFigureType(FigureType type);
 
     BVHNode* getMotion();
     BVHNode* getEndSite(const QString& siteParentName);
@@ -126,6 +130,8 @@ class Animation : public QObject
   protected:
     BVH* bvh;
     BVHNode *frames;
+
+    FigureType figureType;
 
     // this flag shows if the animation has been worked on and not yet saved
     bool isDirty;

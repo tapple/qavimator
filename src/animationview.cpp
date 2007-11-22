@@ -62,7 +62,6 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   glutInit(&args,arg);
 
   // init
-  figType=FEMALE;
   skeleton=false;
   selecting=false;
   partHighlighted=0;
@@ -84,10 +83,8 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
 
   // read SL reference models to restore joint positions, in case another model has joints
   // we do not support (e.g. the SL example bvh files)
-  for(int i=0;i<NUM_FIGURES;i++)
+  for(int i=0;i<Animation::NUM_FIGURES;i++)
     joints[i]=bvh->animRead(QString(execPath+"/"+figureFiles[i]),limFile);
-
-  setFigure(figType);
 
 // FIXME:    mode(FL_DOUBLE | FL_MULTISAMPLE | FL_ALPHA | FL_DEPTH);
 
@@ -718,6 +715,8 @@ void AnimationView::keyReleaseEvent(QKeyEvent* event)
 
 void AnimationView::drawFigure(Animation* anim,unsigned int index)
 {
+    Animation::FigureType figType=anim->getFigureType();
+
     glShadeModel(GL_SMOOTH);
     setBodyMaterial();
     glEnable(GL_LIGHTING);
@@ -856,7 +855,7 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
 	glGetFloatv(GL_CURRENT_COLOR, color);
 	glColor4f(color[0], color[1], color[2]+0.3, color[3]);
       }
-      figType==MALE ? drawSLMalePart(motion->name()):drawSLFemalePart(motion->name());
+      anim->getFigureType()==Animation::FIGURE_MALE ? drawSLMalePart(motion->name()):drawSLFemalePart(motion->name());
 
       for(unsigned int index=0;index<propList.count();index++)
       {
@@ -1034,12 +1033,6 @@ void AnimationView::drawCircle(int axis, float radius, int width)
   }
   glEnd();
 
-}
-
-void AnimationView::setFigure(FigureType type)
-{
-  if (type >= 0 && type < NUM_FIGURES)
-    figType = type;
 }
 
 const QString& AnimationView::getSelectedPart()

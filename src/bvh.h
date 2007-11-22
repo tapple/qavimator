@@ -26,6 +26,7 @@
 
 #include "rotation.h"
 #include "bvhnode.h"
+#include "animation.h"
 
 class BVHNode;
 class Animation;
@@ -78,6 +79,7 @@ class BVH
     QStringList bvhChannelName;
     int lastLoadedNumberOfFrames;
     float lastLoadedAvatarScale;
+    Animation::FigureType lastLoadedFigureType;
     int nodeCount;
 
     QValueList<Rotation> rotationCopyBuffer;

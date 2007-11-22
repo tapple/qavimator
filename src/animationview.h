@@ -65,14 +65,6 @@ class AnimationView : public QGLWidget
   Q_OBJECT
 
   public:
-
-    typedef enum
-    {
-      MALE,
-      FEMALE,
-      NUM_FIGURES
-    } FigureType;
-
     AnimationView(QWidget* parent=0,const char* name=0,Animation* anim=0);
     ~AnimationView();
 
@@ -104,8 +96,6 @@ class AnimationView : public QGLWidget
     Animation *getAnimation(unsigned int index) { return animList.at(index); }
     Animation *getLastAnimation() { return animList.last(); }
     bool isSkeletonOn() { return skeleton; }
-    FigureType getFigure() { return figType; }
-    void setFigure(FigureType type);
     void showSkeleton() { skeleton = true; }
     void hideSkeleton() { skeleton = false; }
     void selectPart(const QString& part);
@@ -188,7 +178,7 @@ class AnimationView : public QGLWidget
     Animation *animation; // this is the "currently selected" animation
     Camera camera;
     double changeX, changeY, changeZ;
-    BVHNode* joints[NUM_FIGURES];
+    BVHNode* joints[Animation::NUM_FIGURES];
 
     bool skeleton;
     bool selecting;
@@ -203,7 +193,6 @@ class AnimationView : public QGLWidget
 
     int drawMode;
     bool xSelect, ySelect, zSelect;
-    FigureType figType;
 
     bool inAnimList(Animation *anim);
     void setProjection();

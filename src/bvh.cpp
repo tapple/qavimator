@@ -30,7 +30,6 @@
 #include <qmessagebox.h>
 
 #include "bvh.h"
-#include "animation.h"
 
 BVH::BVH()
 {
@@ -458,8 +457,12 @@ BVHNode* BVH::avmRead(const QString& file)
         {
           lastLoadedAvatarScale=propertyValue.toFloat();
         }
+        else if(propertyName=="Figure:")
+        {
+          lastLoadedFigureType=static_cast<Animation::FigureType>(propertyValue.toInt());
+        }
         else
-          qDebug("Unknown extended property, ignoring.");
+          qDebug("Unknown extended property '%s' (%s), ignoring.",propertyName.latin1(),propertyValue.latin1());
       }
     }
   } // while
@@ -475,6 +478,8 @@ BVHNode* BVH::animRead(const QString& file,const QString& limFile)
 
   // default avatar scale for BVH and AVM files
   lastLoadedAvatarScale=1.0;
+  // default figure type
+  lastLoadedFigureType=Animation::FIGURE_FEMALE;
 
   // rudimentary file type identification from filename
   if(file.findRev(".bvh",-4,false)!=-1)
@@ -646,6 +651,10 @@ void BVH::avmWrite(Animation* anim,const QString& file)
   avmWriteKeyFrame(root, f);
   fprintf(f, "Properties\n");
   avmWriteKeyFrameProperties(root, f);
+
+  // write remaining properties
+  fprintf(f, "Scale: %f\n",anim->getAvatarScale());
+  fprintf(f, "Figure: %d\n",anim->getFigureType());
 
   fclose(f);
 }

@@ -485,6 +485,9 @@ void qavimator::cb_PosValue()
 
 void qavimator::updateInputs()
 {
+  // deactivate redraw to reduce interface "jitter" during updating
+  setUpdatesEnabled(false);
+
   double x=0, y=0, z=0;
   Animation *anim = animationView->getAnimation();
 
@@ -546,7 +549,7 @@ void qavimator::updateInputs()
 
   // prevent feedback loop
   scaleSpin->blockSignals(true);
-  scaleSpin->setValue(anim->getAvatarScale()*100);
+  scaleSpin->setValue(anim->getAvatarScale()*100.0+0.1);  // +0.1 to overcome rounding errors
   scaleSpin->blockSignals(false);
 
   updateKeyBtn();
@@ -565,6 +568,9 @@ void qavimator::updateInputs()
     emit enableProps(true);
   else
     emit enableProps(false);
+
+  // reactivate redraw
+  setUpdatesEnabled(true);
 }
 
 void qavimator::updateKeyBtn()
@@ -661,20 +667,15 @@ void qavimator::cb_FrameSlider(int position)
   updateInputs();
 }
 
-void qavimator::animationChanged(int which)
-{
-  if ((unsigned int) which >= openFiles.count()) return;
-    setCurrentFile(*openFiles.at(which));
-    animationView->selectAnimation(which);
-    updateInputs();
-}
-
 void qavimator::figureChanged(int shape)
 {
+  Animation* anim=animationView->getAnimation();
+  if(!anim) return;
+
   if(shape==0)
-    animationView->setFigure(AnimationView::FEMALE);
+    anim->setFigureType(Animation::FIGURE_FEMALE);
   else
-    animationView->setFigure(AnimationView::MALE);
+    anim->setFigureType(Animation::FIGURE_MALE);
   animationView->repaint();
 }
 
@@ -1472,12 +1473,46 @@ void qavimator::clearProps()
   selectProp(QString::null);
 }
 
+// gets called by selecting an animation from the animation combo box
+void qavimator::animationChanged(int which)
+{
+  // safety to check if "which" is out of bounds of loaded animations
+  if((unsigned int) which>=openFiles.count()) return;
+
+  // get animation pointer
+  Animation* anim=animationIds.at(which);
+  // select animation (will also update combo box, but better than duplicate code)
+  selectAnimation(anim);
+}
+
 // gets called from AnimationView::animationSelected()
 void qavimator::selectAnimation(Animation* animation)
 {
+  // find animation index in list of open files
   for(unsigned int index=0;index<animationIds.count();index++)
-    if(animationIds.at(index)==animation) selectAnimationCombo->setCurrentItem(index);
+  {
+    // index found
+    if(animationIds.at(index)==animation)
+    {
+      // prevent signal looping
+      animationView->blockSignals(true);
+      // update animation combo box
+      selectAnimationCombo->setCurrentItem(index);
+      // update window title
+      setCurrentFile(*openFiles.at(index));
+      // update animation view (might already be active, depending on how this function was called)
+      animationView->selectAnimation(index);
+      // re-enable signals
+      animationView->blockSignals(false);
+    }
+  } // for
 
+  // update avatar figure combo box
+  int figure=0;
+  if(animation->getFigureType()==Animation::FIGURE_MALE) figure=1;
+  figureCombo->setCurrentItem(figure);
+
+  // update timeline
   timeline->setAnimation(animation);
   updateInputs();
 }
