@@ -8,230 +8,334 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>797</width>
-            <height>826</height>
+            <width>794</width>
+            <height>876</height>
         </rect>
     </property>
     <property name="caption">
         <string>Form2</string>
     </property>
-    <hbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="0" column="0" rowspan="2" colspan="1">
             <property name="name">
-                <cstring>layout18</cstring>
+                <cstring>layout10</cstring>
             </property>
-            <vbox>
+            <grid>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLayoutWidget">
+                <widget class="QPushButton" row="2" column="1">
                     <property name="name">
-                        <cstring>layout9</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="AnimationView">
-                            <property name="name">
-                                <cstring>animationView</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>7</hsizetype>
-                                    <vsizetype>7</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
-                            </property>
-                        </widget>
-                        <widget class="TimelineView">
-                            <property name="name">
-                                <cstring>timelineView</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>7</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>360</width>
-                                    <height>258</height>
-                                </size>
-                            </property>
-                            <property name="font">
-                                <font>
-                                    <pointsize>9</pointsize>
-                                </font>
-                            </property>
-                            <property name="focusPolicy">
-                                <enum>StrongFocus</enum>
-                            </property>
-                        </widget>
-                    </vbox>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout13</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QSlider">
-                            <property name="name">
-                                <cstring>positionSlider</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>7</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>playButton</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>0</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>30</width>
-                                    <height>0</height>
-                                </size>
-                            </property>
-                            <property name="font">
-                                <font>
-                                    <bold>1</bold>
-                                </font>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="pixmap">
-                                <pixmap>image0</pixmap>
-                            </property>
-                        </widget>
-                        <widget class="QPushButton">
-                            <property name="name">
-                                <cstring>keyframeButton</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>false</bool>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>0</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>30</width>
-                                    <height>0</height>
-                                </size>
-                            </property>
-                            <property name="font">
-                                <font>
-                                    <bold>1</bold>
-                                </font>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="pixmap">
-                                <pixmap>image1</pixmap>
-                            </property>
-                            <property name="accel">
-                                <string></string>
-                            </property>
-                            <property name="toggleButton">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>loopLabel</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>0</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="text">
-                                <string>Loop:</string>
-                            </property>
-                        </widget>
-                        <widget class="QSpinBox">
-                            <property name="name">
-                                <cstring>loopSpinBox</cstring>
-                            </property>
-                        </widget>
-                    </hbox>
-                </widget>
-            </vbox>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout26</cstring>
-            </property>
-            <vbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QTabWidget">
-                    <property name="name">
-                        <cstring>avatarPropsTab</cstring>
+                        <cstring>playButton</cstring>
                     </property>
                     <property name="sizePolicy">
                         <sizepolicy>
-                            <hsizetype>5</hsizetype>
-                            <vsizetype>5</vsizetype>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
                             <horstretch>0</horstretch>
                             <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
-                    <widget class="QWidget">
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap>image0</pixmap>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="2" column="2">
+                    <property name="name">
+                        <cstring>keyframeButton</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>0</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>0</height>
+                        </size>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <bold>1</bold>
+                        </font>
+                    </property>
+                    <property name="text">
+                        <string></string>
+                    </property>
+                    <property name="pixmap">
+                        <pixmap>image1</pixmap>
+                    </property>
+                    <property name="accel">
+                        <string></string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="AnimationView" row="0" column="0" rowspan="1" colspan="3">
+                    <property name="name">
+                        <cstring>animationView</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>7</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                </widget>
+                <widget class="TimelineView" row="1" column="0" rowspan="1" colspan="3">
+                    <property name="name">
+                        <cstring>timelineView</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>360</width>
+                            <height>258</height>
+                        </size>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <pointsize>9</pointsize>
+                        </font>
+                    </property>
+                    <property name="focusPolicy">
+                        <enum>StrongFocus</enum>
+                    </property>
+                </widget>
+                <widget class="QSlider" row="2" column="0">
+                    <property name="name">
+                        <cstring>positionSlider</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QTabWidget" row="0" column="1">
+            <property name="name">
+                <cstring>avatarPropsTab</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>5</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
+            </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>&amp;Avatar</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QLabel" row="2" column="0">
                         <property name="name">
-                            <cstring>tab</cstring>
+                            <cstring>editPartLabel</cstring>
                         </property>
-                        <attribute name="title">
-                            <string>&amp;Avatar</string>
-                        </attribute>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>0</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>Edit Part:</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0">
+                        <property name="name">
+                            <cstring>animationLabel</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>0</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>Animation:</string>
+                        </property>
+                    </widget>
+                    <widget class="QGroupBox" row="5" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>easeInOutGroup</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Ease In / Out</string>
+                        </property>
                         <grid>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLabel" row="2" column="0">
+                            <widget class="QCheckBox" row="0" column="1">
                                 <property name="name">
-                                    <cstring>editPartLabel</cstring>
+                                    <cstring>easeOutCheck</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Ease Out</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="0" column="0">
+                                <property name="name">
+                                    <cstring>easeInCheck</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Ease In</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget class="QGroupBox" row="4" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>positionGroupBox</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="title">
+                            <string>Position</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QSlider" row="1" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>xPositionSlider</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minValue">
+                                    <number>-19600</number>
+                                </property>
+                                <property name="maxValue">
+                                    <number>19600</number>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                            </widget>
+                            <widget class="QSlider" row="3" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>yPositionSlider</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minValue">
+                                    <number>-19600</number>
+                                </property>
+                                <property name="maxValue">
+                                    <number>19600</number>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                            </widget>
+                            <widget class="QSlider" row="5" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>zPositionSlider</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minValue">
+                                    <number>-19600</number>
+                                </property>
+                                <property name="maxValue">
+                                    <number>19600</number>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="4" column="0">
+                                <property name="name">
+                                    <cstring>zPositionLabel</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
                                 </property>
                                 <property name="sizePolicy">
                                     <sizepolicy>
@@ -242,12 +346,66 @@
                                     </sizepolicy>
                                 </property>
                                 <property name="text">
-                                    <string>Edit Part:</string>
+                                    <string>Z Position:</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="4" column="1">
+                                <property name="name">
+                                    <cstring>zPositionEdit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="2" column="0">
+                                <property name="name">
+                                    <cstring>yPositionLabel</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Y Position:</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="2" column="1">
+                                <property name="name">
+                                    <cstring>yPositionEdit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="0" column="0">
                                 <property name="name">
-                                    <cstring>animationLabel</cstring>
+                                    <cstring>xPositionLabel</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
                                 </property>
                                 <property name="sizePolicy">
                                     <sizepolicy>
@@ -258,694 +416,19 @@
                                     </sizepolicy>
                                 </property>
                                 <property name="text">
-                                    <string>Animation:</string>
+                                    <string>X Position:</string>
                                 </property>
                             </widget>
-                            <widget class="QGroupBox" row="5" column="0" rowspan="1" colspan="4">
+                            <widget class="QLineEdit" row="0" column="1">
                                 <property name="name">
-                                    <cstring>easeInOutGroup</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Ease In / Out</string>
-                                </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QCheckBox" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>easeOutCheck</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Ease Out</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>easeInCheck</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Ease In</string>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <spacer row="6" column="2">
-                                <property name="name">
-                                    <cstring>spacer3</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QGroupBox" row="4" column="0" rowspan="1" colspan="4">
-                                <property name="name">
-                                    <cstring>positionGroupBox</cstring>
+                                    <cstring>xPositionEdit</cstring>
                                 </property>
                                 <property name="enabled">
                                     <bool>true</bool>
                                 </property>
-                                <property name="title">
-                                    <string>Position</string>
-                                </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QSlider" row="1" column="0" rowspan="1" colspan="2">
-                                        <property name="name">
-                                            <cstring>xPositionSlider</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>-19600</number>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>19600</number>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSlider" row="3" column="0" rowspan="1" colspan="2">
-                                        <property name="name">
-                                            <cstring>yPositionSlider</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>-19600</number>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>19600</number>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSlider" row="5" column="0" rowspan="1" colspan="2">
-                                        <property name="name">
-                                            <cstring>zPositionSlider</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>-19600</number>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>19600</number>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="4" column="0">
-                                        <property name="name">
-                                            <cstring>zPositionLabel</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Z Position:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLineEdit" row="4" column="1">
-                                        <property name="name">
-                                            <cstring>zPositionEdit</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="2" column="0">
-                                        <property name="name">
-                                            <cstring>yPositionLabel</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Y Position:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLineEdit" row="2" column="1">
-                                        <property name="name">
-                                            <cstring>yPositionEdit</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>xPositionLabel</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>X Position:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLineEdit" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>xPositionEdit</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <widget class="QGroupBox" row="3" column="0" rowspan="1" colspan="4">
-                                <property name="name">
-                                    <cstring>rotationGroupBox</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="title">
-                                    <string>Rotation</string>
-                                </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QSlider" row="5" column="0" rowspan="1" colspan="3">
-                                        <property name="name">
-                                            <cstring>zSlider</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSlider" row="1" column="0" rowspan="1" colspan="3">
-                                        <property name="name">
-                                            <cstring>xSlider</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>xRotationLabel</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>X Rotation:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLineEdit" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>xRotationEdit</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="0" column="2">
-                                        <property name="name">
-                                            <cstring>shiftLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="paletteForegroundColor">
-                                            <color>
-                                                <red>171</red>
-                                                <green>0</green>
-                                                <blue>0</blue>
-                                            </color>
-                                        </property>
-                                        <property name="text">
-                                            <string>Shift</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="2" column="2">
-                                        <property name="name">
-                                            <cstring>altLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="paletteForegroundColor">
-                                            <color>
-                                                <red>20</red>
-                                                <green>175</green>
-                                                <blue>0</blue>
-                                            </color>
-                                        </property>
-                                        <property name="text">
-                                            <string>Alt</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="4" column="0">
-                                        <property name="name">
-                                            <cstring>zRotationLabel</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Z Rotation:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLineEdit" row="4" column="1">
-                                        <property name="name">
-                                            <cstring>zRotationEdit</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="4" column="2">
-                                        <property name="name">
-                                            <cstring>ctrlLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="paletteForegroundColor">
-                                            <color>
-                                                <red>0</red>
-                                                <green>0</green>
-                                                <blue>226</blue>
-                                            </color>
-                                        </property>
-                                        <property name="text">
-                                            <string>Ctrl</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="2" column="0">
-                                        <property name="name">
-                                            <cstring>yRotationLabel</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Y Rotation:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLineEdit" row="2" column="1">
-                                        <property name="name">
-                                            <cstring>yRotationEdit</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSlider" row="3" column="0" rowspan="1" colspan="3">
-                                        <property name="name">
-                                            <cstring>ySlider</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <widget class="QLabel" row="1" column="0">
-                                <property name="name">
-                                    <cstring>figureLabel</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="text">
-                                    <string>Figure:</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="1" column="2">
-                                <property name="name">
-                                    <cstring>scaleLabel</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Size:</string>
-                                </property>
-                            </widget>
-                            <widget class="QComboBox" row="0" column="1" rowspan="1" colspan="3">
-                                <property name="name">
-                                    <cstring>selectAnimationCombo</cstring>
-                                </property>
                                 <property name="sizePolicy">
                                     <sizepolicy>
                                         <hsizetype>5</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                            </widget>
-                            <widget class="QComboBox" row="2" column="1" rowspan="1" colspan="3">
-                                <item>
-                                    <property name="text">
-                                        <string>hip</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>abdomen</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>chest</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>neck</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>head</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lCollar</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lShldr</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lForeArm</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lHand</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rCollar</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rShldr</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rForeArm</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rHand</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lThigh</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lShin</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lFoot</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rThigh</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rShin</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rFoot</string>
-                                    </property>
-                                </item>
-                                <property name="name">
-                                    <cstring>editPartCombo</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>5</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                            </widget>
-                            <widget class="QSpinBox" row="1" column="3">
-                                <property name="name">
-                                    <cstring>scaleSpin</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>7</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="suffix">
-                                    <string>%</string>
-                                </property>
-                                <property name="maxValue">
-                                    <number>200</number>
-                                </property>
-                                <property name="minValue">
-                                    <number>30</number>
-                                </property>
-                                <property name="value">
-                                    <number>100</number>
-                                </property>
-                            </widget>
-                            <widget class="QComboBox" row="1" column="1">
-                                <item>
-                                    <property name="text">
-                                        <string>female</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>male</string>
-                                    </property>
-                                </item>
-                                <property name="name">
-                                    <cstring>figureCombo</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>7</hsizetype>
                                         <vsizetype>0</vsizetype>
                                         <horstretch>0</horstretch>
                                         <verstretch>0</verstretch>
@@ -954,374 +437,64 @@
                             </widget>
                         </grid>
                     </widget>
-                    <widget class="QWidget">
+                    <widget class="QGroupBox" row="3" column="0" rowspan="1" colspan="4">
                         <property name="name">
-                            <cstring>tab</cstring>
+                            <cstring>rotationGroupBox</cstring>
                         </property>
-                        <attribute name="title">
-                            <string>Props</string>
-                        </attribute>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="title">
+                            <string>Rotation</string>
+                        </property>
                         <grid>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QGroupBox" row="4" column="0" rowspan="1" colspan="4">
+                            <widget class="QSlider" row="5" column="0" rowspan="1" colspan="3">
                                 <property name="name">
-                                    <cstring>propScaleGroup</cstring>
+                                    <cstring>zSlider</cstring>
                                 </property>
                                 <property name="enabled">
                                     <bool>true</bool>
                                 </property>
-                                <property name="title">
-                                    <string>Scale</string>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
                                 </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed_2</cstring>
-                                    </property>
-                                    <widget class="QLabel" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>propXScaleLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>X Scale:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>propYScaleLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Y Scale:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>propXScaleSpin</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox" row="1" column="1">
-                                        <property name="name">
-                                            <cstring>propYScaleSpin</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox" row="2" column="1">
-                                        <property name="name">
-                                            <cstring>propZScaleSpin</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="2" column="0">
-                                        <property name="name">
-                                            <cstring>propZScaleLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Z Scale:</string>
-                                        </property>
-                                    </widget>
-                                </grid>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
                             </widget>
-                            <widget class="QGroupBox" row="3" column="0" rowspan="1" colspan="4">
+                            <widget class="QSlider" row="1" column="0" rowspan="1" colspan="3">
                                 <property name="name">
-                                    <cstring>propPositionGroup</cstring>
+                                    <cstring>xSlider</cstring>
                                 </property>
                                 <property name="enabled">
                                     <bool>true</bool>
                                 </property>
-                                <property name="title">
-                                    <string>Position</string>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
                                 </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QLabel" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>propXPosLabel</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>X Position:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>propYPosLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Y Position:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>propXPosSpin</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>9999</number>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>-9999</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox" row="1" column="1">
-                                        <property name="name">
-                                            <cstring>propYPosSpin</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>1</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>9999</number>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>-9999</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox" row="2" column="1">
-                                        <property name="name">
-                                            <cstring>propZPosSpin</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>1</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>9999</number>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>-9999</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="2" column="0">
-                                        <property name="name">
-                                            <cstring>propZPosLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Z Position:</string>
-                                        </property>
-                                    </widget>
-                                </grid>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
                             </widget>
-                            <widget class="QGroupBox" row="5" column="0" rowspan="1" colspan="4">
+                            <widget class="QLabel" row="0" column="0">
                                 <property name="name">
-                                    <cstring>propRotationGroup</cstring>
+                                    <cstring>xRotationLabel</cstring>
                                 </property>
                                 <property name="enabled">
                                     <bool>true</bool>
-                                </property>
-                                <property name="title">
-                                    <string>Rotation</string>
-                                </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed_2</cstring>
-                                    </property>
-                                    <widget class="QLabel" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>propXRotLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>X Rotation:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>propYRotLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Y Rotation:</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>propXRotSpin</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="wrapping">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>359</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox" row="1" column="1">
-                                        <property name="name">
-                                            <cstring>propYRotSpin</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="wrapping">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>359</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSpinBox" row="2" column="1">
-                                        <property name="name">
-                                            <cstring>propZRotSpin</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>5</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="wrapping">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>359</number>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="2" column="0">
-                                        <property name="name">
-                                            <cstring>propZRotLabel</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>0</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string>Z Rotation:</string>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <widget class="QLabel" row="2" column="0" rowspan="1" colspan="2">
-                                <property name="name">
-                                    <cstring>attachToLabel</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
                                 </property>
                                 <property name="sizePolicy">
                                     <sizepolicy>
@@ -1332,147 +505,32 @@
                                     </sizepolicy>
                                 </property>
                                 <property name="text">
-                                    <string>Attach to:</string>
+                                    <string>X Rotation:</string>
                                 </property>
                             </widget>
-                            <widget class="QComboBox" row="2" column="2" rowspan="1" colspan="2">
-                                <item>
-                                    <property name="text">
-                                        <string>* not attached *</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>hip</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>abdomen</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>chest</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>neck</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>head</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>-</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lCollar</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lShldr</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lForeArm</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lHand</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>-</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rCollar</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rShldr</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rForeArm</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rHand</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>-</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lThigh</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lShin</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>lFoot</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>-</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rThigh</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rShin</string>
-                                    </property>
-                                </item>
-                                <item>
-                                    <property name="text">
-                                        <string>rFoot</string>
-                                    </property>
-                                </item>
+                            <widget class="QLineEdit" row="0" column="1">
                                 <property name="name">
-                                    <cstring>attachToComboBox</cstring>
+                                    <cstring>xRotationEdit</cstring>
                                 </property>
                                 <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton" row="1" column="3">
-                                <property name="name">
-                                    <cstring>deletePropButton</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
+                                    <bool>true</bool>
                                 </property>
                                 <property name="sizePolicy">
                                     <sizepolicy>
-                                        <hsizetype>0</hsizetype>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="0" column="2">
+                                <property name="name">
+                                    <cstring>shiftLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
                                         <vsizetype>0</vsizetype>
                                         <horstretch>0</horstretch>
                                         <verstretch>0</verstretch>
@@ -1480,30 +538,50 @@
                                 </property>
                                 <property name="paletteForegroundColor">
                                     <color>
-                                        <red>255</red>
+                                        <red>171</red>
                                         <green>0</green>
-                                        <blue>4</blue>
+                                        <blue>0</blue>
                                     </color>
                                 </property>
                                 <property name="text">
-                                    <string></string>
+                                    <string>Shift</string>
                                 </property>
-                                <property name="pixmap">
-                                    <pixmap>image2</pixmap>
-                                </property>
-                                <property name="accel">
-                                    <string></string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Delete this Prop</string>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
                                 </property>
                             </widget>
-                            <widget class="QLabel" row="1" column="0">
+                            <widget class="QLabel" row="2" column="2">
                                 <property name="name">
-                                    <cstring>propNameLabel</cstring>
+                                    <cstring>altLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="paletteForegroundColor">
+                                    <color>
+                                        <red>20</red>
+                                        <green>175</green>
+                                        <blue>0</blue>
+                                    </color>
+                                </property>
+                                <property name="text">
+                                    <string>Alt</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="4" column="0">
+                                <property name="name">
+                                    <cstring>zRotationLabel</cstring>
                                 </property>
                                 <property name="enabled">
-                                    <bool>false</bool>
+                                    <bool>true</bool>
                                 </property>
                                 <property name="sizePolicy">
                                     <sizepolicy>
@@ -1514,15 +592,15 @@
                                     </sizepolicy>
                                 </property>
                                 <property name="text">
-                                    <string>Prop:</string>
+                                    <string>Z Rotation:</string>
                                 </property>
                             </widget>
-                            <widget class="QComboBox" row="1" column="1" rowspan="1" colspan="2">
+                            <widget class="QLineEdit" row="4" column="1">
                                 <property name="name">
-                                    <cstring>propNameCombo</cstring>
+                                    <cstring>zRotationEdit</cstring>
                                 </property>
                                 <property name="enabled">
-                                    <bool>false</bool>
+                                    <bool>true</bool>
                                 </property>
                                 <property name="sizePolicy">
                                     <sizepolicy>
@@ -1532,151 +610,1086 @@
                                         <verstretch>0</verstretch>
                                     </sizepolicy>
                                 </property>
-                                <property name="editable">
-                                    <bool>false</bool>
+                            </widget>
+                            <widget class="QLabel" row="4" column="2">
+                                <property name="name">
+                                    <cstring>ctrlLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="paletteForegroundColor">
+                                    <color>
+                                        <red>0</red>
+                                        <green>0</green>
+                                        <blue>226</blue>
+                                    </color>
+                                </property>
+                                <property name="text">
+                                    <string>Ctrl</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
                                 </property>
                             </widget>
-                            <spacer row="6" column="2">
+                            <widget class="QLabel" row="2" column="0">
                                 <property name="name">
-                                    <cstring>spacer4</cstring>
+                                    <cstring>yRotationLabel</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Y Rotation:</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="2" column="1">
+                                <property name="name">
+                                    <cstring>yRotationEdit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QSlider" row="3" column="0" rowspan="1" colspan="3">
+                                <property name="name">
+                                    <cstring>ySlider</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
                                 </property>
                                 <property name="orientation">
-                                    <enum>Vertical</enum>
+                                    <enum>Horizontal</enum>
                                 </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>60</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="4">
-                                <property name="name">
-                                    <cstring>layout7</cstring>
-                                </property>
-                                <hbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QPushButton">
-                                        <property name="name">
-                                            <cstring>newBoxPropButton</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>3</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                        <property name="pixmap">
-                                            <pixmap>image3</pixmap>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Create a new box shaped prop</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QPushButton">
-                                        <property name="name">
-                                            <cstring>newSpherePropButton</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>3</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                        <property name="pixmap">
-                                            <pixmap>image4</pixmap>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Create a new sphere shaped prop</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QPushButton">
-                                        <property name="name">
-                                            <cstring>newConePropButton</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>3</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                        <property name="pixmap">
-                                            <pixmap>image5</pixmap>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Create a new cone shaped prop</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QPushButton">
-                                        <property name="name">
-                                            <cstring>newTorusPropButton</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>3</hsizetype>
-                                                <vsizetype>0</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                        <property name="pixmap">
-                                            <pixmap>image6</pixmap>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Create a new torus shaped prop</string>
-                                        </property>
-                                    </widget>
-                                </hbox>
                             </widget>
                         </grid>
                     </widget>
-                </widget>
+                    <widget class="QLabel" row="1" column="0">
+                        <property name="name">
+                            <cstring>figureLabel</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>0</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>Figure:</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="1" column="2">
+                        <property name="name">
+                            <cstring>scaleLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Size:</string>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="0" column="1" rowspan="1" colspan="3">
+                        <property name="name">
+                            <cstring>selectAnimationCombo</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>5</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="2" column="1" rowspan="1" colspan="3">
+                        <item>
+                            <property name="text">
+                                <string>hip</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>abdomen</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>chest</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>neck</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>head</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lCollar</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lShldr</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lForeArm</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lHand</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rCollar</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rShldr</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rForeArm</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rHand</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lThigh</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lShin</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lFoot</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rThigh</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rShin</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rFoot</string>
+                            </property>
+                        </item>
+                        <property name="name">
+                            <cstring>editPartCombo</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>5</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <widget class="QSpinBox" row="1" column="3">
+                        <property name="name">
+                            <cstring>scaleSpin</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="suffix">
+                            <string>%</string>
+                        </property>
+                        <property name="maxValue">
+                            <number>200</number>
+                        </property>
+                        <property name="minValue">
+                            <number>30</number>
+                        </property>
+                        <property name="value">
+                            <number>100</number>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="1" column="1">
+                        <item>
+                            <property name="text">
+                                <string>female</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>male</string>
+                            </property>
+                        </item>
+                        <property name="name">
+                            <cstring>figureCombo</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                    </widget>
+                    <spacer row="6" column="2">
+                        <property name="name">
+                            <cstring>spacer3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Props</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QGroupBox" row="4" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>propScaleGroup</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="title">
+                            <string>Scale</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed_2</cstring>
+                            </property>
+                            <widget class="QLabel" row="0" column="0">
+                                <property name="name">
+                                    <cstring>propXScaleLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>X Scale:</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="1" column="0">
+                                <property name="name">
+                                    <cstring>propYScaleLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Y Scale:</string>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox" row="0" column="1">
+                                <property name="name">
+                                    <cstring>propXScaleSpin</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox" row="1" column="1">
+                                <property name="name">
+                                    <cstring>propYScaleSpin</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox" row="2" column="1">
+                                <property name="name">
+                                    <cstring>propZScaleSpin</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="2" column="0">
+                                <property name="name">
+                                    <cstring>propZScaleLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Z Scale:</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget class="QGroupBox" row="3" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>propPositionGroup</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="title">
+                            <string>Position</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel" row="0" column="0">
+                                <property name="name">
+                                    <cstring>propXPosLabel</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>X Position:</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="1" column="0">
+                                <property name="name">
+                                    <cstring>propYPosLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Y Position:</string>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox" row="0" column="1">
+                                <property name="name">
+                                    <cstring>propXPosSpin</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="maxValue">
+                                    <number>9999</number>
+                                </property>
+                                <property name="minValue">
+                                    <number>-9999</number>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox" row="1" column="1">
+                                <property name="name">
+                                    <cstring>propYPosSpin</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="maxValue">
+                                    <number>9999</number>
+                                </property>
+                                <property name="minValue">
+                                    <number>-9999</number>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox" row="2" column="1">
+                                <property name="name">
+                                    <cstring>propZPosSpin</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="maxValue">
+                                    <number>9999</number>
+                                </property>
+                                <property name="minValue">
+                                    <number>-9999</number>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="2" column="0">
+                                <property name="name">
+                                    <cstring>propZPosLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Z Position:</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget class="QGroupBox" row="5" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>propRotationGroup</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="title">
+                            <string>Rotation</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed_2</cstring>
+                            </property>
+                            <widget class="QLabel" row="0" column="0">
+                                <property name="name">
+                                    <cstring>propXRotLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>X Rotation:</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="1" column="0">
+                                <property name="name">
+                                    <cstring>propYRotLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Y Rotation:</string>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox" row="0" column="1">
+                                <property name="name">
+                                    <cstring>propXRotSpin</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="wrapping">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="maxValue">
+                                    <number>359</number>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox" row="1" column="1">
+                                <property name="name">
+                                    <cstring>propYRotSpin</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="wrapping">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="maxValue">
+                                    <number>359</number>
+                                </property>
+                            </widget>
+                            <widget class="QSpinBox" row="2" column="1">
+                                <property name="name">
+                                    <cstring>propZRotSpin</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>5</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="wrapping">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="maxValue">
+                                    <number>359</number>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="2" column="0">
+                                <property name="name">
+                                    <cstring>propZRotLabel</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>0</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>Z Rotation:</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget class="QLabel" row="2" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>attachToLabel</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>0</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>Attach to:</string>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="2" column="2" rowspan="1" colspan="2">
+                        <item>
+                            <property name="text">
+                                <string>* not attached *</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>hip</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>abdomen</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>chest</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>neck</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>head</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>-</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lCollar</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lShldr</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lForeArm</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lHand</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>-</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rCollar</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rShldr</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rForeArm</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rHand</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>-</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lThigh</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lShin</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>lFoot</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>-</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rThigh</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rShin</string>
+                            </property>
+                        </item>
+                        <item>
+                            <property name="text">
+                                <string>rFoot</string>
+                            </property>
+                        </item>
+                        <property name="name">
+                            <cstring>attachToComboBox</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="1" column="3">
+                        <property name="name">
+                            <cstring>deletePropButton</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>0</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="paletteForegroundColor">
+                            <color>
+                                <red>255</red>
+                                <green>0</green>
+                                <blue>4</blue>
+                            </color>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap>image2</pixmap>
+                        </property>
+                        <property name="accel">
+                            <string></string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Delete this Prop</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="1" column="0">
+                        <property name="name">
+                            <cstring>propNameLabel</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>0</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>Prop:</string>
+                        </property>
+                    </widget>
+                    <widget class="QComboBox" row="1" column="1" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>propNameCombo</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>5</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="editable">
+                            <bool>false</bool>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>layout7</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>newBoxPropButton</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>3</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image3</pixmap>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Create a new box shaped prop</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>newSpherePropButton</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>3</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image4</pixmap>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Create a new sphere shaped prop</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>newConePropButton</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>3</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image5</pixmap>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Create a new cone shaped prop</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>newTorusPropButton</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>3</hsizetype>
+                                        <vsizetype>0</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image6</pixmap>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Create a new torus shaped prop</string>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <spacer row="6" column="2">
+                        <property name="name">
+                            <cstring>spacer4</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>70</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </grid>
+            </widget>
+        </widget>
+        <widget class="QLayoutWidget" row="1" column="1">
+            <property name="name">
+                <cstring>layout16</cstring>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <widget class="QLayoutWidget">
                     <property name="name">
-                        <cstring>layout24</cstring>
+                        <cstring>layout15</cstring>
                     </property>
-                    <hbox>
+                    <grid>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <spacer>
+                        <widget class="QLabel" row="0" column="3">
                             <property name="name">
-                                <cstring>spacer4_2</cstring>
+                                <cstring>loopInPercentLabel</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>56</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="text">
+                                <string>(10%)</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox" row="1" column="2">
+                            <property name="name">
+                                <cstring>loopOutSpinBox</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="1" column="1">
+                            <property name="name">
+                                <cstring>loopOutLabel</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="text">
+                                <string>Loop Out:</string>
+                            </property>
+                        </widget>
+                        <spacer row="0" column="0">
+                            <property name="name">
+                                <cstring>spacer4_2_2_2</cstring>
                             </property>
                             <property name="orientation">
                                 <enum>Horizontal</enum>
@@ -1686,30 +1699,14 @@
                             </property>
                             <property name="sizeHint">
                                 <size>
-                                    <width>61</width>
+                                    <width>90</width>
                                     <height>20</height>
                                 </size>
                             </property>
                         </spacer>
-                        <widget class="QLabel">
+                        <widget class="QSpinBox" row="0" column="2">
                             <property name="name">
-                                <cstring>fpsLabel</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>0</hsizetype>
-                                    <vsizetype>0</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="text">
-                                <string>FPS:</string>
-                            </property>
-                        </widget>
-                        <widget class="QSpinBox">
-                            <property name="name">
-                                <cstring>fpsSpin</cstring>
+                                <cstring>loopInSpinBox</cstring>
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
@@ -1720,20 +1717,29 @@
                                 </sizepolicy>
                             </property>
                             <property name="maxValue">
-                                <number>500</number>
+                                <number>100</number>
+                            </property>
+                            <property name="value">
+                                <number>0</number>
                             </property>
                         </widget>
-                    </hbox>
-                </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout23</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <spacer>
+                        <widget class="QLabel" row="0" column="1">
+                            <property name="name">
+                                <cstring>loopInLabel</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="text">
+                                <string>Loop In:</string>
+                            </property>
+                        </widget>
+                        <spacer row="1" column="0">
                             <property name="name">
                                 <cstring>spacer4_2_2</cstring>
                             </property>
@@ -1745,7 +1751,59 @@
                             </property>
                             <property name="sizeHint">
                                 <size>
-                                    <width>61</width>
+                                    <width>90</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QLabel" row="1" column="3">
+                            <property name="name">
+                                <cstring>loopOutPercentLabel</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>56</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="text">
+                                <string>(20%)</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                    </grid>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout13</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer4_2_2_3</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Preferred</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
                                     <height>20</height>
                                 </size>
                             </property>
@@ -1825,7 +1883,7 @@
                         </widget>
                         <widget class="QLabel">
                             <property name="name">
-                                <cstring>percentLabel</cstring>
+                                <cstring>fpsLabel</cstring>
                             </property>
                             <property name="sizePolicy">
                                 <sizepolicy>
@@ -1835,24 +1893,31 @@
                                     <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
-                            <property name="minimumSize">
-                                <size>
-                                    <width>55</width>
-                                    <height>0</height>
-                                </size>
-                            </property>
                             <property name="text">
-                                <string>(0%)</string>
+                                <string>FPS:</string>
                             </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>fpsSpin</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>0</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="maxValue">
+                                <number>500</number>
                             </property>
                         </widget>
                     </hbox>
                 </widget>
             </vbox>
         </widget>
-    </hbox>
+    </grid>
 </widget>
 <menubar>
     <property name="name">
@@ -2731,7 +2796,7 @@
         <slot>optionsShowTimeline(bool)</slot>
     </connection>
     <connection>
-        <sender>loopSpinBox</sender>
+        <sender>loopInSpinBox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>MainApplicationForm</receiver>
         <slot>setLoopPoint(int)</slot>
@@ -2818,7 +2883,7 @@
     <tabstop>positionSlider</tabstop>
     <tabstop>playButton</tabstop>
     <tabstop>keyframeButton</tabstop>
-    <tabstop>loopSpinBox</tabstop>
+    <tabstop>loopInSpinBox</tabstop>
     <tabstop>framesSpin</tabstop>
     <tabstop>fpsSpin</tabstop>
     <tabstop>propNameCombo</tabstop>

@@ -600,7 +600,8 @@ void qavimator::updateKeyBtn()
 
 void qavimator::updatePercent(int frame)
 {
-  percentLabel->setText(QString("(%1%)").arg((frame+1)*100/animationView->getAnimation()->getNumberOfFrames()));
+// TODO: Move this to Loop In / Out percent labels
+//  percentLabel->setText(QString("(%1%)").arg((frame+1)*100/animationView->getAnimation()->getNumberOfFrames()));
 }
 
 void qavimator::enableInputs(bool state)
@@ -747,12 +748,12 @@ void qavimator::fileNew()
   {
     // skip first frame, since it's protected anyway
     animationView->setFrame(1);
-    setLoopPoint(2);
+    setLoopPoints(2,-1);
   }
   else
   {
     animationView->setFrame(0);
-    setLoopPoint(1);
+    setLoopPoints(1,-1);
   }
 
   // show frame as unprotected
@@ -853,12 +854,12 @@ void qavimator::fileAdd(const QString& name)
     else if (protectFirstFrame)
     {
       animationView->setFrame(1);
-      setLoopPoint(2);
+      setLoopPoints(2,-1);
     }
     else
     {
       animationView->setFrame(0);
-      setLoopPoint(1);
+      setLoopPoints(1,-1);
     }
 
     // FIXME: code duplication
@@ -1517,19 +1518,24 @@ void qavimator::selectAnimation(Animation* animation)
   updateInputs();
 }
 
-void qavimator::setLoopPoint(int frame)
+// set loop in and loop out points
+void qavimator::setLoopPoints(int inFrame,int outFrame)
 {
   Animation* anim=animationView->getAnimation();
   int numOfFrames=anim->getNumberOfFrames()+1;
 
-  if(frame>numOfFrames) frame=numOfFrames;
-  if(frame<1) frame=1;
+  if(inFrame>numOfFrames) inFrame=numOfFrames;
+  if(inFrame<1) inFrame=1;
 
-  anim->setLoopPoint(frame-1);
+  if(outFrame>numOfFrames || outFrame==-1) outFrame=numOfFrames;
+  if(outFrame<1) outFrame=1;
 
-  loopSpinBox->blockSignals(true);
-  loopSpinBox->setValue(frame);
-  loopSpinBox->blockSignals(false);
+  anim->setLoopPoints(inFrame-1,outFrame-1);
+
+  loopInSpinBox->blockSignals(true);
+  loopInSpinBox->setValue(inFrame);
+  loopOutSpinBox->setValue(outFrame);
+  loopInSpinBox->blockSignals(false);
 }
 
 // prevent closing of main window if there are unsaved changes

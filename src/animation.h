@@ -52,8 +52,9 @@ class Animation : public QObject
     int getFrame();
     void setFrame(int frameNumber);
     int stepForward();
-    void setLoopPoint(int frame);
-    int loopPoint();
+    void setLoopPoints(int inFrame,int outFrame);
+    int getLoopInPoint();
+    int getLoopOutPoint();
     void setIK(const QString& jointName, bool flag);
     bool getIK(const QString& jointName);
     const QString& getPartName(int index) const;
@@ -141,7 +142,8 @@ class Animation : public QObject
 
     int frame;
     int totalFrames;
-    int loopingPoint;
+    int loopInPoint;
+    int loopOutPoint;
 
     bool mirrored;
     unsigned int partMirror[ MAX_PARTS + 1 ];

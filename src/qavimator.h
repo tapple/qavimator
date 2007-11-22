@@ -101,7 +101,7 @@ class qavimator : public MainApplicationForm
     void keyframeButtonToggled(bool on);
 
     void setCurrentFrame(int frame);
-    void setLoopPoint(int frame);
+    void setLoopPoints(int inFrame,int outFrame); // outFrame==-1: sets to end of animation
 
     // ------- Menu Action Slots (Callbacks) --------
     void fileNew();

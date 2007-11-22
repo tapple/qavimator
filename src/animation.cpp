@@ -167,8 +167,10 @@ int Animation::stepForward()
   if (frames)
   {
     int nextFrame=(frame + 1) % totalFrames;
-    if(!nextFrame) nextFrame=loopingPoint;
+
+    if(!nextFrame || nextFrame==loopOutPoint) nextFrame=loopInPoint;
     setFrame(nextFrame);
+
     return nextFrame;
   }
   else
@@ -221,15 +223,21 @@ bool Animation::easeOut(const QString& name)
   return false;
 }
 
-void Animation::setLoopPoint(int frame)
+void Animation::setLoopPoints(int inFrame,int outFrame)
 {
-  loopingPoint=frame;
+  loopInPoint=inFrame;
+  loopOutPoint=outFrame;
   setDirty(true);
 }
 
-int Animation::loopPoint()
+int Animation::getLoopInPoint()
 {
-  return loopingPoint;
+  return loopInPoint;
+}
+
+int Animation::getLoopOutPoint()
+{
+  return loopOutPoint;
 }
 
 void Animation::applyIK(const QString& name)
