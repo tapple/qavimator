@@ -1670,6 +1670,9 @@
                                     <verstretch>0</verstretch>
                                 </sizepolicy>
                             </property>
+                            <property name="maxValue">
+                                <number>9999</number>
+                            </property>
                         </widget>
                         <widget class="QLabel" row="1" column="1">
                             <property name="name">
@@ -1717,7 +1720,7 @@
                                 </sizepolicy>
                             </property>
                             <property name="maxValue">
-                                <number>100</number>
+                                <number>9999</number>
                             </property>
                             <property name="value">
                                 <number>0</number>
@@ -2907,9 +2910,6 @@
     <tabstop>propZRotSpin</tabstop>
     <tabstop>avatarPropsTab</tabstop>
 </tabstops>
-<includes>
-    <include location="local" impldecl="in implementation">mainapplicationform.ui.h</include>
-</includes>
 <slots>
     <slot>fileNew()</slot>
     <slot>fileOpen()</slot>

@@ -689,9 +689,12 @@ void qavimator::numFramesChanged(int num)
   Animation* anim=animationView->getAnimation();
   anim->setNumberOfFrames(num);
 
-  // re-check loop boundaries
-  setLoopInPoint(anim->getLoopInPoint()+1);
-  setLoopOutPoint(anim->getLoopOutPoint()+1);
+  // re-check loop boundaries (if loop set at all)
+  if(anim->getLoopInPoint()!=-1)
+  {
+    setLoopInPoint(anim->getLoopInPoint()+1);
+    setLoopOutPoint(anim->getLoopOutPoint()+1);
+  }
 
   updateInputs();
 }
@@ -748,12 +751,14 @@ void qavimator::fileNew()
 
   if(protectFirstFrame)
   {
+//    qDebug("qavimator::fileNew(): adding loop points for protected frame 1 animation");
     // skip first frame, since it's protected anyway
     animationView->setFrame(1);
     setLoopInPoint(2);
   }
   else
   {
+//    qDebug("qavimator::fileNew(): adding loop points for unprotected frame 1 animation");
     animationView->setFrame(0);
     setLoopInPoint(1);
   }
@@ -851,23 +856,35 @@ void qavimator::fileAdd(const QString& name)
     selectAnimation(anim);
     anim->useRotationLimits(jointLimits);
 
+//    qDebug("qavimator::fileAdd(): checking for loop points");
     // no loop in point? must be a BVH or an older avm. set a sane default
     if(anim->getLoopInPoint()==-1)
     {
-      if (protectFirstFrame)
+//      qDebug("qavimator::fileAdd(): no loop points, adding new");
+      // first set loop out point to avoid clamping of loop in point
+      setLoopOutPoint(anim->getNumberOfFrames());
+
+      if(protectFirstFrame)
       {
+//        qDebug("qavimator::fileAdd(): adding loop points for protected frame 1 animation");
         animationView->setFrame(1);
+        timeline->setCurrentFrame(1);
         setLoopInPoint(2);
       }
       else
       {
+//        qDebug("qavimator::fileAdd(): adding loop points for unprotected frame 1 animation");
         animationView->setFrame(0);
+        timeline->setCurrentFrame(0);
         setLoopInPoint(1);
       }
     }
     else
-      setLoopInPoint(anim->getLoopInPoint());
-    setLoopOutPoint(anim->getLoopOutPoint());
+    {
+//      qDebug("qavimator::fileAdd(): reading saved loop points");
+      setLoopInPoint(anim->getLoopInPoint()+1);
+      setLoopOutPoint(anim->getLoopOutPoint()+1);
+    }
 
     // FIXME: code duplication
     connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));

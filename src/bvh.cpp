@@ -425,9 +425,8 @@ BVHNode* BVH::avmRead(const QString& file)
   expect_token(f, "Frames:");
   int totalFrames=atoi(token(f,buffer));
   lastLoadedNumberOfFrames=totalFrames;
-
-  lastLoadedLoopIn=-1;  // indicates "no loop points set"
   lastLoadedLoopOut=totalFrames;
+//  qDebug("BVH::avmRead(): set loop out to totalFrames");
 
   expect_token(f, "Frame");
   expect_token(f, "Time:");
@@ -466,10 +465,12 @@ BVHNode* BVH::avmRead(const QString& file)
         }
         else if(propertyName=="LoopIn:")
         {
+//          qDebug("BVH::avmRead(): set loop in to "+propertyValue);
           lastLoadedLoopIn=propertyValue.toInt();
         }
         else if(propertyName=="LoopOut:")
         {
+//          qDebug("BVH::avmRead(): set loop out to "+propertyValue);
           lastLoadedLoopOut=propertyValue.toInt();
         }
         else
@@ -491,6 +492,9 @@ BVHNode* BVH::animRead(const QString& file,const QString& limFile)
   lastLoadedAvatarScale=1.0;
   // default figure type
   lastLoadedFigureType=Animation::FIGURE_FEMALE;
+  // indicates "no loop points set"
+  lastLoadedLoopIn=-1;
+//  qDebug("BVH::animRead(): set loop in to -1 to indicate missing loop points");
 
   // rudimentary file type identification from filename
   if(file.findRev(".bvh",-4,false)!=-1)
