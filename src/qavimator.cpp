@@ -892,9 +892,10 @@ void qavimator::fileSaveAs()
   if(file)
   {
     QFileInfo fileInfo(file);
+
     // make sure file has proper extension (either .bvh or .avm)
-    // TODO: use QFileInfo::extension() for this
-    if(file.findRev(QRegExp("\\.(avm|bvh)$"),-4)==-1)
+    QString extension=fileInfo.extension(false).lower();
+    if(extension!="avm" && extension!="bvh")
       file+=".avm";
 
     // if the file didn't exist yet or the user accepted to overwrite it, save it 
@@ -968,12 +969,12 @@ void qavimator::fileSaveProps()
                                                 false);
   if(fileName)
   {
+    QFileInfo fileInfo(fileName);
     // make sure file has proper extension (.prp)
-    if(fileName.findRev(".prp",-4)==-1)
+    if(fileInfo.extension(false).lower()!="prp")
       fileName+=".prp";
 
     // check if file exists
-    QFileInfo fileInfo(fileName);
     if(!checkFileOverwrite(fileInfo)) return;
 
     QFile file(fileName);
