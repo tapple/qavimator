@@ -22,7 +22,8 @@ HEADERS += qavimator.h \
            keyframelist.h \
            bvhnode.h \
            settings.h \
-           settingsdialog.h 
+           settingsdialog.h  \
+ icons.h
 SOURCES += qavimator.cpp \
            main.cpp \
            animationview.cpp \
@@ -58,10 +59,10 @@ qt \
 opengl \
 thread
 TEMPLATE = app
-macx{
-  DEFINES += MACOSX
-  LIBS += -framework OpenGL -framework AGL -framework GLUT -bind_at_load
-  LIBS -= -lGLU -lglut
-  INCLUDEPATH += /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers
-  QMAKE_POST_LINK += sh fixbundle.sh
+macx {
+    DEFINES += MACOSX
+    LIBS += -framework OpenGL -framework AGL -framework GLUT -bind_at_load
+    LIBS -= -lGLU -lglut
+    INCLUDEPATH += /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers
+    QMAKE_POST_LINK += sh fixbundle.sh
 }

@@ -165,22 +165,27 @@ unsigned int Animation::getPartMirror(int index)
   return partMirror[index];
 }
 
+// get next frame and take care of looping
 int Animation::stepForward()
 {
-  if (frames)
+  if(frames)
   {
-    int nextFrame=(frame + 1) % totalFrames;
+    int nextFrame=(frame+1) % totalFrames;
 
     if(loop)
     {
       if(!nextFrame || nextFrame>loopOutPoint) nextFrame=loopInPoint;
     }
+    else
+    {
+      // do not wrap to the beginning when not looping
+      if(!nextFrame) nextFrame=frame;
+    }
     setFrame(nextFrame);
 
     return nextFrame;
   }
-  else
-    return 0;
+  return 0;
 }
 
 void Animation::setEaseIn(const QString& name,bool state)

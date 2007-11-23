@@ -42,6 +42,7 @@
 #include "timelineview.h"
 #include "settings.h"
 #include "settingsdialog.h"
+#include "icons.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"
 #define PROP_FILTER "Props (*.prp)"
@@ -50,7 +51,6 @@
 
 qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose )
 {
-  playing=false;
   frameDataValid = false;
   currentPart=QString::null;
 
@@ -154,6 +154,14 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   // if opening of files didn't work or no files were specified on the
   // command line, open a new one
   if(openFiles.count()==0) fileNew();
+
+  // prepare play button pixmaps
+  stopPixmap.convertFromImage(qembed_findImage("stop"));
+  playPixmap.convertFromImage(qembed_findImage("play"));
+  loopPixmap.convertFromImage(qembed_findImage("loop"));
+
+  // playback stopped by default
+  setPlaystate(PLAYSTATE_STOPPED);
 }
 
 qavimator::~qavimator()
@@ -541,8 +549,8 @@ void qavimator::updateInputs()
     emit enablePosition(false);
   }
 
-// disabled, needs to be replaced with a pause pixmap
-//  playButton->setText(playing ? "||" : ">");
+// we do that in cb_PlayBtn() now
+//  playButton->setPixmap(playing ? stopPixmap : playPixmap);
 
   framesSpin->setValue(anim->getNumberOfFrames());
   positionSlider->setMaxValue(anim->getNumberOfFrames()-1);
@@ -554,10 +562,10 @@ void qavimator::updateInputs()
 
   updateKeyBtn();
 
-  if (playing)
-    emit enableInputs(false);
-  else
+  if(playstate==PLAYSTATE_STOPPED)
     emit enableInputs(true);
+  else
+    emit enableInputs(false);
 
   if (frameDataValid)
     editPasteAction->setEnabled(true);
@@ -610,7 +618,9 @@ void qavimator::enableInputs(bool state)
 
 void qavimator::cb_timeout()
 {
-  if (playing) {
+  // only if we are still playing
+  if(playstate!=PLAYSTATE_STOPPED)
+  {
     Animation *anim = animationView->getAnimation();
     if (anim) {
 
@@ -619,10 +629,10 @@ void qavimator::cb_timeout()
       // cycle through frames, restart at looping point
       animationView->stepForward();
 
-      if (anim->getFrame() == (anim->getNumberOfFrames() - 1) && !loop)
+      if(anim->getFrame()==(anim->getNumberOfFrames()-1) && playstate==PLAYSTATE_PLAYING)
       {
         timer.stop();
-        playing=false;
+        setPlaystate(PLAYSTATE_STOPPED);
       }
 
       updateInputs();
@@ -633,16 +643,47 @@ void qavimator::cb_timeout()
 
 void qavimator::cb_PlayBtn()
 {
+//  qDebug("qavimator::cb_PlayBtn: current playstate %d",(int) playstate);
+
   Animation* anim=animationView->getAnimation();
 
-  anim->setLoop(loop);
-  playing = !playing;
-  if (playing)
-    timer.start((int)(anim->frameTime()*1000));
-  else
+  switch(playstate)
   {
-    // take care of locks, key frames ...
-    cb_FrameSlider(positionSlider->value());
+    case PLAYSTATE_STOPPED:
+    {
+      // if we're suposed to loop and the current frame is not past loop out point
+      if(loop && anim->getFrame()<anim->getLoopOutPoint())
+      {
+        // start looping animation
+        setPlaystate(PLAYSTATE_LOOPING);
+        anim->setLoop(true);
+      }
+      else
+      {
+        // start one-shot animation
+        setPlaystate(PLAYSTATE_PLAYING);
+        anim->setLoop(false);
+      }
+
+      timer.start((int)(anim->frameTime()*1000));
+      break;
+    }
+    case PLAYSTATE_LOOPING:
+    {
+      setPlaystate(PLAYSTATE_PLAYING);
+      anim->setLoop(false);
+      break;
+    }
+    case PLAYSTATE_PLAYING:
+    {
+      // take care of locks, key frames ...
+      cb_FrameSlider(positionSlider->value());
+      setPlaystate(PLAYSTATE_STOPPED);
+
+      break;
+    }
+    default:
+      qDebug("qavimator::cb_PlayBtn(): unknown playstate %d",(int) playstate);
   }
 
   updateInputs();
@@ -658,7 +699,7 @@ void qavimator::cb_FrameSlider(int position)
   if(position==0 && protectFirstFrame) protect=true;
   else protect=false;
 
-  playing=false;
+  setPlaystate(PLAYSTATE_STOPPED);
   animationView->setFrame(position);
   emit protectFrame(protect);
 
@@ -747,7 +788,7 @@ void qavimator::fileNew()
 
   editPartCombo->setCurrentItem(1);
 
-  playing=false;
+  setPlaystate(PLAYSTATE_STOPPED);
 
   if(protectFirstFrame)
   {
@@ -1112,6 +1153,13 @@ void qavimator::optionsSkeleton(bool on)
 void qavimator::optionsLoop(bool on)
 {
   loop=on;
+
+  // update play state
+  if(playstate==PLAYSTATE_LOOPING)
+    setPlaystate(PLAYSTATE_PLAYING);
+  else
+    // just update play button icon (in case we're stopped it changes from/to looping icon)
+    setPlaystate(playstate);
 }
 
 // Menu Action: Options / Joint Limits
@@ -1581,6 +1629,23 @@ void qavimator::setLoopOutPoint(int outFrame)
   loopOutSpinBox->blockSignals(false);
 
   loopOutPercentLabel->setText(QString("(%1%)").arg(outFrame*100/numOfFrames));
+}
+
+void qavimator::setPlaystate(PlayState state)
+{
+//  qDebug("qavimator::setPlaystate(): setting playstate %d",(int) state);
+  // set state
+  playstate=state;
+
+  // set play button pixmaps according to play state
+  if(state==PLAYSTATE_STOPPED)
+    playButton->setPixmap(loop ? loopPixmap : playPixmap);
+  else if(state==PLAYSTATE_LOOPING)
+    playButton->setPixmap(playPixmap);
+  else if(state==PLAYSTATE_PLAYING)
+    playButton->setPixmap(stopPixmap);
+  else
+    qDebug("qavimator::setPlaystate(): unknown playstate %d",(int) state);
 }
 
 // prevent closing of main window if there are unsaved changes

@@ -27,6 +27,7 @@
 
 #include <qtimer.h>
 #include <qfileinfo.h>
+#include <qpixmap.h>
 
 #define UNTITLED_NAME "Untitled.avm"
 #define PLAY_IMAGE "data/play.png"
@@ -48,6 +49,8 @@ class qavimator : public MainApplicationForm
   public:
     qavimator();
     ~qavimator();
+
+    typedef enum { PLAYSTATE_STOPPED=0, PLAYSTATE_LOOPING, PLAYSTATE_PLAYING, NUM_PLAYSTATES } PlayState;
 
   signals:
     void enableRotation(bool state);
@@ -144,6 +147,8 @@ class qavimator : public MainApplicationForm
     void removeFromOpenFiles(unsigned int which);
     bool clearOpenFiles();
 
+    void setPlaystate(PlayState state);
+
     bool checkFileOverwrite(const QFileInfo& fileInfo);
     void setCurrentFile(const QString& fileName);
     void enableInputs(bool state);
@@ -180,8 +185,14 @@ class qavimator : public MainApplicationForm
     QString currentPart;
 
     Timeline* timeline;
+    // pixmaps for play button
+    QPixmap playPixmap;
+    QPixmap loopPixmap;
+    QPixmap stopPixmap;
 
-    bool playing;
+    // holds the current playing status
+    PlayState playstate;
+
     bool loop;
     bool jointLimits;
     bool frameDataValid;
