@@ -26,6 +26,9 @@
 #include "animation.h"
 #include "keyframelist.h"
 
+// FIXME: set this to 1 find out why variables get out of sync
+#define TIMELINE_POSITION_DEBUG   0
+
 Timeline::Timeline(QWidget *parent, const char *name, WFlags)
   : QWidget(parent, name)
 {
@@ -141,7 +144,9 @@ void Timeline::clearPosition()
 
   if(!positionSync) // debug
   {
+#if TIMELINE_POSITION_DEBUG
     qDebug("position bar has not been drawn, but asked to clear it!");
+#endif
     return;
   }
   positionSync=false;
@@ -155,7 +160,9 @@ void Timeline::drawPosition()
 
   if(positionSync)
   {
+#if TIMELINE_POSITION_DEBUG==1
     qDebug("position bar has not been cleared, but asked to draw it!");
+#endif
     return;
   }
   positionSync=true;    // debug
