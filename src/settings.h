@@ -36,6 +36,11 @@ class Settings
 
     static void setFloorTranslucency(int value);
     static int  floorTranslucency();
+
+    static void setEaseIn(bool on);
+    static bool easeIn();
+    static void setEaseOut(bool on);
+    static bool easeOut();
 };
 
 #endif

@@ -30,6 +30,8 @@ SettingsDialog::SettingsDialog(QWidget* parent,const char* name,bool modal,WFlag
 {
   useFogCheckbox->setChecked(Settings::fog());
   floorTranslucencySpin->setValue(Settings::floorTranslucency());
+  easeInCheck->setChecked(Settings::easeIn());
+  easeOutCheck->setChecked(Settings::easeOut());
 }
 
 SettingsDialog::~SettingsDialog()
@@ -42,6 +44,8 @@ void SettingsDialog::accept()
 
   Settings::setFog(useFogCheckbox->isChecked());
   Settings::setFloorTranslucency(floorTranslucencySpin->value());
+  Settings::setEaseIn(easeInCheck->isChecked());
+  Settings::setEaseOut(easeOutCheck->isChecked());
   emit configChanged();
   qApp->processEvents();
 }
@@ -67,4 +71,14 @@ void SettingsDialog::useFogToggled(bool state)
 void SettingsDialog::floorTranslucencyChanged(int value)
 {
   qDebug("floorTranslucencyChanged(%d)",value);
+}
+
+void SettingsDialog::easeInToggled(bool state)
+{
+  qDebug("easeInToggled(%d)",state);
+}
+
+void SettingsDialog::easeOutToggled(bool state)
+{
+  qDebug("easeOutToggled(%d)",state);
 }

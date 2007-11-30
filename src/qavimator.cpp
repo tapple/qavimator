@@ -193,6 +193,10 @@ void qavimator::readSettings()
   Settings::setFog(true);
   Settings::setFloorTranslucency(33);
 
+  // defaults for ease in/ease out
+  Settings::setEaseIn(false);
+  Settings::setEaseOut(false);
+
   bool settingsFound=settings.readBoolEntry("/settings");
   if(settingsFound)
   {
@@ -210,6 +214,10 @@ void qavimator::readSettings()
     // OpenGL settings
     Settings::setFog(settings.readBoolEntry("/fog"));
     Settings::setFloorTranslucency(settings.readNumEntry("/floor_translucency"));
+
+    // settings for ease in/ease outFrame
+    Settings::setEaseIn(settings.readBoolEntry("/ease_in"));
+    Settings::setEaseOut(settings.readBoolEntry("/ease_out"));
 
     // sanity
     if(width<50) width=50;

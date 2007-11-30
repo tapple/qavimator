@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>347</width>
-            <height>182</height>
+            <width>337</width>
+            <height>247</height>
         </rect>
     </property>
     <property name="caption">
@@ -56,6 +56,65 @@
             <property name="name">
                 <cstring>tabWidget4</cstring>
             </property>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>TabPage</cstring>
+                </property>
+                <attribute name="title">
+                    <string>General</string>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QGroupBox">
+                        <property name="name">
+                            <cstring>groupBox1</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Default Keyframe Type</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QCheckBox" row="0" column="0">
+                                <property name="name">
+                                    <cstring>easeInCheck</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Ease In</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="1" column="0">
+                                <property name="name">
+                                    <cstring>easeOutCheck</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Ease Out</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <spacer>
+                        <property name="name">
+                            <cstring>spacer4_2</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>61</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </vbox>
+            </widget>
             <widget class="QWidget">
                 <property name="name">
                     <cstring>tab</cstring>
@@ -211,6 +270,18 @@
         <receiver>SettingsDialogForm</receiver>
         <slot>floorTranslucencyChanged(int)</slot>
     </connection>
+    <connection>
+        <sender>easeInCheck</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>SettingsDialogForm</receiver>
+        <slot>easeInToggled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>easeOutCheck</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>SettingsDialogForm</receiver>
+        <slot>easeOutToggled(bool)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">settingsdialogform.ui.h</include>
@@ -221,6 +292,8 @@
     <slot>reject()</slot>
     <slot>useFogToggled( bool )</slot>
     <slot>floorTranslucencyChanged( int )</slot>
+    <slot>easeInToggled( bool )</slot>
+    <slot>easeOutToggled( bool )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

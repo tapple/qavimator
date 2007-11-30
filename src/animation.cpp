@@ -29,6 +29,7 @@
 #include "animation.h"
 #include "rotation.h"
 #include "bvh.h"
+#include "settings.h"
 
 Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   frame(0),totalFrames(0),mirrored(false)
@@ -411,7 +412,11 @@ void Animation::setRotation(const QString& jointName, double x, double y, double
     if(node->isKeyframe(frame))
       node->setKeyframeRotation(frame,Rotation(x,y,z));
     else
+    {
       node->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
+      setEaseIn(node->name(),Settings::easeIn());
+      setEaseOut(node->name(),Settings::easeOut());
+    }
 
     //      node->dumpKeyframes();
     if (mirrored && (mirrorName = getPartMirror(jointName)))
@@ -422,7 +427,12 @@ void Animation::setRotation(const QString& jointName, double x, double y, double
       if(node2->isKeyframe(frame))
         node2->setKeyframeRotation(frame,Rotation(x,-y,-z));
       else
+      {
         node2->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
+        setEaseIn(node->name(),Settings::easeIn());
+        setEaseOut(node->name(),Settings::easeOut());
+      }
+
       // tell timeline that this keyframe has changed (added or changed is the same here)
       emit redrawTrack(getPartIndex(jointName));
     }
@@ -499,6 +509,8 @@ void Animation::setPosition(const QString& jointName,double x,double y,double z)
     else
     {
       node->addKeyframe(frame,Position(x,y,z),node->frameData(frame).rotation());
+      setEaseIn(node->name(),Settings::easeIn());
+      setEaseOut(node->name(),true);
     }
     setDirty(true);
     // tell timeline that this keyframe has changed (added or changed is the same here)
@@ -560,6 +572,9 @@ void Animation::addKeyFrameAllJoints()
 void Animation::addKeyFrame(BVHNode *joint)
 {
   joint->addKeyframe(frame,getPosition(joint->name()),getRotation(joint->name()));
+
+  setEaseIn(joint->name(),Settings::easeIn());
+  setEaseOut(joint->name(),Settings::easeOut());
 
   setDirty(true);
 

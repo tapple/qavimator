@@ -47,6 +47,9 @@ class SettingsDialog : public SettingsDialogForm
 
     void useFogToggled(bool state);
     void floorTranslucencyChanged(int value);
+
+    void easeInToggled(bool state);
+    void easeOutToggled(bool state);
 };
 
 #endif
