@@ -1107,6 +1107,10 @@ void qavimator::fileExit()
   settings.writeEntry("/fog",Settings::fog());
   settings.writeEntry("/floor_translucency",Settings::floorTranslucency());
 
+  // settings for ease in/ease outFrame
+  settings.writeEntry("/ease_in",Settings::easeIn());
+  settings.writeEntry("/ease_out",Settings::easeOut());
+
   settings.endGroup();
 
   // remove all widgets and close the main form
