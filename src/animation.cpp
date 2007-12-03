@@ -45,18 +45,14 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
 
   QString fileName;
 
-  // optionally have the support files for qavimator in FSH location
-#ifndef _LINUX_FSH
-  execPath=qApp->applicationDirPath();
-#else
-  execPath="/usr/share/qavimator";
-#endif
+  // pick up path from src.pro qmake file's DEFINES section, i.e. usr/share/qavimator
+  dataPath=QAVIMATOR_DATAPATH;
 
   // load BVH that defines motion
   if (bvhFile)
     fileName=bvhFile;
   else
-    fileName=execPath+"/"+DEFAULT_POSE;
+    fileName=dataPath+"/"+DEFAULT_POSE;
 
   loadBVH(fileName);
   calcPartMirrors();
@@ -91,7 +87,7 @@ Animation::~Animation()
 
 void Animation::loadBVH(const QString& bvhFile)
 {
-  QString limFile=execPath+"/"+LIMITS_FILE;
+  QString limFile=dataPath+"/"+LIMITS_FILE;
   frames = bvh->animRead(bvhFile, limFile);
   setFrame(0);
 }

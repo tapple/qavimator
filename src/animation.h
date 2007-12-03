@@ -168,7 +168,7 @@ class Animation : public QObject
     void applyIK(const QString& name);
     void solveIK();
 
-    QString execPath;
+    QString dataPath;
 };
 
 #endif

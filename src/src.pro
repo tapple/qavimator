@@ -3,6 +3,8 @@
 # Unterordner relativ zum Projektordner: ./src
 # Das Target ist eine Anwendung:  ../bin/qavimator
 
+DEFINES += QAVIMATOR_DATAPATH=\"/usr/share/qavimator\"
+
 FORMS += mainapplicationform.ui \
          settingsdialogform.ui 
 IDLS += mainapplicationform.ui \
@@ -66,3 +68,24 @@ macx {
     INCLUDEPATH += /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers
     QMAKE_POST_LINK += sh fixbundle.sh
 }
+INSTALLS += target \
+datafiles \
+examples \
+documentation
+target.path = /usr/bin
+
+target.files += ../bin/qavimator
+
+datafiles.path = /usr/share/qavimator/data
+
+datafiles.files += ../bin/data/SLMale.bvh \
+../bin/data/SLFemale.bvh \
+../bin/data/SL.lim \
+../bin/data/TPose.avm
+examples.path = /usr/share/qavimator/examples
+
+examples.files += ../examples/*
+
+documentation.path = /usr/share/doc/packages/qavimator
+
+documentation.files += ../documentation/*
