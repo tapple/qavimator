@@ -77,14 +77,18 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   zSelect=false;
   nextPropId=OBJECT_START;
 
-  QString execPath=qApp->applicationDirPath();
-
-  QString limFile=execPath+"/"+LIMITS_FILE;
+  QString dataPath=QAVIMATOR_DATAPATH;
+  QString limFile=dataPath+"/"+LIMITS_FILE;
+  qDebug("AnimationView::AnimationView(): using limits file '%s'",limFile.latin1());
 
   // read SL reference models to restore joint positions, in case another model has joints
   // we do not support (e.g. the SL example bvh files)
   for(int i=0;i<Animation::NUM_FIGURES;i++)
-    joints[i]=bvh->animRead(QString(execPath+"/"+figureFiles[i]),limFile);
+  {
+    QString model(dataPath+"/"+figureFiles[i]);
+    qDebug("Reaing reference model '%s'",model.latin1());
+    joints[i]=bvh->animRead(model,limFile);
+  }
 
 // FIXME:    mode(FL_DOUBLE | FL_MULTISAMPLE | FL_ALPHA | FL_DEPTH);
 
