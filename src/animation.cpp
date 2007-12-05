@@ -34,7 +34,7 @@
 Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   frame(0),totalFrames(0),mirrored(false)
 {
-//  qDebug(QString("Animation::Animation(%1)").arg((long) this));
+  qDebug(QString("Animation::Animation(%1)").arg((long) this));
 
   bvh=newBVH;
   if(!bvh)
@@ -75,7 +75,7 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
 
 Animation::~Animation()
 {
-//  qDebug(QString("Animation::~Animation(%1)").arg((long) this));
+  qDebug(QString("Animation::~Animation(%1)").arg((long) this));
 
   // remove keyframes
   if(frames)
@@ -87,6 +87,7 @@ Animation::~Animation()
 
 void Animation::loadBVH(const QString& bvhFile)
 {
+  qDebug("Animation::loadBVH(%s)",bvhFile.latin1());
   QString limFile=dataPath+"/"+LIMITS_FILE;
   frames = bvh->animRead(bvhFile, limFile);
   setFrame(0);
@@ -94,6 +95,7 @@ void Animation::loadBVH(const QString& bvhFile)
 
 void Animation::saveBVH(const QString& bvhFile)
 {
+  qDebug("Animation::saveBVH(%s)",bvhFile.latin1());
   bvh->animWrite(this,bvhFile);
   setDirty(false);
 }
