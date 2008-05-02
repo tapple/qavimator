@@ -18,21 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <qapplication.h>
-#include <qcombobox.h>
-#include <qlineedit.h>
-#include <qslider.h>
-#include <qspinbox.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <qfiledialog.h>
-#include <qaction.h>
-#include <qsettings.h>
-#include <qgroupbox.h>
-#include <qregexp.h>
-#include <qtabwidget.h>
-#include <qmessagebox.h>
+#include <QCloseEvent>
+#include <QFileDialog>
+#include <QMessageBox>
 
 #include "qavimator.h"
 #include "animationview.h"
@@ -42,16 +30,24 @@
 #include "timelineview.h"
 #include "settings.h"
 #include "settingsdialog.h"
-#include "icons.h"
 
 #define ANIM_FILTER "Animation Files (*.avm *.bvh)"
 #define PROP_FILTER "Props (*.prp)"
-#define PRECISION 100
-#define SVN_ID    "$Id$"
+#define PRECISION   100
 
-qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose )
+#define SVN_ID      "$Id$"
+
+qavimator::qavimator() : QMainWindow(0)
 {
-  frameDataValid = false;
+  QCoreApplication::setOrganizationName("DeZiRee");
+  QCoreApplication::setOrganizationDomain("qavimator.org");
+  QCoreApplication::setApplicationName("QAvinmator");
+
+  setupUi(this);
+
+  setWindowTitle("qavimator");
+  setAttribute(Qt::WA_DeleteOnClose);
+  frameDataValid=false;
   currentPart=QString::null;
 
   readSettings();
@@ -84,37 +80,8 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(animationView,SIGNAL(backgroundClicked()),this,SLOT(backgroundClicked()));
   connect(animationView,SIGNAL(animationSelected(Animation*)),this,SLOT(selectAnimation(Animation*)));
 
-  connect(xSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
-  connect(ySlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
-  connect(zSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_RotRoller(int)));
-
-  connect(xRotationEdit,SIGNAL(returnPressed()),this,SLOT(cb_RotValue()));
-  connect(yRotationEdit,SIGNAL(returnPressed()),this,SLOT(cb_RotValue()));
-  connect(zRotationEdit,SIGNAL(returnPressed()),this,SLOT(cb_RotValue()));
-
-  connect(xRotationEdit,SIGNAL(lostFocus()),this,SLOT(cb_RotValue()));
-  connect(yRotationEdit,SIGNAL(lostFocus()),this,SLOT(cb_RotValue()));
-  connect(zRotationEdit,SIGNAL(lostFocus()),this,SLOT(cb_RotValue()));
-
-  connect(xPositionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_PosRoller(int)));
-  connect(yPositionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_PosRoller(int)));
-  connect(zPositionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_PosRoller(int)));
-
-  connect(xPositionEdit,SIGNAL(returnPressed()),this,SLOT(cb_PosValue()));
-  connect(yPositionEdit,SIGNAL(returnPressed()),this,SLOT(cb_PosValue()));
-  connect(zPositionEdit,SIGNAL(returnPressed()),this,SLOT(cb_PosValue()));
-
-  connect(xPositionEdit,SIGNAL(lostFocus()),this,SLOT(cb_PosValue()));
-  connect(yPositionEdit,SIGNAL(lostFocus()),this,SLOT(cb_PosValue()));
-  connect(zPositionEdit,SIGNAL(lostFocus()),this,SLOT(cb_PosValue()));
-
   connect(this,SIGNAL(enablePosition(bool)),positionGroupBox,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enableRotation(bool)),rotationGroupBox,SLOT(setEnabled(bool)));
-
-  connect(positionSlider,SIGNAL(valueChanged(int)),this,SLOT(cb_FrameSlider(int)));
-  connect(playButton,SIGNAL(clicked()),this,SLOT(cb_PlayBtn()));
-
-  connect(fpsSpin,SIGNAL(valueChanged(int)),this,SLOT(cb_fpsValue(int)));
 
   connect(this,SIGNAL(enableProps(bool)),propPositionGroup,SLOT(setEnabled(bool)));
   connect(this,SIGNAL(enableProps(bool)),propScaleGroup,SLOT(setEnabled(bool)));
@@ -125,7 +92,7 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
 
   connect(this,SIGNAL(enableEaseInOut(bool)),easeInOutGroup,SLOT(setEnabled(bool)));
 
-  connect(&timer,SIGNAL(timeout()),this,SLOT(cb_timeout()));
+  connect(&timer,SIGNAL(timeout()),this,SLOT(frameTimeout()));
 
   connect(this,SIGNAL(resetCamera()),animationView,SLOT(resetCamera()));
   connect(this,SIGNAL(protectFrame(bool)),animationView,SLOT(protectFrame(bool)));
@@ -137,14 +104,14 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   connect(timeline,SIGNAL(positionCenter(int)),timelineView,SLOT(scrollTo(int)));
   connect(timeline,SIGNAL(trackClicked(int)),animationView,SLOT(selectPart(int)));
 
-  xSlider->setPageStep(10*PRECISION);
-  ySlider->setPageStep(10*PRECISION);
-  zSlider->setPageStep(10*PRECISION);
+  xRotationSlider->setPageStep(10*PRECISION);
+  yRotationSlider->setPageStep(10*PRECISION);
+  zRotationSlider->setPageStep(10*PRECISION);
   xPositionSlider->setPageStep(10*PRECISION);
   yPositionSlider->setPageStep(10*PRECISION);
   zPositionSlider->setPageStep(10*PRECISION);
 
-  positionSlider->setPageStep(1);
+  currentFrameSlider->setPageStep(1);
 
   if(qApp->argc()>1)
   {
@@ -155,10 +122,10 @@ qavimator::qavimator() : MainApplicationForm( 0, "qavimator", WDestructiveClose 
   // command line, open a new one
   if(openFiles.count()==0) fileNew();
 
-  // prepare play button pixmaps
-  stopPixmap.convertFromImage(qembed_findImage("stop"));
-  playPixmap.convertFromImage(qembed_findImage("play"));
-  loopPixmap.convertFromImage(qembed_findImage("loop"));
+  // prepare play button icons
+  stopIcon=QIcon(":/icons/icons/stop.png");
+  playIcon=QIcon(":/icons/icons/play.png");
+  loopIcon=QIcon(":/icons/icons/loop.png");
 
   // playback stopped by default
   setPlaystate(PLAYSTATE_STOPPED);
@@ -174,7 +141,6 @@ qavimator::~qavimator()
 void qavimator::readSettings()
 {
   QSettings settings;
-  settings.setPath("DeZiRee","QAvimator",QSettings::User);
   settings.beginGroup("/qavimator");
 
   // if no settings found, start up with defaults
@@ -182,7 +148,7 @@ void qavimator::readSettings()
   int height=600;
   int figureType=0;
   bool skeleton=false;
-  bool showTimeline=true;
+  bool showTimelinePanel=true;
 
   jointLimits=true;
   loop=true;
@@ -197,63 +163,65 @@ void qavimator::readSettings()
   Settings::setEaseIn(false);
   Settings::setEaseOut(false);
 
-  bool settingsFound=settings.readBoolEntry("/settings");
+  bool settingsFound=settings.value("/settings").toBool();
   if(settingsFound)
   {
-    loop=settings.readBoolEntry("/loop");
-    skeleton=settings.readBoolEntry("/skeleton");
-    jointLimits=settings.readBoolEntry("/joint_limits");
-    protectFirstFrame=settings.readBoolEntry("/protect_first_frame");
-    showTimeline=settings.readBoolEntry("/show_timeline");
+    loop=settings.value("/loop").toBool();
+    skeleton=settings.value("/skeleton").toBool();
+    jointLimits=settings.value("/joint_limits").toBool();
+    protectFirstFrame=settings.value("/protect_first_frame").toBool();
+    showTimelinePanel=settings.value("/show_timeline").toBool();
 
-    int width=settings.readNumEntry("/mainwindow_width");
-    int height=settings.readNumEntry("/mainwindow_height");
+    int width=settings.value("/mainwindow_width").toInt();
+    int height=settings.value("/mainwindow_height").toInt();
 
-    lastPath=settings.readEntry("/last_path");
+    lastPath=settings.value("/last_path").toString();
 
     // OpenGL settings
-    Settings::setFog(settings.readBoolEntry("/fog"));
-    Settings::setFloorTranslucency(settings.readNumEntry("/floor_translucency"));
+    Settings::setFog(settings.value("/fog").toBool());
+    Settings::setFloorTranslucency(settings.value("/floor_translucency").toInt());
 
     // settings for ease in/ease outFrame
-    Settings::setEaseIn(settings.readBoolEntry("/ease_in"));
-    Settings::setEaseOut(settings.readBoolEntry("/ease_out"));
+    Settings::setEaseIn(settings.value("/ease_in").toBool());
+    Settings::setEaseOut(settings.value("/ease_out").toBool());
 
     // sanity
     if(width<50) width=50;
     if(height<50) height=50;
 
-    figureType=settings.readNumEntry("/figure");
+    figureType=settings.value("/figure").toInt();
 
     settings.endGroup();
   }
 
   resize(width,height);
 
-  optionsLoopAction->setOn(loop);
-  optionsSkeletonAction->setOn(skeleton);
-  optionsJointLimitsAction->setOn(jointLimits);
-  optionsShowTimelineAction->setOn(showTimeline);
-  if(!showTimeline) timelineView->hide();
+  optionsLoopAction->setChecked(loop);
+  optionsSkeletonAction->setChecked(skeleton);
+  optionsJointLimitsAction->setChecked(jointLimits);
+  optionsShowTimelineAction->setChecked(showTimelinePanel);
+
+  if(!showTimelinePanel) timelineView->hide();
   // prevent a signal to be sent to yet uninitialized animation view
   optionsProtectFirstFrameAction->blockSignals(true);
-  optionsProtectFirstFrameAction->setOn(protectFirstFrame);
+  optionsProtectFirstFrameAction->setChecked(protectFirstFrame);
   optionsProtectFirstFrameAction->blockSignals(false);
-  figureCombo->setCurrentItem(figureType);
-  figureChanged(figureType);
+
+  figureCombo->setCurrentIndex(figureType);
+  setAvatarShape(figureType);
 }
 
 // slot gets called by AnimationView::mousePressEvent()
 void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits limits,Position pos)
 {
-  avatarPropsTab->setCurrentPage(0);
+  avatarPropsTab->setCurrentIndex(0);
   emit enableProps(false);
-  if(partName)
+  if(!partName.isEmpty())
   {
     currentPart=partName;
 
     for(int index=0;index<editPartCombo->count();index++)
-      if(editPartCombo->text(index)==partName) editPartCombo->setCurrentItem(index);
+      if(editPartCombo->itemText(index)==partName) editPartCombo->setCurrentIndex(index);
 
     setX(rot.x);
     setY(rot.y);
@@ -267,20 +235,17 @@ void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits 
       setYPos(pos.y);
       setZPos(pos.z);
 
-      xSlider->setRange(-359*PRECISION, 359*PRECISION);
-      ySlider->setRange(-359*PRECISION, 359*PRECISION);
-      zSlider->setRange(-359*PRECISION, 359*PRECISION);
+      xRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
+      yRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
+      zRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
     }
     else
     {
       emit enablePosition(false);
 
-      xSlider->setRange((int)(limits.xMin*PRECISION),
-			(int)(limits.xMax*PRECISION));
-      ySlider->setRange((int)(limits.yMin*PRECISION),
-			(int)(limits.yMax*PRECISION));
-      zSlider->setRange((int)(limits.zMin*PRECISION),
-			(int)(limits.zMax*PRECISION));
+      xRotationSlider->setRange((int)(limits.xMin*PRECISION),(int)(limits.xMax*PRECISION));
+      yRotationSlider->setRange((int)(limits.yMin*PRECISION),(int)(limits.yMax*PRECISION));
+      zRotationSlider->setRange((int)(limits.zMin*PRECISION),(int)(limits.zMax*PRECISION));
     }
 
     // show the user if this part has a key frame here
@@ -297,7 +262,7 @@ void qavimator::partDragged(const QString& partName,double x,double y,double z)
     if(!protect)
     {
       // get animation object
-      Animation *anim = animationView->getAnimation();
+      Animation *anim=animationView->getAnimation();
       // get rotation values for selected part
       Rotation rot=anim->getRotation(partName);
       // get rotation limits for part
@@ -315,12 +280,12 @@ void qavimator::partDragged(const QString& partName,double x,double y,double z)
       double yMax=rotLimits.yMax;
       double zMax=rotLimits.zMax;
 
-      if (newX < xMin) newX = xMin;
-      if (newX > xMax) newX = xMax;
-      if (newY < yMin) newY = yMin;
-      if (newY > yMax) newY = yMax;
-      if (newZ < zMin) newZ = zMin;
-      if (newZ > zMax) newZ = zMax;
+      if(newX<xMin) newX=xMin;
+      if(newX>xMax) newX=xMax;
+      if(newY<yMin) newY=yMin;
+      if(newY>yMax) newY=yMax;
+      if(newZ<zMin) newZ=zMin;
+      if(newZ>zMax) newZ=zMax;
 
       setX(newX);
       setY(newY);
@@ -332,17 +297,17 @@ void qavimator::partDragged(const QString& partName,double x,double y,double z)
       updateKeyBtn();
     }
   }
-  else qDebug("partDragged(): partName==\"\"!");
+  else qDebug("qavimator::partDragged(): partName==\"\"!");
 }
 
 // slot gets called by AnimationView::propClicked()
 void qavimator::propClicked(Prop* prop)
 {
-  avatarPropsTab->setCurrentPage(1);
+  avatarPropsTab->setCurrentIndex(1);
 
   // update prop name combo box
   for(int index=0;index<propNameCombo->count();index++)
-    if(propNameCombo->text(index)==prop->name()) propNameCombo->setCurrentItem(index);
+    if(propNameCombo->itemText(index)==prop->name()) propNameCombo->setCurrentIndex(index);
 
   // update prop value spinboxes
   selectProp(prop->name());
@@ -388,7 +353,7 @@ void qavimator::backgroundClicked()
 }
 
 // slot gets called by body part dropdown list
-void qavimator::cb_PartChoice()
+void qavimator::partChoice()
 {
   // selectPart will fire partClicked signal, so we don't bother
   // about updating controls or currentPart string ourselves here
@@ -399,62 +364,69 @@ void qavimator::cb_PartChoice()
   emit enableRotation(true);
 }
 
-void qavimator::cb_RotRoller(int)
+// gets called whenever a body part rotation slider is moved
+void qavimator::rotationSlider()
 {
-  double x = getX();
-  double y = getY();
-  double z = getZ();
+  double x=getX();
+  double y=getY();
+  double z=getZ();
 
   setX(x);
   setY(y);
   setZ(z);
 
-  Animation *anim = animationView->getAnimation();
+  Animation* anim=animationView->getAnimation();
   if(!animationView->getSelectedPart().isEmpty())
   {
-      anim->setRotation(animationView->getSelectedPart(), x, y, z);
-      animationView->repaint();
+    anim->setRotation(animationView->getSelectedPart(),x,y,z);
+    animationView->repaint();
   }
 
   updateKeyBtn();
 }
 
-void qavimator::cb_RotValue()
+// gets called whenever a body part rotation value field gets changed
+void qavimator::rotationValue()
 {
-  double x = xRotationEdit->text().toDouble();
-  double y = yRotationEdit->text().toDouble();
-  double z = zRotationEdit->text().toDouble();
+  double x=xRotationEdit->text().toDouble();
+  double y=yRotationEdit->text().toDouble();
+  double z=zRotationEdit->text().toDouble();
 
-  double min_x = xSlider->minValue()/PRECISION;
-  double min_y = ySlider->minValue()/PRECISION;
-  double min_z = zSlider->minValue()/PRECISION;
+  double min_x=xRotationSlider->minimum()/PRECISION;
+  double min_y=yRotationSlider->minimum()/PRECISION;
+  double min_z=zRotationSlider->minimum()/PRECISION;
 
-  double max_x = xSlider->maxValue()/PRECISION;
-  double max_y = ySlider->maxValue()/PRECISION;
-  double max_z = zSlider->maxValue()/PRECISION;
+  double max_x=xRotationSlider->maximum()/PRECISION;
+  double max_y=yRotationSlider->maximum()/PRECISION;
+  double max_z=zRotationSlider->maximum()/PRECISION;
 
-  if (x<min_x) x = min_x;  if (y<min_y) y = min_y;  if (z<min_z) z = min_z;
-  if (x>max_x) x = max_x;  if (y>max_y) y = max_y;  if (z>max_z) z = max_z;
+  if(x<min_x) x=min_x;
+  if(y<min_y) y=min_y;
+  if(z<min_z) z=min_z;
+
+  if(x>max_x) x=max_x;
+  if(y>max_y) y=max_y;
+  if(z>max_z) z=max_z;
 
   setX(x);
   setY(y);
   setZ(z);
 
-  Animation *anim = animationView->getAnimation();
+  Animation* anim=animationView->getAnimation();
   if(!animationView->getSelectedPart().isEmpty())
   {
-      anim->setRotation(animationView->getSelectedPart(), x, y, z);
-      animationView->repaint();
+    anim->setRotation(animationView->getSelectedPart(), x, y, z);
+    animationView->repaint();
   }
 
   updateKeyBtn();
 }
 
-void qavimator::cb_PosRoller(int)
+void qavimator::positionSlider()
 {
-  double x = getXPos();
-  double y = getYPos();
-  double z = getZPos();
+  double x=getXPos();
+  double y=getYPos();
+  double z=getZPos();
 
   setXPos(x);
   setYPos(y);
@@ -469,22 +441,27 @@ void qavimator::cb_PosRoller(int)
   updateKeyBtn();
 }
 
-void qavimator::cb_PosValue()
+void qavimator::positionValue()
 {
-  double x = xPositionEdit->text().toDouble();
-  double y = yPositionEdit->text().toDouble();
-  double z = zPositionEdit->text().toDouble();
+  double x=xPositionEdit->text().toDouble();
+  double y=yPositionEdit->text().toDouble();
+  double z=zPositionEdit->text().toDouble();
 
-  double min_x = xPositionSlider->minValue()/PRECISION;
-  double min_y = yPositionSlider->minValue()/PRECISION;
-  double min_z = zPositionSlider->minValue()/PRECISION;
+  double min_x=xPositionSlider->minimum()/PRECISION;
+  double min_y=yPositionSlider->minimum()/PRECISION;
+  double min_z=zPositionSlider->minimum()/PRECISION;
 
-  double max_x = xPositionSlider->maxValue()/PRECISION;
-  double max_y = yPositionSlider->maxValue()/PRECISION;
-  double max_z = zPositionSlider->maxValue()/PRECISION;
+  double max_x=xPositionSlider->maximum()/PRECISION;
+  double max_y=yPositionSlider->maximum()/PRECISION;
+  double max_z=zPositionSlider->maximum()/PRECISION;
 
-  if (x<min_x) x = min_x;  if (y<min_y) y = min_y;  if (z<min_z) z = min_z;
-  if (x>max_x) x = max_x;  if (y>max_y) y = max_y;  if (z>max_z) z = max_z;
+  if(x<min_x) x=min_x;
+  if(y<min_y) y=min_y;
+  if(z<min_z) z=min_z;
+
+  if(x>max_x) x=max_x;
+  if(y>max_y) y=max_y;
+  if(z>max_z) z= max_z;
 
   setXPos(x);
   setYPos(y);
@@ -504,37 +481,36 @@ void qavimator::updateInputs()
   // deactivate redraw to reduce interface "jitter" during updating
   setUpdatesEnabled(false);
 
-  double x=0, y=0, z=0;
-  Animation *anim = animationView->getAnimation();
+  Animation* anim=animationView->getAnimation();
 
   if(anim && !currentPart.isEmpty())
   {
-    double xMin, xMax, yMin, yMax, zMin, zMax;
-
     Rotation rot=anim->getRotation(currentPart);
-    x=rot.x;
-    y=rot.y;
-    z=rot.z;
+
+    double x=rot.x;
+    double y=rot.y;
+    double z=rot.z;
 
     RotationLimits rotLimits=anim->getRotationLimits(currentPart);
-    xMin=rotLimits.xMin;
-    yMin=rotLimits.yMin;
-    zMin=rotLimits.zMin;
-    xMax=rotLimits.xMax;
-    yMax=rotLimits.yMax;
-    zMax=rotLimits.zMax;
+
+    double xMin=rotLimits.xMin;
+    double yMin=rotLimits.yMin;
+    double zMin=rotLimits.zMin;
+    double xMax=rotLimits.xMax;
+    double yMax=rotLimits.yMax;
+    double zMax=rotLimits.zMax;
 
     if(currentPart=="hip")
     {
-      xSlider->setRange(-359*PRECISION, 359*PRECISION);
-      ySlider->setRange(-359*PRECISION, 359*PRECISION);
-      zSlider->setRange(-359*PRECISION, 359*PRECISION);
+      xRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
+      yRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
+      zRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
     }
     else
     {
-      xSlider->setRange((int)(xMin*PRECISION), (int)(xMax*PRECISION));
-      ySlider->setRange((int)(yMin*PRECISION), (int)(yMax*PRECISION));
-      zSlider->setRange((int)(zMin*PRECISION), (int)(zMax*PRECISION));
+      xRotationSlider->setRange((int)(xMin*PRECISION), (int)(xMax*PRECISION));
+      yRotationSlider->setRange((int)(yMin*PRECISION), (int)(yMax*PRECISION));
+      zRotationSlider->setRange((int)(zMin*PRECISION), (int)(zMax*PRECISION));
     }
 
     setX(x);
@@ -557,11 +533,11 @@ void qavimator::updateInputs()
     emit enablePosition(false);
   }
 
-// we do that in cb_PlayBtn() now
-//  playButton->setPixmap(playing ? stopPixmap : playPixmap);
+// we do that in nextPlaystate() now
+//  playButton->setIcon(playing ? stopIcon : playIcon);
 
   framesSpin->setValue(anim->getNumberOfFrames());
-  positionSlider->setMaxValue(anim->getNumberOfFrames()-1);
+  currentFrameSlider->setMaximum(anim->getNumberOfFrames()-1);
 
   // prevent feedback loop
   scaleSpin->blockSignals(true);
@@ -597,7 +573,7 @@ void qavimator::updateKeyBtn()
   keyframeButton->blockSignals(true);
 
   bool hasKeyframe=anim->isKeyFrame(animationView->getSelectedPart());
-  keyframeButton->setOn(hasKeyframe);
+  keyframeButton->setDown(hasKeyframe);
 
   // re-enable toggle signal
   keyframeButton->blockSignals(false);
@@ -624,14 +600,14 @@ void qavimator::enableInputs(bool state)
   keyframeButton->setEnabled(state);
 }
 
-void qavimator::cb_timeout()
+void qavimator::frameTimeout()
 {
   // only if we are still playing
   if(playstate!=PLAYSTATE_STOPPED)
   {
-    Animation *anim = animationView->getAnimation();
-    if (anim) {
-
+    Animation* anim=animationView->getAnimation();
+    if(anim)
+    {
       // don't show protected frames color on playback to avoid flicker
       emit protectFrame(false);
       // cycle through frames, restart at looping point
@@ -649,9 +625,9 @@ void qavimator::cb_timeout()
   }
 }
 
-void qavimator::cb_PlayBtn()
+void qavimator::nextPlaystate()
 {
-//  qDebug("qavimator::cb_PlayBtn: current playstate %d",(int) playstate);
+//  qDebug("qavimator::nextPlaystate(): current playstate %d",(int) playstate);
 
   Animation* anim=animationView->getAnimation();
 
@@ -685,23 +661,25 @@ void qavimator::cb_PlayBtn()
     case PLAYSTATE_PLAYING:
     {
       // take care of locks, key frames ...
-      cb_FrameSlider(positionSlider->value());
+      frameSlider(currentFrameSlider->value());
       setPlaystate(PLAYSTATE_STOPPED);
 
       break;
     }
     default:
-      qDebug("qavimator::cb_PlayBtn(): unknown playstate %d",(int) playstate);
+      qDebug("qavimator::nextPlaystate(): unknown playstate %d",(int) playstate);
   }
 
   updateInputs();
 }
 
-void qavimator::cb_fpsValue(int fps) {
+void qavimator::setFPS(int fps)
+{
+  qDebug("qavimator::setFPS(%d)",fps);
   animationView->setFrameTime(1.0/(double) fps);
 }
 
-void qavimator::cb_FrameSlider(int position)
+void qavimator::frameSlider(int position)
 {
   // check if we are at the first frame and if it's protected
   if(position==0 && protectFirstFrame) protect=true;
@@ -714,7 +692,7 @@ void qavimator::cb_FrameSlider(int position)
   updateInputs();
 }
 
-void qavimator::figureChanged(int shape)
+void qavimator::setAvatarShape(int shape)
 {
   Animation* anim=animationView->getAnimation();
   if(!anim) return;
@@ -726,7 +704,7 @@ void qavimator::figureChanged(int shape)
   animationView->repaint();
 }
 
-void qavimator::scaleChanged(int percent)
+void qavimator::setAvatarScale(int percent)
 {
   animationView->getAnimation()->setAvatarScale(percent/100.0);
   animationView->repaint();
@@ -748,23 +726,17 @@ void qavimator::numFramesChanged(int num)
   updateInputs();
 }
 
-void qavimator::keyframeButtonToggled(bool)
-{
-  animationView->getAnimation()->toggleKeyFrame(animationView->getSelectedPart());
-  animationView->repaint();
-}
-
 void qavimator::easeInChanged(int change)
 {
   bool ease=false;
-  if(change==QButton::On) ease=true;
+  if(change==Qt::Checked) ease=true;
   animationView->getAnimation()->setEaseIn(currentPart,ease);
 }
 
 void qavimator::easeOutChanged(int change)
 {
   bool ease=false;
-  if(change==QButton::On) ease=true;
+  if(change==Qt::Checked) ease=true;
   animationView->getAnimation()->setEaseOut(currentPart,ease);
 }
 
@@ -794,7 +766,7 @@ void qavimator::fileNew()
   // FIXME: code duplication
   connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
 
-  editPartCombo->setCurrentItem(1);
+  editPartCombo->setCurrentIndex(1);
 
   setPlaystate(PLAYSTATE_STOPPED);
 
@@ -802,13 +774,13 @@ void qavimator::fileNew()
   {
 //    qDebug("qavimator::fileNew(): adding loop points for protected frame 1 animation");
     // skip first frame, since it's protected anyway
-    animationView->setFrame(1);
+    setCurrentFrame(1);
     setLoopInPoint(2);
   }
   else
   {
 //    qDebug("qavimator::fileNew(): adding loop points for unprotected frame 1 animation");
-    animationView->setFrame(0);
+    setCurrentFrame(0);
     setLoopInPoint(1);
   }
   setLoopOutPoint(anim->getNumberOfFrames());
@@ -829,13 +801,7 @@ void qavimator::fileNew()
 
 QString qavimator::selectFileToOpen(const QString& caption)
 {
-  QString file=QFileDialog::getOpenFileName(lastPath,
-                                            ANIM_FILTER,
-                                            this,
-                                            "file_open_dialog",
-                                            caption,
-                                            0,
-                                            false);
+  QString file=QFileDialog::getOpenFileName(this,caption,lastPath,ANIM_FILTER);
 
   if(!file.isEmpty())
   {
@@ -846,7 +812,7 @@ QString qavimator::selectFileToOpen(const QString& caption)
       file=QString::null;
     }
     else
-      lastPath=fileInfo.dirPath(false);
+      lastPath=fileInfo.path();
   }
 
   return file;
@@ -916,15 +882,13 @@ void qavimator::fileAdd(const QString& name)
       if(protectFirstFrame)
       {
 //        qDebug("qavimator::fileAdd(): adding loop points for protected frame 1 animation");
-        animationView->setFrame(1);
-        timeline->setCurrentFrame(1);
+        setCurrentFrame(1);
         setLoopInPoint(2);
       }
       else
       {
 //        qDebug("qavimator::fileAdd(): adding loop points for unprotected frame 1 animation");
-        animationView->setFrame(0);
-        timeline->setCurrentFrame(0);
+        setCurrentFrame(0);
         setLoopInPoint(1);
       }
     }
@@ -957,73 +921,101 @@ void qavimator::fileSave()
 // Menu Action: File / Save As...
 void qavimator::fileSaveAs()
 {
-  QString file=QFileDialog::getSaveFileName(currentFile,
-                                            ANIM_FILTER,
-                                            this,
-                                            "file_save_as_dialog",
-                                            tr("Save Animation File"),
-                                            0,
-                                            false);
-  if(file)
+  QString file=QFileDialog::getSaveFileName(this,tr("Save Animation File"),currentFile,ANIM_FILTER);
+
+  if(!file.isEmpty())
   {
     QFileInfo fileInfo(file);
 
     // make sure file has proper extension (either .bvh or .avm)
-    QString extension=fileInfo.extension(false).lower();
+    QString extension=fileInfo.suffix().toLower();
     if(extension!="avm" && extension!="bvh")
       file+=".avm";
 
-    // if the file didn't exist yet or the user accepted to overwrite it, save it
-    if(checkFileOverwrite(fileInfo))
-    {
+    // if the file didn't exist yet or the user accepted to overwrite it, save it.
+    // this is obsolete for Qt 4.x
+//    if(checkFileOverwrite(fileInfo))
+//    {
       setCurrentFile(file);
-      lastPath=fileInfo.dirPath(false);
+      lastPath=fileInfo.path();
       animationView->getAnimation()->saveBVH(file);
       // update animation selector combo box
-      selectAnimationCombo->changeItem(fileInfo.baseName(true),selectAnimationCombo->currentItem());
-    }
+      selectAnimationCombo->setItemText(selectAnimationCombo->currentIndex(),fileInfo.baseName());
+      openFiles[selectAnimationCombo->currentIndex()]=file;
+      fileExportForSecondLifeAction->setEnabled(true);
+//    }
+  }
+}
+
+// Menu Action: File / Export For Second Life
+void qavimator::fileExportForSecondLife()
+{
+  // FIXME: think of a sensible thing to do when the animation has not been saved
+  //        as .avm yet
+  if(currentFile!=UNTITLED_NAME)
+  {
+    QFileInfo fileInfo(currentFile);
+    QString exportName=fileInfo.path()+"/"+fileInfo.baseName()+".bvh";
+
+    qDebug("qavimator::fileExportForSecondLife(): exporting animation as '%s'.",exportName.toLatin1().constData());
+    animationView->getAnimation()->saveBVH(exportName);
+    QMessageBox::information(this,QObject::tr("Export for Second Life"),QObject::tr("Animation was exported for Second Life as:\n%1").arg(exportName));
   }
 }
 
 // Menu Action: File / Load Props...
 void qavimator::fileLoadProps()
 {
-  QString fileName=QFileDialog::getOpenFileName(lastPath,
-                                                PROP_FILTER,
-                                                this,
-                                                "load_props_dialog",
-                                                tr("Select Props File To Load"),
-                                                0,
-                                                false);
-  if (fileName) {
+  QString fileName=QFileDialog::getOpenFileName(this,QString(),lastPath,PROP_FILTER);
+
+  if(!fileName.isEmpty())
+  {
     QFileInfo fileInfo(fileName);
+
     if(fileInfo.exists())
     {
       clearProps();
       QFile file(fileName);
-      if(file.open(IO_ReadOnly))
+      if(file.open(QIODevice::ReadOnly))
       {
         QString line;
+        bool tooOldWarning=false;
         while(!file.atEnd())
         {
-          file.readLine(line,2048);
-          QStringList properties=QStringList::split(' ',line);
-          const Prop* prop=animationView->addProp((Prop::PropType) properties[0].toInt(),
-                                            properties[1].toDouble(),
-                                            properties[2].toDouble(),
-                                            properties[3].toDouble(),
-                                            properties[4].toDouble(),
-                                            properties[5].toDouble(),
-                                            properties[6].toDouble(),
-                                            properties[7].toDouble(),
-                                            properties[8].toDouble(),
-                                            properties[9].toDouble(),
-                                            properties[10].toInt()
+          qDebug("qavimator::fileLoadProps(): loading prop");
+
+          line=file.readLine(2048);
+          QStringList props=line.split(' ');
+
+          // make sure we don't crash with an assert if the array is too short (e.g. attachment point missing)
+          if(props.count()!=11)
+          {
+            // show this warning only once per .prp file
+            if(!tooOldWarning)
+            {
+              qDebug("qavimator::fileLoadProps(): Prop file either too old or corrupted. Trying to recover.");
+              tooOldWarning=true;
+            }
+            // append the necessary number of "0" to the array
+            while(props.count()<11) props.append("0");
+          }
+
+          const Prop* prop=animationView->addProp((Prop::PropType) props[0].toInt(),
+                                            props[1].toDouble(),
+                                            props[2].toDouble(),
+                                            props[3].toDouble(),
+                                            props[4].toDouble(),
+                                            props[5].toDouble(),
+                                            props[6].toDouble(),
+                                            props[7].toDouble(),
+                                            props[8].toDouble(),
+                                            props[9].toDouble(),
+                                            props[10].toInt()
           );
           if(prop)
           {
-            propNameCombo->insertItem(prop->name());
-            propNameCombo->setCurrentItem(propNameCombo->count()-1);
+            propNameCombo->addItem(prop->name());
+            propNameCombo->setCurrentIndex(propNameCombo->count()-1);
             selectProp(prop->name());
           }
         } // while
@@ -1035,29 +1027,24 @@ void qavimator::fileLoadProps()
 // Menu Action: File / Save Props...
 void qavimator::fileSaveProps()
 {
-  QString fileName=QFileDialog::getSaveFileName(currentFile,
-                                                PROP_FILTER,
-                                                this,
-                                                "save_props_dialog",
-                                                tr("Save Props"),
-                                                0,
-                                                false);
-  if(fileName)
+  QString fileName=QFileDialog::getSaveFileName(this,tr("Save Props"),currentFile,PROP_FILTER);
+
+  if(!fileName.isEmpty())
   {
     QFileInfo fileInfo(fileName);
     // make sure file has proper extension (.prp)
-    if(fileInfo.extension(false).lower()!="prp")
+    if(fileInfo.suffix().toLower()!="prp")
       fileName+=".prp";
 
     // check if file exists
     if(!checkFileOverwrite(fileInfo)) return;
 
     QFile file(fileName);
-    if(file.open(IO_WriteOnly))
+    if(file.open(QIODevice::WriteOnly))
     {
       for(int index=0;index<propNameCombo->count();index++)
       {
-        Prop* prop=animationView->getPropByName(propNameCombo->text(index));
+        Prop* prop=animationView->getPropByName(propNameCombo->itemText(index));
         QStringList properties;
         properties.append(QString::number(prop->type));
         properties.append(QString::number(prop->x));
@@ -1071,7 +1058,7 @@ void qavimator::fileSaveProps()
         properties.append(QString::number(prop->zr));
         properties.append(QString::number(prop->isAttached()));
         QString line=properties.join(" ")+"\n";
-        file.writeBlock(line,line.length());
+        file.write(line.toLatin1().constData(),line.length());
       } // for
     }
   }
@@ -1084,32 +1071,30 @@ void qavimator::fileExit()
     return;
 
   QSettings settings;
-  settings.setPath("DeZiRee","QAvimator",QSettings::User);
-
   settings.beginGroup("/qavimator");
 
   // make sure we know next time, that there actually was a settings file
-  settings.writeEntry("/settings",true);
+  settings.setValue("/settings",true);
 
-  settings.writeEntry("/loop",loop);
-  settings.writeEntry("/skeleton",optionsSkeletonAction->isOn());
-  settings.writeEntry("/joint_limits",optionsJointLimitsAction->isOn());
-  settings.writeEntry("/protect_first_frame",optionsProtectFirstFrameAction->isOn());
-  settings.writeEntry("/show_timeline",optionsShowTimelineAction->isOn());
+  settings.setValue("/loop",loop);
+  settings.setValue("/skeleton",optionsSkeletonAction->isChecked());
+  settings.setValue("/joint_limits",optionsJointLimitsAction->isChecked());
+  settings.setValue("/protect_first_frame",optionsProtectFirstFrameAction->isChecked());
+  settings.setValue("/show_timeline",optionsShowTimelineAction->isChecked());
 
-  settings.writeEntry("/figure",figureCombo->currentItem());
-  settings.writeEntry("/mainwindow_width",size().width());
-  settings.writeEntry("/mainwindow_height",size().height());
+  settings.setValue("/figure",figureCombo->currentIndex());
+  settings.setValue("/mainwindow_width",size().width());
+  settings.setValue("/mainwindow_height",size().height());
 
-  settings.writeEntry("/last_path",lastPath);
+  settings.setValue("/last_path",lastPath);
 
   // OpenGL settings
-  settings.writeEntry("/fog",Settings::fog());
-  settings.writeEntry("/floor_translucency",Settings::floorTranslucency());
+  settings.setValue("/fog",Settings::fog());
+  settings.setValue("/floor_translucency",Settings::floorTranslucency());
 
   // settings for ease in/ease outFrame
-  settings.writeEntry("/ease_in",Settings::easeIn());
-  settings.writeEntry("/ease_out",Settings::easeOut());
+  settings.setValue("/ease_in",Settings::easeIn());
+  settings.setValue("/ease_out",Settings::easeOut());
 
   settings.endGroup();
 
@@ -1137,7 +1122,7 @@ void qavimator::editCopy()
 // Menu Action: Edit / Paste
 void qavimator::editPaste()
 {
-  if (frameDataValid)
+  if(frameDataValid)
   {
     animationView->getAnimation()->pasteFrame();
     animationView->repaint();
@@ -1146,14 +1131,14 @@ void qavimator::editPaste()
 }
 
 // Menu Action: Edit / Paste
-void qavimator::editOptimize()
+void qavimator::editOptimizeBVH()
 {
   animationView->getAnimation()->optimize();
   updateInputs();
 }
 
 // Menu Action: Options / Skeleton
-void qavimator::optionsSkeleton(bool on)
+void qavimator::showSkeleton(bool on)
 {
   if(on)
     animationView->showSkeleton();
@@ -1162,7 +1147,7 @@ void qavimator::optionsSkeleton(bool on)
 }
 
 // Menu Action: Options / Loop
-void qavimator::optionsLoop(bool on)
+void qavimator::setLoop(bool on)
 {
   loop=on;
 
@@ -1175,7 +1160,7 @@ void qavimator::optionsLoop(bool on)
 }
 
 // Menu Action: Options / Joint Limits
-void qavimator::optionsJointLimits(bool on)
+void qavimator::setJointLimits(bool on)
 {
   jointLimits=on;
   Animation* anim=animationView->getAnimation();
@@ -1188,10 +1173,10 @@ void qavimator::optionsJointLimits(bool on)
 }
 
 // Menu Action: Oprions / Protect First Frame
-void qavimator::optionsProtectFirstFrame(bool on)
+void qavimator::setProtectFirstFrame(bool on)
 {
   protectFirstFrame=on;
-  if(on && positionSlider->value()==0) protect=true;
+  if(on && currentFrameSlider->value()==0) protect=true;
   else protect=false;
 
   emit protectFrame(protect);
@@ -1199,7 +1184,7 @@ void qavimator::optionsProtectFirstFrame(bool on)
 }
 
 // Menu Action: Oprions / Show Timeline
-void qavimator::optionsShowTimeline(bool on)
+void qavimator::showTimeline(bool on)
 {
   if(on)
     timelineView->show();
@@ -1215,11 +1200,13 @@ void qavimator::optionsShowTimeline(bool on)
 }
 
 // Menu Action: Options / Configure QAvimator
-void qavimator::optionsConfigure()
+void qavimator::configure()
 {
-  SettingsDialog* dialog=new SettingsDialog(this,"qavimator_settings_dialog",true);
+  SettingsDialog* dialog=new SettingsDialog(this);
   connect(dialog,SIGNAL(configChanged()),this,SLOT(configChanged()));
+
   dialog->exec();
+
   delete dialog;
 }
 
@@ -1249,32 +1236,32 @@ bool qavimator::checkFileOverwrite(const QFileInfo& fileInfo)
 
 void qavimator::setX(float x)
 {
-  setSliderValue(xSlider,xRotationEdit,x);
+  setSliderValue(xRotationSlider,xRotationEdit,x);
 }
 
 void qavimator::setY(float y)
 {
-  setSliderValue(ySlider,yRotationEdit,y);
+  setSliderValue(yRotationSlider,yRotationEdit,y);
 }
 
 void qavimator::setZ(float z)
 {
-  setSliderValue(zSlider,zRotationEdit,z);
+  setSliderValue(zRotationSlider,zRotationEdit,z);
 }
 
 float qavimator::getX()
 {
-  return xSlider->value()/PRECISION;
+  return xRotationSlider->value()/PRECISION;
 }
 
 float qavimator::getY()
 {
-  return ySlider->value()/PRECISION;
+  return yRotationSlider->value()/PRECISION;
 }
 
 float qavimator::getZ()
 {
-  return zSlider->value()/PRECISION;
+  return zRotationSlider->value()/PRECISION;
 }
 
 void qavimator::setXPos(float x)
@@ -1338,26 +1325,26 @@ void qavimator::addToOpenFiles(const QString& fileName)
 {
     openFiles.append(fileName);
 
-    QString fixedName = fileName;
+    QString fixedName=fileName;
     QRegExp pattern(".*/");
     fixedName.remove(pattern);
     pattern.setPattern("(\\.bvh|\\.avm)");
     fixedName.remove(pattern);
 
-    selectAnimationCombo->insertItem(fixedName);
+    selectAnimationCombo->addItem(fixedName);
 }
 
 void qavimator::removeFromOpenFiles(unsigned int which)
 {
-  if(which>=openFiles.count()) return;
-  openFiles.remove(openFiles.at(which));
+  if(which>= (unsigned int) openFiles.count()) return;
+  openFiles.removeAt(which);
   selectAnimationCombo->removeItem(which);
 }
 
 // empty out the open files list
 bool qavimator::clearOpenFiles()
 {
-  for(unsigned int index=0;index<animationIds.count();index++)
+  for(unsigned int index=0;index< (unsigned int) animationIds.count();index++)
   {
     if(animationIds.at(index)->dirty())
     {
@@ -1383,16 +1370,16 @@ bool qavimator::clearOpenFiles()
 void qavimator::setCurrentFile(const QString& fileName)
 {
   currentFile=fileName;
-  setCaption("qavimator ["+currentFile+"]");
+  setWindowTitle("qavimator ["+currentFile+"]");
 }
 
 // this slot gets called from Animation::setFrame(int)
 void qavimator::setCurrentFrame(int frame)
 {
-  positionSlider->blockSignals(true);
-  positionSlider->setValue(frame);
+  currentFrameSlider->blockSignals(true);
+  currentFrameSlider->setValue(frame);
   currentFrameLabel->setText(QString::number(frame+1));
-  positionSlider->blockSignals(false);
+  currentFrameSlider->blockSignals(false);
   timeline->setCurrentFrame(frame);
   animationView->setFrame(frame);
   updateInputs();
@@ -1404,27 +1391,16 @@ void qavimator::setCurrentFrame(int frame)
 }
 
 // this slot gets called when someone clicks one of the "New Prop" buttons
-void qavimator::newPropButtonClicked()
+void qavimator::newProp(Prop::PropType type)
 {
-  // get the internal button name
-  QString whatButton=sender()->name();
-
-  // predefine safe value
-  Prop::PropType type=Prop::Box;
-
-  if(whatButton=="newBoxPropButton") type=Prop::Box;
-  else if(whatButton=="newSpherePropButton") type=Prop::Sphere;
-  else if(whatButton=="newConePropButton") type=Prop::Cone;
-  else if(whatButton=="newTorusPropButton") type=Prop::Torus;
-
   const Prop* prop=animationView->addProp(type,10,40,10, 10,10,10, 0,0,0, 0);
 
   if(prop)
   {
-    propNameCombo->insertItem(prop->name());
-    propNameCombo->setCurrentItem(propNameCombo->count()-1);
+    propNameCombo->addItem(prop->name());
+    propNameCombo->setCurrentIndex(propNameCombo->count()-1);
     selectProp(prop->name());
-    attachToComboBox->setCurrentItem(0);
+    attachToComboBox->setCurrentIndex(0);
   }
 }
 
@@ -1441,7 +1417,7 @@ void qavimator::selectProp(const QString& propName)
 
     updatePropSpins(prop);
     animationView->selectProp(prop->name());
-    attachToComboBox->setCurrentItem(prop->isAttached());
+    attachToComboBox->setCurrentIndex(prop->isAttached());
   }
   else
   {
@@ -1451,13 +1427,13 @@ void qavimator::selectProp(const QString& propName)
   }
 }
 
-void qavimator::attachToComboBoxChanged(int attachPoint)
+void qavimator::attachProp(int attachmentPoint)
 {
   // FIXME: find better solution for filtering endpoint for joints
-  if(attachToComboBox->currentText()=="-") attachPoint=0;
+  if(attachToComboBox->currentText()=="-") attachmentPoint=0;
   QString propName=propNameCombo->currentText();
   Prop* prop=animationView->getPropByName(propName);
-  prop->attach(attachPoint);
+  prop->attach(attachmentPoint);
   updatePropSpins(prop);
   animationView->repaint();
 }
@@ -1501,7 +1477,8 @@ void qavimator::updatePropSpins(const Prop* prop)
   propZScaleSpin->blockSignals(false);
 }
 
-void qavimator::propPosChanged(int /* dummy */)
+// gets called whenever one of the prop position values gets changed
+void qavimator::propPositionChanged()
 {
   QString propName=propNameCombo->currentText();
   Prop* prop=animationView->getPropByName(propName);
@@ -1512,7 +1489,8 @@ void qavimator::propPosChanged(int /* dummy */)
   }
 }
 
-void qavimator::propScaleChanged(int /* dummy */)
+// gets called whenever one of the prop scale values gets changed
+void qavimator::propScaleChanged()
 {
   QString propName=propNameCombo->currentText();
   Prop* prop=animationView->getPropByName(propName);
@@ -1523,7 +1501,8 @@ void qavimator::propScaleChanged(int /* dummy */)
   }
 }
 
-void qavimator::propRotChanged(int /* dummy */)
+// gets called whenever one of the prop rotation values gets changed
+void qavimator::propRotationChanged()
 {
   QString propName=propNameCombo->currentText();
   Prop* prop=animationView->getPropByName(propName);
@@ -1534,7 +1513,7 @@ void qavimator::propRotChanged(int /* dummy */)
   }
 }
 
-void qavimator::deletePropButtonClicked()
+void qavimator::deleteProp()
 {
   QString propName=propNameCombo->currentText();
   Prop* prop=animationView->getPropByName(propName);
@@ -1542,7 +1521,7 @@ void qavimator::deletePropButtonClicked()
   {
     animationView->deleteProp(prop);
     for(int index=0;index<propNameCombo->count();index++)
-      if(propNameCombo->text(index)==propName)
+      if(propNameCombo->itemText(index)==propName)
     {
       propNameCombo->removeItem(index);
       selectProp(propNameCombo->currentText());
@@ -1560,8 +1539,10 @@ void qavimator::clearProps()
 // gets called by selecting an animation from the animation combo box
 void qavimator::animationChanged(int which)
 {
+  qDebug("qavimator::animationChanged(%d)",which);
+
   // safety to check if "which" is out of bounds of loaded animations
-  if((unsigned int) which>=openFiles.count()) return;
+  if(which>=openFiles.count()) return;
 
   // get animation pointer
   Animation* anim=animationIds.at(which);
@@ -1573,7 +1554,7 @@ void qavimator::animationChanged(int which)
 void qavimator::selectAnimation(Animation* animation)
 {
   // find animation index in list of open files
-  for(unsigned int index=0;index<animationIds.count();index++)
+  for(unsigned int index=0;index< (unsigned int) animationIds.count();index++)
   {
     // index found
     if(animationIds.at(index)==animation)
@@ -1581,9 +1562,9 @@ void qavimator::selectAnimation(Animation* animation)
       // prevent signal looping
       animationView->blockSignals(true);
       // update animation combo box
-      selectAnimationCombo->setCurrentItem(index);
+      selectAnimationCombo->setCurrentIndex(index);
       // update window title
-      setCurrentFile(*openFiles.at(index));
+      setCurrentFile(openFiles.at(index));
       // update animation view (might already be active, depending on how this function was called)
       animationView->selectAnimation(index);
       // re-enable signals
@@ -1594,11 +1575,14 @@ void qavimator::selectAnimation(Animation* animation)
   // update avatar figure combo box
   int figure=0;
   if(animation->getFigureType()==Animation::FIGURE_MALE) figure=1;
-  figureCombo->setCurrentItem(figure);
+  figureCombo->setCurrentIndex(figure);
 
   // update timeline
   timeline->setAnimation(animation);
   updateInputs();
+
+  // enable export to second life if current file name is not the default untitled name
+  fileExportForSecondLifeAction->setEnabled(!(currentFile==UNTITLED_NAME));
 }
 
 // set loop in point (user view, so always +1)
@@ -1607,7 +1591,7 @@ void qavimator::setLoopInPoint(int inFrame)
   Animation* anim=animationView->getAnimation();
   int numOfFrames=anim->getNumberOfFrames();
   int outFrame=anim->getLoopOutPoint();
-//  qDebug("qavimator::setLoopInPoint(%d) (%d frames)",inFrame,numOfFrames);
+  qDebug("qavimator::setLoopInPoint(%d) (%d frames)",inFrame,numOfFrames);
 
   if(inFrame>numOfFrames) inFrame=numOfFrames;
   if(inFrame>outFrame) inFrame=outFrame+1;
@@ -1628,7 +1612,7 @@ void qavimator::setLoopOutPoint(int outFrame)
   Animation* anim=animationView->getAnimation();
   int numOfFrames=anim->getNumberOfFrames();
   int inFrame=anim->getLoopInPoint();
-//  qDebug("qavimator::setLoopOutPoint(%d) (%d frames)",outFrame,numOfFrames);
+  qDebug("qavimator::setLoopOutPoint(%d) (%d frames)",outFrame,numOfFrames);
 
   if(outFrame>numOfFrames) outFrame=numOfFrames;
   if((outFrame-1)<inFrame) outFrame=inFrame+1;
@@ -1649,22 +1633,378 @@ void qavimator::setPlaystate(PlayState state)
   // set state
   playstate=state;
 
-  // set play button pixmaps according to play state
+  // set play button icons according to play state
   if(state==PLAYSTATE_STOPPED)
-    playButton->setPixmap(loop ? loopPixmap : playPixmap);
+    playButton->setIcon(loop ? loopIcon : playIcon);
   else if(state==PLAYSTATE_LOOPING)
-    playButton->setPixmap(playPixmap);
+    playButton->setIcon(playIcon);
   else if(state==PLAYSTATE_PLAYING)
-    playButton->setPixmap(stopPixmap);
+    playButton->setIcon(stopIcon);
   else
     qDebug("qavimator::setPlaystate(): unknown playstate %d",(int) state);
 }
 
 // prevent closing of main window if there are unsaved changes
-bool qavimator::close(bool doDelete)
+void qavimator::closeEvent(QCloseEvent* event)
 {
   if(!clearOpenFiles())
-    return false;
+    event->ignore();
+  else
+    event->accept();
 
-  return MainApplicationForm::close(doDelete);
+//  return QMainWindow::close();
 }
+
+// -------------------------------------------------------------------------
+// autoconnection from designer UI
+
+// ------- Menu Action Slots --------
+
+void qavimator::on_fileNewAction_triggered()
+{
+  fileNew();
+}
+
+void qavimator::on_fileOpenAction_triggered()
+{
+  fileOpen();
+}
+
+void qavimator::on_fileAddAction_triggered()
+{
+  fileAdd();
+}
+
+void qavimator::on_fileSaveAction_triggered()
+{
+  fileSave();
+}
+
+void qavimator::on_fileSaveAsAction_triggered()
+{
+  fileSaveAs();
+}
+
+void qavimator::on_fileExportForSecondLifeAction_triggered()
+{
+  fileExportForSecondLife();
+}
+
+void qavimator::on_fileLoadPropsAction_triggered()
+{
+  fileLoadProps();
+}
+
+void qavimator::on_fileSavePropsAction_triggered()
+{
+  fileSaveProps();
+}
+
+void qavimator::on_fileExitAction_triggered()
+{
+  fileExit();
+}
+
+void qavimator::on_editCutAction_triggered()
+{
+  editCut();
+}
+
+void qavimator::on_editCopyAction_triggered()
+{
+  editCopy();
+}
+
+void qavimator::on_editPasteAction_triggered()
+{
+  editPaste();
+}
+
+void qavimator::on_editOptimizeBVHAction_triggered()
+{
+  editOptimizeBVH();
+}
+
+void qavimator::on_optionsSkeletonAction_toggled(bool on)
+{
+  showSkeleton(on);
+}
+
+void qavimator::on_optionsJointLimitsAction_toggled(bool on)
+{
+  setJointLimits(on);
+}
+
+void qavimator::on_optionsLoopAction_toggled(bool on)
+{
+  setLoop(on);
+}
+
+void qavimator::on_optionsProtectFirstFrameAction_toggled(bool on)
+{
+  setProtectFirstFrame(on);
+}
+
+void qavimator::on_optionsShowTimelineAction_toggled(bool on)
+{
+  showTimeline(on);
+}
+
+void qavimator::on_optionsConfigureQAvimatorAction_triggered()
+{
+  configure();
+}
+
+void qavimator::on_helpAboutAction_triggered()
+{
+  helpAbout();
+}
+
+// ------- Additional Toolbar Element Slots --------
+
+void qavimator::on_resetCameraAction_triggered()
+{
+  emit resetCamera();
+}
+
+// ------- UI Element Slots --------
+
+void qavimator::on_selectAnimationCombo_activated(int which)
+{
+  animationChanged(which);
+}
+
+void qavimator::on_figureCombo_activated(int newShape)
+{
+  setAvatarShape(newShape);
+}
+
+void qavimator::on_scaleSpin_valueChanged(int newValue)
+{
+  setAvatarScale(newValue);
+}
+
+void qavimator::on_editPartCombo_activated(int)
+{
+  partChoice();
+}
+
+void qavimator::on_xRotationEdit_returnPressed()
+{
+  rotationValue();
+}
+
+void qavimator::on_xRotationEdit_lostFocus()
+{
+  rotationValue();
+}
+
+void qavimator::on_xRotationSlider_valueChanged(int)
+{
+  rotationSlider();
+}
+
+void qavimator::on_yRotationEdit_returnPressed()
+{
+  rotationValue();
+}
+
+void qavimator::on_yRotationEdit_lostFocus()
+{
+  rotationValue();
+}
+
+void qavimator::on_yRotationSlider_valueChanged(int)
+{
+  rotationSlider();
+}
+
+void qavimator::on_zRotationEdit_returnPressed()
+{
+  rotationValue();
+}
+
+void qavimator::on_zRotationEdit_lostFocus()
+{
+  rotationValue();
+}
+
+void qavimator::on_zRotationSlider_valueChanged(int)
+{
+  rotationSlider();
+}
+
+void qavimator::on_xPositionEdit_returnPressed()
+{
+  positionValue();
+}
+
+void qavimator::on_xPositionEdit_lostFocus()
+{
+  positionValue();
+}
+
+void qavimator::on_xPositionSlider_valueChanged(int)
+{
+  positionSlider();
+}
+
+void qavimator::on_yPositionEdit_returnPressed()
+{
+  positionValue();
+}
+
+void qavimator::on_yPositionEdit_lostFocus()
+{
+  positionValue();
+}
+
+void qavimator::on_yPositionSlider_valueChanged(int)
+{
+  positionSlider();
+}
+
+void qavimator::on_zPositionEdit_returnPressed()
+{
+  positionValue();
+}
+
+void qavimator::on_zPositionEdit_lostFocus()
+{
+  positionValue();
+}
+
+void qavimator::on_zPositionSlider_valueChanged(int)
+{
+  positionSlider();
+}
+
+void qavimator::on_easeInCheck_stateChanged(int newState)
+{
+  easeInChanged(newState);
+}
+
+void qavimator::on_easeOutCheck_stateChanged(int newState)
+{
+  easeOutChanged(newState);
+}
+
+void qavimator::on_newBoxPropButton_clicked()
+{
+  newProp(Prop::Box);
+}
+
+void qavimator::on_newSpherePropButton_clicked()
+{
+  newProp(Prop::Sphere);
+}
+
+void qavimator::on_newConePropButton_clicked()
+{
+  newProp(Prop::Cone);
+}
+
+void qavimator::on_newTorusPropButton_clicked()
+{
+  newProp(Prop::Torus);
+}
+
+void qavimator::on_propNameCombo_activated(const QString& name)
+{
+  selectProp(name);
+}
+
+void qavimator::on_deletePropButton_clicked()
+{
+  deleteProp();
+}
+
+void qavimator::on_attachToComboBox_activated(int attachmentPoint)
+{
+  attachProp(attachmentPoint);
+}
+
+void qavimator::on_propXPosSpin_valueChanged(int)
+{
+  propPositionChanged();
+}
+
+void qavimator::on_propYPosSpin_valueChanged(int)
+{
+  propPositionChanged();
+}
+
+void qavimator::on_propZPosSpin_valueChanged(int)
+{
+  propPositionChanged();
+}
+
+void qavimator::on_propXScaleSpin_valueChanged(int)
+{
+  propScaleChanged();
+}
+
+void qavimator::on_propYScaleSpin_valueChanged(int)
+{
+  propScaleChanged();
+}
+
+void qavimator::on_propZScaleSpin_valueChanged(int)
+{
+  propScaleChanged();
+}
+
+void qavimator::on_propXRotSpin_valueChanged(int)
+{
+  propRotationChanged();
+}
+
+void qavimator::on_propYRotSpin_valueChanged(int)
+{
+  propRotationChanged();
+}
+
+void qavimator::on_propZRotSpin_valueChanged(int)
+{
+  propRotationChanged();
+}
+
+void qavimator::on_currentFrameSlider_valueChanged(int newValue)
+{
+  frameSlider(newValue);
+}
+
+void qavimator::on_playButton_clicked()
+{
+  nextPlaystate();
+}
+
+void qavimator::on_keyframeButton_toggled(bool on)
+{
+  qDebug("on_keyframeButton_toggled(%d)",(int) on);
+  animationView->getAnimation()->toggleKeyFrame(animationView->getSelectedPart());
+  animationView->repaint();
+}
+
+void qavimator::on_loopInSpinBox_valueChanged(int newValue)
+{
+  setLoopInPoint(newValue);
+}
+
+void qavimator::on_loopOutSpinBox_valueChanged(int newValue)
+{
+  setLoopOutPoint(newValue);
+}
+
+void qavimator::on_framesSpin_valueChanged(int newValue)
+{
+  numFramesChanged(newValue);
+}
+
+void qavimator::on_fpsSpin_valueChanged(int newValue)
+{
+  setFPS(newValue);
+}
+
+// end autoconnection from designer UI
+// -------------------------------------------------------------------------

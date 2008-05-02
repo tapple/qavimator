@@ -18,48 +18,48 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <qscrollview.h>
-#include <qlayout.h>
-#include <qpainter.h>
+#include <QHBoxLayout>
+#include <QScrollArea>
+#include <QScrollBar>
+#include <QPainter>
 
 #include "timelineview.h"
 #include "timeline.h"
 #include "animation.h"
 
-TimelineView::TimelineView(QWidget* parent,const char* name,WFlags f) : QFrame(parent,name,f)
+TimelineView::TimelineView(QWidget* parent,Qt::WindowFlags f) : QFrame(parent,f)
 {
   QHBoxLayout* layout=new QHBoxLayout(this);
 
-  layout->setAutoAdd(TRUE);
+  timelineTracks=new TimelineTracks(this);
+  timeline=new Timeline(0);
+  view=new QScrollArea(0);
 
-  timelineTracks=new TimelineTracks(this,"timeline_tracks");
+  view->setBackgroundRole(QPalette::Dark);
 
-  view=new QScrollView(this,"timeline_inner_view",WNoAutoErase|WStaticContents);
+  view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-  view->setVScrollBarMode(QScrollView::AlwaysOff);
-  view->setHScrollBarMode(QScrollView::AlwaysOff);
+  view->setWidget(timeline);
 
-  timeline=new Timeline(view->viewport(),"timeline",WResizeNoErase | WRepaintNoErase | WNoAutoErase);
+  timeline->setBackgroundRole(QPalette::Base);
 
-  connect(timeline,SIGNAL(resized(const QSize&)),this,SLOT(doResize(const QSize&)));
+  layout->addWidget(timelineTracks,0);
+  layout->addWidget(view);
+
   connect(timeline,SIGNAL(animationChanged(Animation*)),this,SLOT(setAnimation(Animation*)));
   connect(timeline,SIGNAL(trackClicked(int)),this,SLOT(selectTrack(int)));
-
-  view->addChild(timeline);
 }
 
 TimelineView::~TimelineView()
 {
 }
 
+// absolute x pixel position
 void TimelineView::scrollTo(int x)
 {
-  view->ensureVisible(x,0,view->visibleWidth()*1/4,view->visibleHeight());
-}
-
-void TimelineView::doResize(const QSize& newSize)
-{
-  view->resizeContents(newSize.width(),newSize.height());
+  QSize size=view->size();
+  view->ensureVisible(x,0,size.width()/4,size.height());
 }
 
 void TimelineView::setAnimation(Animation* anim)
@@ -86,7 +86,7 @@ void TimelineView::backgroundClicked()
 
 // --------------
 
-TimelineTracks::TimelineTracks(QWidget* parent,const char* name,WFlags f) : QWidget(parent,name,f)
+TimelineTracks::TimelineTracks(QWidget* parent,Qt::WindowFlags f) : QWidget(parent,f)
 {
   resize(sizeHint());
 }
@@ -103,7 +103,10 @@ QSize TimelineTracks::sizeHint() const
 
 void TimelineTracks::paintEvent(QPaintEvent*)
 {
-  repaint();
+  resize(sizeHint());
+  if(!animation) return;
+
+  for(int part=1;part<NUM_PARTS;part++) drawTrack(part);
 }
 
 void TimelineTracks::drawTrack(int track)
@@ -114,16 +117,16 @@ void TimelineTracks::drawTrack(int track)
   if(trackName!="Site")
   {
     QPainter p(this);
-    QColorGroup::ColorRole textColor=QColorGroup::Foreground;
+    QPalette::ColorRole textColor=QPalette::Foreground;
 
     int y=(track-1)*LINE_HEIGHT+2;
 
     if(track==selectedTrack)
     {
-      p.fillRect(0,y,width(),LINE_HEIGHT,palette().color(QPalette::Active,QColorGroup::Highlight));
+      p.fillRect(0,y,width(),LINE_HEIGHT,palette().color(QPalette::Active,QPalette::Highlight));
 #ifdef Q_OS_WIN32
       // on windows systems use contrast color to track highlight color
-      textColor=QColorGroup::HighlightedText;
+      textColor=QPalette::HighlightedText;
 #endif
     }
     else
@@ -135,14 +138,6 @@ void TimelineTracks::drawTrack(int track)
   }
 }
 
-void TimelineTracks::repaint()
-{
-  resize(sizeHint());
-  if(!animation) return;
-
-  for(int part=1;part<NUM_PARTS;part++) drawTrack(part);
-}
-
 void TimelineTracks::setAnimation(Animation* anim)
 {
   animation=anim;
@@ -150,8 +145,6 @@ void TimelineTracks::setAnimation(Animation* anim)
 
 void TimelineTracks::selectTrack(int track)
 {
-  int oldTrack=selectedTrack;
   selectedTrack=track;
-  drawTrack(oldTrack);
-  drawTrack(track);
+  repaint();
 }

@@ -22,7 +22,7 @@
 #ifndef BVH_H
 #define BVH_H
 
-#include <qstringlist.h>
+#include <QtCore>
 
 #include "rotation.h"
 #include "bvhnode.h"
@@ -39,7 +39,6 @@ class BVH
     ~BVH();
 
     BVHNode *bvhRead(const QString& file);
-    BVHNode* bvhReadNode(FILE *f) const;
 
     void assignChannels(BVHNode *node, FILE *f, int frame);
     void setChannelLimits(BVHNode *node,BVHChannelType type,double min,double max) const;
@@ -59,7 +58,7 @@ class BVH
     void bvhGetChannelLimits(BVHNode *node, BVHChannelType type, double *min, double *max);
     void bvhResetIK(BVHNode *root);
 
-    const QString& bvhGetName(BVHNode* node,int index);
+    const QString bvhGetName(BVHNode* node,int index);
     int bvhGetIndex(BVHNode* node,const QString& name);
     void bvhCopyOffsets(BVHNode *dst,BVHNode *src);
 
@@ -84,17 +83,24 @@ class BVH
     Animation::FigureType lastLoadedFigureType;
     int nodeCount;
 
-    QValueList<Rotation> rotationCopyBuffer;
-    QValueList<Position> positionCopyBuffer;
+    QList<Rotation> rotationCopyBuffer;
+    QList<Position> positionCopyBuffer;
 
   protected:
+    QString inputFile;
+    QStringList tokens;
+    int tokenPos;
+
     QStringList validNodes;
 
-    char* token(FILE *f,char* tokenBuf) const;
-    int expect_token(FILE *f, char *name) const;
+    QString token();
+    bool expect_token(const QString& expect);
+    BVHNode* bvhReadNode();
 
-    void avmReadKeyFrame(BVHNode *root, FILE *f);
-    void avmReadKeyFrameProperties(BVHNode *root, FILE *f);
+    void assignChannels(BVHNode* node,int frame);
+
+    void avmReadKeyFrame(BVHNode* root);
+    void avmReadKeyFrameProperties(BVHNode* root);
 
     void avmWriteKeyFrame(BVHNode *root, FILE *f);
     void avmWriteKeyFrameProperties(BVHNode *root, FILE *f);
@@ -106,7 +112,7 @@ class BVH
     void dumpNodes(BVHNode* node,QString indent);
 
     void setAllKeyFramesHelper(BVHNode* node,int numberOfFrames) const;
-    const QString& bvhGetNameHelper(BVHNode* node,int index);
+    const QString bvhGetNameHelper(BVHNode* node,int index);
     int bvhGetIndexHelper(BVHNode* node,const QString& name);
 
     void bvhGetFrameDataHelper(BVHNode* node,int frame);

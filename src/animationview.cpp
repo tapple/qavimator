@@ -26,10 +26,7 @@
 #include <GL/glut.h>
 #endif
 
-#include <qapplication.h>
-#include <qstring.h>
-#include <qcursor.h>
-#include <qtimer.h>
+#include <QMouseEvent>
 
 #include "animationview.h"
 #include "bvh.h"
@@ -41,24 +38,25 @@
 #define CTRL  2
 #define ALT   4
 
-AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
- : QGLWidget(parent,name)
+AnimationView::AnimationView(QWidget* parent,const char* /* name */,Animation* anim)
+ : QGLWidget(parent)
 {
   figureFiles << MALE_BVH << FEMALE_BVH;
 
   bvh=new BVH();
   if(!bvh)
   {
-    std::cout << "AnimationView::AnimationView(): BVH initialisation failed." << std::endl;
+    qDebug("AnimationView::AnimationView(): BVH initialisation failed.");
     return;
   }
-  // Ptrlist properties
-  animList.setAutoDelete(true);
+
   animation=0;
 
   // fake glut initialization
   int args=1;
-  char* arg[]={"qavimator"};
+  // make sure the "qavimator" string is not const char*
+  char arg0[]="qavimator";
+  char* arg[]={arg0};
   glutInit(&args,arg);
 
   // init
@@ -79,14 +77,14 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
 
   QString dataPath=QAVIMATOR_DATAPATH;
   QString limFile=dataPath+"/"+LIMITS_FILE;
-  qDebug("AnimationView::AnimationView(): using limits file '%s'",limFile.latin1());
+  qDebug("AnimationView::AnimationView(): using limits file '%s'",limFile.toLatin1().constData());
 
   // read SL reference models to restore joint positions, in case another model has joints
   // we do not support (e.g. the SL example bvh files)
   for(int i=0;i<Animation::NUM_FIGURES;i++)
   {
     QString model(dataPath+"/"+figureFiles[i]);
-    qDebug("Reaing reference model '%s'",model.latin1());
+    qDebug("Reading reference model '%s'",model.toLatin1().constData());
     joints[i]=bvh->animRead(model,limFile);
   }
 
@@ -97,12 +95,16 @@ AnimationView::AnimationView(QWidget* parent,const char* name,Animation* anim)
   modifier=0;
   if(anim) setAnimation(anim);
   setMouseTracking(true);
-  setFocusPolicy(QWidget::StrongFocus);
+  setFocusPolicy(Qt::StrongFocus);
 }
 
 AnimationView::~AnimationView()
 {
   clear();
+
+  // call delete on all animations in the list
+  qDeleteAll(animList);
+  // clear all now invalid references from the list
   animList.clear();
 }
 
@@ -113,19 +115,19 @@ BVH* AnimationView::getBVH() const
 
 void AnimationView::selectAnimation(unsigned int index)
 {
-    if (index < animList.count())
-    {
-	animation = animList.at(index);
-	emit animationSelected(animation);
-	repaint();
-    }
+  if(index< (unsigned int) animList.count())
+  {
+    animation=animList.at(index);
+    emit animationSelected(animation);
+    repaint();
+  }
 }
 
-void AnimationView::setAnimation(Animation *anim)
+void AnimationView::setAnimation(Animation* anim)
 {
     clear();
 
-    animation = anim;
+    animation=anim;
     animList.append(anim);
     connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
     repaint();
@@ -137,17 +139,29 @@ void AnimationView::drawFloor()
 
   glEnable(GL_DEPTH_TEST);
   glBegin(GL_QUADS);
-  for (int i=-10; i<10; i++) {
-    for (int j=-10; j<10; j++) {
-      if ((i+j) % 2)
-        if(frameProtected) glColor4f(0.3, 0.0, 0.0, alpha); else glColor4f(0.1, 0.1, 0.1, alpha);
+  for(int i=-10;i<10;i++)
+  {
+    for(int j=-10;j<10;j++)
+    {
+      if((i+j) % 2)
+      {
+        if(frameProtected)
+          glColor4f(0.3,0.0,0.0,alpha);
+        else
+          glColor4f(0.1,0.1,0.1,alpha);
+      }
       else
-        if(frameProtected) glColor4f(0.8, 0.0, 0.0, alpha); else glColor4f(0.6, 0.6, 0.6, alpha);
+      {
+        if(frameProtected)
+          glColor4f(0.8,0.0,0.0,alpha);
+        else
+          glColor4f(0.6,0.6,0.6,alpha);
+      }
 
-      glVertex3f(i*40, 0, j*40);
-      glVertex3f(i*40, 0, (j+1)*40);
-      glVertex3f((i+1)*40, 0, (j+1)*40);
-      glVertex3f((i+1)*40, 0, j*40);
+      glVertex3f(i*40,0,j*40);
+      glVertex3f(i*40,0,(j+1)*40);
+      glVertex3f((i+1)*40,0,(j+1)*40);
+      glVertex3f((i+1)*40,0,j*40);
     }
   }
 
@@ -167,7 +181,7 @@ void AnimationView::drawProp(const Prop* prop) const
 
 void AnimationView::drawProps()
 {
-  for(unsigned int index=0;index<propList.count();index++)
+  for(unsigned int index=0;index<(unsigned int) propList.count();index++)
   {
     Prop* prop=propList.at(index);
     if(!prop->isAttached()) drawProp(prop);
@@ -175,48 +189,49 @@ void AnimationView::drawProps()
 }
 
 // Adds a new animation without overriding others, and sets it current
-void AnimationView::addAnimation(Animation *anim)
+void AnimationView::addAnimation(Animation* anim)
 {
-    if (!inAnimList(anim))
-    {
-	animList.append(anim);
-	animation = anim; // set it as the current one
-	if(animList.count() && anim != animList.first())
-	    anim->setFrame(animList.first()->getFrame());
-	connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
-	repaint();
-    }
+  if(!inAnimList(anim))
+  {
+    animList.append(anim);
+    animation=anim; // set it as the current one
+    if(animList.count() && anim!=animList.first())
+      anim->setFrame(animList.first()->getFrame());
+
+    connect(anim,SIGNAL(frameChanged()),this,SLOT(repaint()));
+    repaint();
+  }
 }
 
 void AnimationView::clear()
 {
-    animList.clear();
-    animation = NULL;
+  animList.clear();
+  animation=NULL;
 }
 
 void AnimationView::setFrame(int frame)
 {
 //  qDebug(QString("animationview->frame now %1").arg(frame));
-    for (unsigned int i = 0; i < animList.count(); i++)
-    {
-	animList.at(i)->setFrame(frame);
-    }
+  for(unsigned int i=0;i< (unsigned int) animList.count();i++)
+  {
+    animList.at(i)->setFrame(frame);
+  } // for
 }
 
 void AnimationView::stepForward()
 {
-    for (unsigned int i = 0; i < animList.count(); i++)
-    {
-	animList.at(i)->stepForward();
-    }
+  for(unsigned int i=0;i< (unsigned int) animList.count();i++)
+  {
+    animList.at(i)->stepForward();
+  } // for
 }
 
 void AnimationView::setFrameTime(double time)
 {
-    for (unsigned int i = 0; i < animList.count(); i++)
-    {
-	animList.at(i)->setFrameTime(time);
-    }
+  for(unsigned int i=0;i< (unsigned int) animList.count();i++)
+  {
+    animList.at(i)->setFrameTime(time);
+  } // for
 }
 
 const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr,int attach)
@@ -253,7 +268,7 @@ const Prop* AnimationView::addProp(Prop::PropType type,double x,double y,double 
 
 Prop* AnimationView::getPropByName(const QString& lookName)
 {
-  for(unsigned int index=0;index<propList.count();index++)
+  for(unsigned int index=0;index< (unsigned int) propList.count();index++)
   {
     Prop* prop=propList.at(index);
     if(prop->name()==lookName) return prop;
@@ -264,7 +279,7 @@ Prop* AnimationView::getPropByName(const QString& lookName)
 
 Prop* AnimationView::getPropById(unsigned int id)
 {
-  for(unsigned int index=0;index<propList.count();index++)
+  for(unsigned int index=0;index< (unsigned int) propList.count();index++)
   {
     Prop* prop=propList.at(index);
     if(prop->id==id) return prop;
@@ -275,7 +290,7 @@ Prop* AnimationView::getPropById(unsigned int id)
 
 void AnimationView::deleteProp(Prop* prop)
 {
-  propList.remove(prop);
+  propList.removeAll(prop);
   delete prop;
   repaint();
 }
@@ -285,33 +300,33 @@ void AnimationView::clearProps()
   while(propList.count())
   {
     Prop* prop=propList.at(0);
-    propList.remove(prop);
+    propList.removeAll(prop);
     delete prop;
   }
   repaint();
 }
 
-bool AnimationView::inAnimList(Animation *anim)
+bool AnimationView::inAnimList(Animation* anim)
 {
-    return (animList.find(anim) != -1);
+  return animList.contains(anim);
 }
 
 void AnimationView::setProjection()
 {
-  gluPerspective(60.0, ((float)width())/height(), 1, 2000);
+  gluPerspective(60.0,((float)width())/height(),1,2000);
 }
 
 void AnimationView::setBodyMaterial()
 {
-  GLfloat ambientA[] = { 0.9, 0.667, 0.561, 1 };
-  GLfloat diffuseA[] = { 0.9, 0.667, 0.561, 0 };
-  GLfloat specularA[] = { 0.6, 0.6, 0.6, 0.0 };
-  GLfloat shininessA = 100.0;
+  GLfloat ambientA[]={0.9,0.667,0.561,1};
+  GLfloat diffuseA[]={0.9,0.667,0.561,0};
+  GLfloat specularA[]={0.6,0.6,0.6,0.0};
+  GLfloat shininessA=100.0;
 
-  glMaterialfv(GL_FRONT, GL_AMBIENT, ambientA);
-  glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuseA);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specularA);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininessA);
+  glMaterialfv(GL_FRONT,GL_AMBIENT,ambientA);
+  glMaterialfv(GL_FRONT,GL_DIFFUSE,diffuseA);
+  glMaterialfv(GL_FRONT,GL_SPECULAR,specularA);
+  glMaterialf(GL_FRONT,GL_SHININESS,shininessA);
 }
 
 void AnimationView::paintGL()
@@ -326,36 +341,37 @@ void AnimationView::paintOverlayGL()
 
 void AnimationView::initializeGL()
 {
-  GLfloat position0 [] = { 0.0, 80.0, 100.0, 1.0 };
-  GLfloat ambient0[] = { 0.2, 0.2, 0.2, 1 };
+  GLfloat position0[]={0.0,80.0,100.0,1.0};
+  GLfloat ambient0[]={0.2,0.2,0.2,1 };
 //  GLfloat diffuse0[] = { .5, .5, .5, 0.2 };
 //  GLfloat specular0[] = { 0.5, 0.5, 0.2, 0.5 };
 
-  GLfloat position1 [] = { 0.0, 80.0, -100.0, 1.0 };
-  GLfloat ambient1[] = { 0.2, 0.2, 0.2, 1 };
-  GLfloat diffuse1[] = { 0.5, 0.5, 0.5, 1 };
-  GLfloat specular1[] = { 1, 1, 1, 1 };
+  GLfloat position1[]={0.0,80.0,-100.0,1.0};
+  GLfloat ambient1[]={0.2,0.2,0.2,1};
+  GLfloat diffuse1[]={0.5,0.5,0.5,1};
+  GLfloat specular1[]={1,1,1,1};
 
-    glViewport(0, 0, width(), height());
+  glViewport(0,0,width(),height());
 
-    glEnable(GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambient0);
-    //  glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse0);
-    //  glLightfv(GL_LIGHT0, GL_SPECULAR, specular0);
+  glLightfv(GL_LIGHT0,GL_AMBIENT,ambient0);
+  //  glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse0);
+  //  glLightfv(GL_LIGHT0, GL_SPECULAR, specular0);
 
-    glLightfv(GL_LIGHT1, GL_AMBIENT, ambient1);
-    glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse1);
-    glLightfv(GL_LIGHT1, GL_SPECULAR, specular1);
+  glLightfv(GL_LIGHT1,GL_AMBIENT,ambient1);
+  glLightfv(GL_LIGHT1,GL_DIFFUSE,diffuse1);
+  glLightfv(GL_LIGHT1,GL_SPECULAR,specular1);
 
-    glEnable(GL_NORMALIZE);
+  glEnable(GL_NORMALIZE);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    setProjection();
-  glLightfv(GL_LIGHT0, GL_POSITION, position0);
-  glLightfv(GL_LIGHT1, GL_POSITION, position1);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  setProjection();
+
+  glLightfv(GL_LIGHT0,GL_POSITION,position0);
+  glLightfv(GL_LIGHT1,GL_POSITION,position1);
 }
 
 void AnimationView::draw()
@@ -366,20 +382,20 @@ void AnimationView::draw()
   {
     glEnable(GL_FOG);
     {
-      GLfloat fogColor[4] = {0.5, 0.5, 0.5, 0.3};
-      int fogMode = GL_EXP; // GL_EXP2, GL_LINEAR
-      glFogi (GL_FOG_MODE, fogMode);
-      glFogfv (GL_FOG_COLOR, fogColor);
-      glFogf (GL_FOG_DENSITY, 0.005);
-      glHint (GL_FOG_HINT, GL_DONT_CARE);
-      glFogf (GL_FOG_START, 200.0);
-      glFogf (GL_FOG_END, 2000.0);
+      GLfloat fogColor[4]={0.5,0.5,0.5,0.3};
+      int fogMode=GL_EXP; // GL_EXP2, GL_LINEAR
+      glFogi(GL_FOG_MODE,fogMode);
+      glFogfv(GL_FOG_COLOR,fogColor);
+      glFogf(GL_FOG_DENSITY,0.005);
+      glHint(GL_FOG_HINT,GL_DONT_CARE);
+      glFogf(GL_FOG_START,200.0);
+      glFogf(GL_FOG_END,2000.0);
     }
   }
   else
     glDisable(GL_FOG);
 
-  glClearColor(0.5, 0.5, 0.5, 0.3); /* fog color */
+  glClearColor(0.5,0.5,0.5,0.3); /* fog color */
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glDisable(GL_LIGHTING);
   glEnable(GL_DEPTH_TEST);
@@ -389,21 +405,21 @@ void AnimationView::draw()
 
   camera.setModelView();
   if(!animList.isEmpty()) drawAnimations();
-  drawProps();
   drawFloor();
+  drawProps();
 }
 
 void AnimationView::drawAnimations()
 {
-    for (unsigned int index = 0; index < animList.count(); index++)
-    {
-	drawFigure(animList.at(index),index);
-    }
+  for(unsigned int index=0;index< (unsigned int) animList.count();index++)
+  {
+    drawFigure(animList.at(index),index);
+  }
 }
 
 int AnimationView::pickPart(int x, int y)
 {
-  int bufSize = ((Animation::MAX_PARTS + 10)*animList.count() + propList.count()) * 4;
+  int bufSize=((Animation::MAX_PARTS+10)*animList.count()+propList.count())*4;
 
   GLuint* selectBuf=(GLuint*) malloc(bufSize);
 
@@ -412,37 +428,41 @@ int AnimationView::pickPart(int x, int y)
   GLuint *p, num, name = 0;
   GLint hits;
   GLint viewport[4];
-  GLuint depth = ~0;
+  GLuint depth=~0;
 
-  glGetIntegerv (GL_VIEWPORT, viewport);
-  glSelectBuffer (bufSize, selectBuf);
-  (void) glRenderMode (GL_SELECT);
+  glGetIntegerv(GL_VIEWPORT,viewport);
+  glSelectBuffer(bufSize, selectBuf);
+  (void) glRenderMode(GL_SELECT);
   glInitNames();
   glPushName(0);
-  glMatrixMode (GL_PROJECTION);
-  glPushMatrix ();
-  glLoadIdentity ();
-  gluPickMatrix (x, (viewport[3] - y), 5.0, 5.0, viewport);
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  gluPickMatrix(x,(viewport[3]-y),5.0,5.0,viewport);
   setProjection();
   camera.setModelView();
   drawAnimations();
   drawProps();
-  glMatrixMode (GL_PROJECTION);
-  glPopMatrix ();
-  glFlush ();
-  hits = glRenderMode (GL_RENDER);
-  p = selectBuf;
-  for (int i=0; i < hits; i++) {
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glFlush();
+  hits=glRenderMode(GL_RENDER);
+  p=selectBuf;
+  for(int i=0;i<hits;i++)
+  {
     num = *(p++);
-    if (*p < depth) {
+    if(*p < depth)
+    {
       depth = *p;
       name = *(p+2);
     }
     p+=2;
     for (unsigned int j=0; j < num; j++) { *(p++); }
   }
-
   free(selectBuf);
+
+//  qDebug("AnimationView::pickPart(): %d",name);
+
   return name;
 }
 
@@ -473,14 +493,18 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       QCursor::setPos(clickPos);
     }
 
-    if (partSelected) {
-
+    if(partSelected)
+    {
       if(partSelected<OBJECT_START)
       {
-        changeX = changeY = changeZ = 0;
-        if (modifier & SHIFT) { changeX = dragY; }
-        if (modifier & ALT)   { changeY = dragX; }
-        else if (modifier & CTRL) { changeZ = -dragX; }
+        changeX=0;
+        changeY=0;
+        changeZ=0;
+
+        if(modifier & SHIFT) changeX=dragY;
+        if(modifier & ALT)   changeY=dragX;
+        else if(modifier & CTRL) changeZ=-dragX;
+
         emit partDragged(getSelectedPart(),changeX,changeY,changeZ);
         repaint();
       }
@@ -492,7 +516,7 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
 
       if(propDragging==DRAG_HANDLE_X)
       {
-        if(rot > 90 && rot < 270) dragX=-dragX;
+        if(rot>90 && rot<270) dragX=-dragX;
         emit propDragged(prop,(double) dragX/10.0,0,0);
       }
       else if(propDragging==DRAG_HANDLE_Y)
@@ -501,17 +525,17 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       }
       else if(propDragging==DRAG_HANDLE_Z)
       {
-        if(rot > 90 && rot < 270) dragY=-dragY;
+        if(rot>90 && rot<270) dragY=-dragY;
         emit propDragged(prop,0,0,(double) dragY/10.0);
       }
       else if(propDragging==SCALE_HANDLE_X)
       {
-        if(rot > 90 && rot < 270) dragX=-dragX;
+        if(rot>90 && rot<270) dragX=-dragX;
         emit propScaled(prop,(double) dragX/10.0,0,0);
       }
       else if(propDragging==SCALE_HANDLE_Y)
       {
-        if(rot > 90 && rot < 270) dragY=-dragY;
+        if(rot>90 && rot<270) dragY=-dragY;
         emit propScaled(prop,0,(double) -dragY/10.0,0);
       }
       else if(propDragging==SCALE_HANDLE_Z)
@@ -532,15 +556,17 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
       }
       repaint();
     }
-    else {
-      if (modifier & SHIFT)
-        camera.pan(dragX/2, dragY/2,0);
-      else if (modifier & ALT) {
-        camera.pan(0, 0, dragY);
-        camera.rotate(0, dragX);
+    else
+    {
+      if(modifier & SHIFT)
+        camera.pan(dragX/2,dragY/2,0);
+      else if(modifier & ALT)
+      {
+        camera.pan(0,0,dragY);
+        camera.rotate(0,dragX);
       }
       else
-        camera.rotate(dragY, dragX);
+        camera.rotate(dragY,dragX);
 
       repaint();
     }
@@ -555,7 +581,7 @@ void AnimationView::mouseMoveEvent(QMouseEvent* event)
 
 void AnimationView::mousePressEvent(QMouseEvent* event)
 {
-  if(event->button()==LeftButton)
+  if(event->button()==Qt::LeftButton)
   {
     leftMouseButton=true;
     // hide mouse cursor to avoid confusion
@@ -631,7 +657,7 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
 
 void AnimationView::mouseReleaseEvent(QMouseEvent* event)
 {
-  if(event->button()==LeftButton)
+  if(event->button()==Qt::LeftButton)
   {
     // move mouse cursor back to the beginning of the dragging process
     QCursor::setPos(returnPos);
@@ -644,14 +670,14 @@ void AnimationView::mouseReleaseEvent(QMouseEvent* event)
 
 void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
 {
-  int selected = pickPart(event->x(),event->y());
+  int selected=pickPart(event->x(),event->y());
 
   // no double clicks for props or drag handles
   if(selected>=OBJECT_START) return;
 
-  if (modifier & SHIFT)
+  if(modifier & SHIFT)
     animation->setMirrored(true);
-  else if (selected && selected < OBJECT_START)
+  else if(selected && selected < OBJECT_START)
     animation->setIK(getPartName(selected),
                      !animation->getIK(getPartName(selected)));
   repaint();
@@ -667,11 +693,11 @@ void AnimationView::keyPressEvent(QKeyEvent* event)
 {
   switch(event->key())
   {
-    case Qt::Key_Prior:
+    case Qt::Key_PageUp:
       camera.pan(0,0,-5);
       repaint();
       break;
-    case Qt::Key_Next:
+    case Qt::Key_PageDown:
         camera.pan(0,0,5);
         repaint();
         break;
@@ -751,7 +777,7 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
 }
 
 // NOTE: joints == motion for now
-void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex, int frame, BVHNode *motion, BVHNode *joints, int mode)
+void AnimationView::drawPart(Animation* anim,unsigned int currentAnimationIndex,int frame,BVHNode* motion,BVHNode* joints,int mode)
 {
   float color[4];
 
@@ -759,22 +785,24 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
   bool selecting;
 
   glGetIntegerv(GL_RENDER_MODE, &renderMode);
-  selecting = (renderMode == GL_SELECT);
-  if (motion && joints) {
+  selecting=(renderMode==GL_SELECT);
+  if(motion && joints)
+  {
     selectName++;
     glPushMatrix();
-    glTranslatef(joints->offset[0], joints->offset[1], joints->offset[2]);
+    glTranslatef(joints->offset[0],joints->offset[1],joints->offset[2]);
     if(motion->type==BVH_NO_SL)
     {
       selectName++;
-      motion = motion->child(0);
+      motion=motion->child(0);
     }
-    if (mode == MODE_SKELETON && skeleton && !selecting) {
+    if(mode==MODE_SKELETON && skeleton && !selecting)
+    {
       glColor4f(0,1,1,1);
       glLineWidth(1);
       glBegin(GL_LINES);
-        glVertex3f(-joints->offset[0], -joints->offset[1], -joints->offset[2]);
-        glVertex3f(0,0,0);
+      glVertex3f(-joints->offset[0],-joints->offset[1],-joints->offset[2]);
+      glVertex3f(0,0,0);
       glEnd();
 
       if(joints->type!=BVH_ROOT)
@@ -788,10 +816,11 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
         else
           glColor4f(0,1,0,1);
 
-        glutSolidSphere(1, 16, 16);
+        glutSolidSphere(1,16,16);
       }
     }
-    if (joints->type == BVH_ROOT) {
+    if(joints->type==BVH_ROOT)
+    {
       Position pos=motion->frameData(frame).position();
       glTranslatef(pos.x,pos.y,pos.z);
 /*
@@ -808,10 +837,11 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
     }
 
     Rotation rot=motion->frameData(frame).rotation();
-    for (int i=0; i<motion->numChannels; i++) {
+    for(int i=0;i<motion->numChannels;i++)
+    {
 /*
       float value;
-      if (motion->ikOn)
+      if(motion->ikOn)
         value = motion->frame[frame][i] + motion->ikRot[i];
       else
         value = motion->frame[frame][i];
@@ -824,51 +854,59 @@ void AnimationView::drawPart(Animation* anim, unsigned int currentAnimationIndex
       } */
 
       Rotation ikRot;
-      if (motion->ikOn) ikRot=motion->ikRot;
+      if(motion->ikOn) ikRot=motion->ikRot;
 
       // need to do rotations in the right order
-      switch(motion->channelType[i]) {
-        case BVH_XROT: glRotatef(rot.x+ikRot.x, 1, 0, 0); break;
-        case BVH_YROT: glRotatef(rot.y+ikRot.y, 0, 1, 0); break;
-        case BVH_ZROT: glRotatef(rot.z+ikRot.z, 0, 0, 1); break;
+      switch(motion->channelType[i])
+      {
+        case BVH_XROT: glRotatef(rot.x+ikRot.x,1,0,0); break;
+        case BVH_YROT: glRotatef(rot.y+ikRot.y,0,1,0); break;
+        case BVH_ZROT: glRotatef(rot.z+ikRot.z,0,0,1); break;
         default: break;
-}
+      }
 
-      if (mode == MODE_ROT_AXES && !selecting && partSelected == selectName) {
-        switch(motion->channelType[i]) {
-          case BVH_XROT: drawCircle(0, 10, xSelect ? 4 : 1); break;
-          case BVH_YROT: drawCircle(1, 10, ySelect ? 4 : 1); break;
-          case BVH_ZROT: drawCircle(2, 10, zSelect ? 4 : 1); break;
+      if(mode==MODE_ROT_AXES && !selecting && partSelected==selectName)
+      {
+        switch(motion->channelType[i])
+        {
+          case BVH_XROT: drawCircle(0,10,xSelect ? 4 : 1); break;
+          case BVH_YROT: drawCircle(1,10,ySelect ? 4 : 1); break;
+          case BVH_ZROT: drawCircle(2,10,zSelect ? 4 : 1); break;
           default: break;
         }
       }
     }
-    if (mode == MODE_PARTS) {
-      if (selecting) glLoadName(selectName);
-      if (anim->getMirrored() &&
-	  (anim->getPartMirror(partSelected) == selectName ||
-	   partSelected == selectName))
-	glColor4f(1.0, 0.635, 0.059, 1);
-      else if (partSelected == selectName)
-	glColor4f(0.6, 0.3, 0.3, 1);
-      else if (partHighlighted == selectName)
-	glColor4f(0.4, 0.5, 0.3, 1);
+    if(mode==MODE_PARTS)
+    {
+      if(selecting) glLoadName(selectName);
+      if(anim->getMirrored() &&
+        (anim->getPartMirror(partSelected)==selectName ||
+         partSelected==selectName))
+      {
+        glColor4f(1.0,0.635,0.059,1);
+      }
+      else if(partSelected==selectName)
+        glColor4f(0.6,0.3,0.3,1);
+      else if(partHighlighted==selectName)
+        glColor4f(0.4,0.5,0.3,1);
       else
-	glColor4f(0.6, 0.5, 0.5, 1);
-      if (anim->getIK(motion->name())) {
-	glGetFloatv(GL_CURRENT_COLOR, color);
-	glColor4f(color[0], color[1], color[2]+0.3, color[3]);
+        glColor4f(0.6,0.5,0.5,1);
+      if(anim->getIK(motion->name()))
+      {
+        glGetFloatv(GL_CURRENT_COLOR,color);
+        glColor4f(color[0],color[1],color[2]+0.3,color[3]);
       }
       anim->getFigureType()==Animation::FIGURE_MALE ? drawSLMalePart(motion->name()):drawSLFemalePart(motion->name());
 
-      for(unsigned int index=0;index<propList.count();index++)
+      for(unsigned int index=0;index< (unsigned int) propList.count();index++)
       {
         Prop* prop=propList.at(index);
         if(prop->isAttached()==selectName) drawProp(prop);
       } // for
     }
-    for (int i=0; i<motion->numChildren(); i++) {
-      drawPart(anim, currentAnimationIndex, frame, motion->child(i), joints->child(i), mode);
+    for(int i=0;i<motion->numChildren();i++)
+    {
+      drawPart(anim,currentAnimationIndex,frame,motion->child(i),joints->child(i),mode);
     }
     glPopMatrix();
   }
@@ -885,6 +923,38 @@ void AnimationView::drawDragHandles(const Prop* prop) const
   double ys=prop->ys/2.0;
   double zs=prop->zs/2.0;
 
+  QColor xRGB("#ff0000");
+  QColor yRGB("#00ff00");
+  QColor zRGB("#0000ff");
+
+  int xLineWidth=1;
+  int yLineWidth=1;
+  int zLineWidth=1;
+
+  switch(partHighlighted)
+  {
+    case SCALE_HANDLE_X:
+    case ROTATE_HANDLE_X:
+    case DRAG_HANDLE_X:
+      xRGB=xRGB.lighter(120);
+      xLineWidth=3;
+      break;
+    case SCALE_HANDLE_Y:
+    case ROTATE_HANDLE_Y:
+    case DRAG_HANDLE_Y:
+      yRGB=yRGB.lighter(120);
+      yLineWidth=3;
+      break;
+    case SCALE_HANDLE_Z:
+    case ROTATE_HANDLE_Z:
+    case DRAG_HANDLE_Z:
+      zRGB=zRGB.lighter(120);
+      zLineWidth=3;
+      break;
+    default:
+      break;
+  }
+
   // remember drawing matrix on stack
   glPushMatrix();
   // set matrix origin to our object's center
@@ -900,21 +970,21 @@ void AnimationView::drawDragHandles(const Prop* prop) const
     glRotatef(prop->zr,0,0,1);
 
     glLoadName(SCALE_HANDLE_X);
-    glColor4f(1,0,0,1);
+    glColor4f(xRGB.redF(),xRGB.greenF(),xRGB.blueF(),1);
     glTranslatef(-xs,0,0);
     glutSolidCube(2);
     glTranslatef(xs*2,0,0);
     glutSolidCube(2);
 
     glLoadName(SCALE_HANDLE_Y);
-    glColor4f(0,1,0,1);
+    glColor4f(yRGB.redF(),yRGB.greenF(),yRGB.blueF(),1);
     glTranslatef(-xs,-ys,0);
     glutSolidCube(2);
     glTranslatef(0,ys*2,0);
     glutSolidCube(2);
 
     glLoadName(SCALE_HANDLE_Z);
-    glColor4f(0,0,1,1);
+    glColor4f(zRGB.redF(),zRGB.greenF(),zRGB.blueF(),1);
     glTranslatef(0,-ys,-zs);
     glutSolidCube(2);
     glTranslatef(0,0,zs*2);
@@ -926,135 +996,142 @@ void AnimationView::drawDragHandles(const Prop* prop) const
     glEnable(GL_DEPTH_TEST);
 
     glLoadName(ROTATE_HANDLE_X);
-    glColor4f(1,0,0,1);
+    glColor4f(xRGB.redF(),xRGB.greenF(),xRGB.blueF(),1);
     glTranslatef(-xs-5,0,0);
-    glutSolidSphere(1, 16, 16);
+    glutSolidSphere(1,16,16);
     glTranslatef(2*(xs+5),0,0);
-    glutSolidSphere(1, 16, 16);
+    glutSolidSphere(1,16,16);
 
     glLoadName(ROTATE_HANDLE_Y);
-    glColor4f(0,1,0,1);
+    glColor4f(yRGB.redF(),yRGB.greenF(),yRGB.blueF(),1);
     glTranslatef(-xs-5,-ys-5,0);
-    glutSolidSphere(1, 16, 16);
+    glutSolidSphere(1,16,16);
     glTranslatef(0,2*(ys+5),0);
-    glutSolidSphere(1, 16, 16);
+    glutSolidSphere(1,16,16);
 
     glLoadName(ROTATE_HANDLE_Z);
-    glColor4f(0,0,1,1);
+    glColor4f(zRGB.redF(),zRGB.greenF(),zRGB.blueF(),1);
     glTranslatef(0,-ys-5,-zs-5);
-    glutSolidSphere(1, 16, 16);
+    glutSolidSphere(1,16,16);
     glTranslatef(0,0,2*(zs+5));
-    glutSolidSphere(1, 16, 16);
+    glutSolidSphere(1,16,16);
   }
   else
   {
     // first draw the crosshair lines without depth testing, so they are always visible
     glDisable(GL_DEPTH_TEST);
-    glLineWidth(1);
 
+    glLineWidth(xLineWidth);
     glBegin(GL_LINES);
-    glColor4f(1,0,0,1);
-    glVertex3f(-xs-5, 0, 0);
-    glVertex3f( xs+5, 0, 0);
+    glColor4f(xRGB.redF(),xRGB.greenF(),xRGB.blueF(),1);
+    glVertex3f(-xs-5,0,0);
+    glVertex3f( xs+5,0,0);
     glEnd();
 
+    glLineWidth(yLineWidth);
     glBegin(GL_LINES);
-    glColor4f(0,1,0,1);
-    glVertex3f(0,-ys-5, 0);
-    glVertex3f(0, ys+5, 0);
+    glColor4f(yRGB.redF(),yRGB.greenF(),yRGB.blueF(),1);
+    glVertex3f(0,-ys-5,0);
+    glVertex3f(0, ys+5,0);
     glEnd();
 
+    glLineWidth(zLineWidth);
     glBegin(GL_LINES);
-    glColor4f(0,0,1,1);
-    glVertex3f(0, 0,-zs-5);
-    glVertex3f(0, 0, zs+5);
+    glColor4f(zRGB.redF(),zRGB.greenF(),zRGB.blueF(),1);
+    glVertex3f(0,0,-zs-5);
+    glVertex3f(0,0, zs+5);
     glEnd();
 
     // now draw the drag handle arrows with proper depth sorting
     glEnable(GL_DEPTH_TEST);
 
     glLoadName(DRAG_HANDLE_X);
-    glColor4f(1,0,0,1);
+    glColor4f(xRGB.redF(),xRGB.greenF(),xRGB.blueF(),1);
     glTranslatef(-xs-5,0,0);
     glRotatef(270,0,1,0);
-    glutSolidCone(1, 3, 16, 16);
+    glutSolidCone(1,3,16,16);
     glRotatef(90,0,1,0);
     glTranslatef(2*(xs+5),0,0);
     glRotatef(90,0,1,0);
-    glutSolidCone(1, 3, 16, 16);
+    glutSolidCone(1,3,16,16);
     glRotatef(270,0,1,0);
 
     glLoadName(DRAG_HANDLE_Y);
-    glColor4f(0,1,0,1);
+    glColor4f(yRGB.redF(),yRGB.greenF(),yRGB.blueF(),1);
     glTranslatef(-xs-5,-ys-5,0);
     glRotatef(90,1,0,0);
-    glutSolidCone(1, 3, 16, 16);
+    glutSolidCone(1,3,16,16);
     glRotatef(270,1,0,0);
     glTranslatef(0,2*(ys+5),0);
     glRotatef(270,1,0,0);
-    glutSolidCone(1, 3, 16, 16);
+    glutSolidCone(1,3,16,16);
     glRotatef(90,1,0,0);
 
     glLoadName(DRAG_HANDLE_Z);
-    glColor4f(0,0,1,1);
+    glColor4f(zRGB.redF(),zRGB.greenF(),zRGB.blueF(),1);
     glTranslatef(0,-ys-5,-zs-5);
     glRotatef(180,1,0,0);
-    glutSolidCone(1, 3, 16, 16);
+    glutSolidCone(1,3,16,16);
     glRotatef(180,1,0,0);
     glTranslatef(0,0,2*(zs+5));
-    glutSolidCone(1, 3, 16, 16);
+    glutSolidCone(1,3,16,16);
   }
   // restore drawing matrix
   glPopMatrix();
 }
 
-void AnimationView::drawCircle(int axis, float radius, int width)
+void AnimationView::drawCircle(int axis,float radius,int width)
 {
-  GLint circle_points = 100;
+  GLint circle_points=100;
   float angle;
 
   glLineWidth(width);
-  switch (axis) {
-  case 0: glColor4f(1,0,0,1);break;
-  case 1: glColor4f(0,1,0,1);break;
-  case 2: glColor4f(0,0,1,1);break;
+  switch(axis)
+  {
+    case 0: glColor4f(1,0,0,1); break;
+    case 1: glColor4f(0,1,0,1); break;
+    case 2: glColor4f(0,0,1,1); break;
   }
   glBegin(GL_LINE_LOOP);
-  for (int i = 0; i < circle_points; i++) {
-    angle = 2*M_PI*i/circle_points;
-    switch (axis) {
-    case 0: glVertex3f(0, radius*cos(angle), radius*sin(angle));break;
-    case 1: glVertex3f(radius*cos(angle), 0, radius*sin(angle));break;
-    case 2: glVertex3f(radius*cos(angle), radius*sin(angle), 0);break;
+  for(int i=0;i<circle_points;i++)
+  {
+    angle=2*M_PI*i/circle_points;
+    switch(axis)
+    {
+      case 0: glVertex3f(0,radius*cos(angle),radius*sin(angle)); break;
+      case 1: glVertex3f(radius*cos(angle),0,radius*sin(angle)); break;
+      case 2: glVertex3f(radius*cos(angle),radius*sin(angle),0); break;
     }
   }
   glEnd();
   glBegin(GL_LINES);
-  switch (axis) {
-  case 0: glVertex3f(-10, 0, 0); glVertex3f(10, 0, 0); break;
-  case 1: glVertex3f(0, -10, 0); glVertex3f(0, 10, 0); break;
-  case 2: glVertex3f(0, 0, -10); glVertex3f(0, 0, 10); break;
+  switch(axis)
+  {
+    case 0: glVertex3f(-10,0,0); glVertex3f(10,0,0); break;
+    case 1: glVertex3f(0,-10,0); glVertex3f(0,10,0); break;
+    case 2: glVertex3f(0,0,-10); glVertex3f(0,0,10); break;
   }
   glEnd();
 
 }
 
-const QString& AnimationView::getSelectedPart()
+const QString AnimationView::getSelectedPart()
 {
   return getPartName(partSelected);
 }
 
-const QString& AnimationView::getPartName(int index)
+const QString AnimationView::getPartName(int index)
 {
   // get part name from animation, with respect to multiple animations in view
   return animation->getPartName(index % ANIMATION_INCREMENT);
 }
 
-const QString& AnimationView::getSelectedPropName()
+// returns the selected prop name or an empty string if none selected
+const QString AnimationView::getSelectedPropName()
 {
-  for(unsigned int index=0;index<propList.count();index++)
+  for(unsigned int index=0;index< (unsigned int) propList.count();index++)
     if(propList.at(index)->id==partSelected) return propList.at(index)->name();
-  return QString::null;
+  return QString();
 }
 
 void AnimationView::selectPart(int partNum)

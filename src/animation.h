@@ -22,8 +22,6 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
-#include <qobject.h>
-
 #include "iktree.h"
 #include "rotation.h"
 
@@ -58,12 +56,12 @@ class Animation : public QObject
     int getLoopOutPoint();
     void setIK(const QString& jointName, bool flag);
     bool getIK(const QString& jointName);
-    const QString& getPartName(int index) const;
+    const QString getPartName(int index) const;
     int getPartIndex(const QString& part);
     void setMirrored(bool mirror);
     bool getMirrored();
     unsigned int getPartMirror(int index);
-    const QString& getPartMirror(const QString& name) const;
+    const QString getPartMirror(const QString& name) const;
 
     float getAvatarScale();
     void setAvatarScale(float newScale);

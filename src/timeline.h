@@ -21,8 +21,7 @@
 #ifndef TIMELINE_H
 #define TIMELINE_H
 
-#include <qwidget.h>
-#include <qpixmap.h>
+#include <QFrame>
 
 #include "keyframelist.h"
 
@@ -40,12 +39,12 @@
 
 class Animation;
 
-class Timeline : public QWidget
+class Timeline : public QFrame
 {
   Q_OBJECT
 
   public:
-    Timeline(QWidget *parent = 0, const char *name = 0, WFlags f = 0);
+    Timeline(QWidget* parent=0,Qt::WindowFlags f=0);
     ~Timeline();
 
     void setAnimation(Animation* anim);
@@ -64,8 +63,8 @@ class Timeline : public QWidget
 
   protected slots:
     void redrawTrack(int track);
+    void redrawTrackImmediately(int track); // does an immediate repaint()
     void setNumberOfFrames(int frames);
-    void drawPosition();
 
   protected:
     virtual void paintEvent(QPaintEvent* event);
@@ -76,7 +75,6 @@ class Timeline : public QWidget
     virtual void keyPressEvent(QKeyEvent* event);
     virtual void keyReleaseEvent(QKeyEvent* event);
 
-    void clearPosition();
     void drawKeyframe(int track,int frame);
     void drawTrack(int track);
     bool isDirty(int frame);      // returns true if frame is inside "dirty" redraw region
@@ -95,9 +93,9 @@ class Timeline : public QWidget
     bool leftMouseButton;
     bool shift;
 
-    bool positionSync;    // debugging
-    int positionBarX;     // debugging
-    QPixmap backgroundBuffer;
+    bool fullRepaint;
+
+    QPixmap* offscreen;
 
     int trackSelected;
     int frameSelected;

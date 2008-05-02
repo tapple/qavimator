@@ -21,13 +21,14 @@
 #ifndef TIMELINEVIEW_H
 #define TIMELINEVIEW_H
 
-#include <qframe.h>
-
 /**
   @author Zi Ree
 */
 
-class QScrollView;
+#include <QWidget>
+#include <QFrame>
+
+class QScrollArea;
 class Timeline;
 class Animation;
 
@@ -36,10 +37,9 @@ class TimelineTracks : public QWidget
   Q_OBJECT
 
   public:
-    TimelineTracks(QWidget* parent=0,const char* name=0,WFlags f=0);
+    TimelineTracks(QWidget* parent=0,Qt::WindowFlags f=0);
     ~TimelineTracks();
 
-    virtual void repaint();
     virtual QSize sizeHint() const;
 
     void drawTrack(int track);
@@ -59,7 +59,7 @@ class TimelineView : public QFrame
   Q_OBJECT
 
   public:
-    TimelineView(QWidget* parent=0,const char* name=0,WFlags f=0);
+    TimelineView(QWidget* parent=0,Qt::WindowFlags f=0);
     ~TimelineView();
 
     Timeline* getTimeline() const;
@@ -70,11 +70,10 @@ class TimelineView : public QFrame
 
   protected slots:
     void scrollTo(int x);
-    void doResize(const QSize& newSize);
     void setAnimation(Animation* anim);
 
   protected:
-    QScrollView* view;
+    QScrollArea* view;
     Timeline* timeline;
     TimelineTracks* timelineTracks;
 };

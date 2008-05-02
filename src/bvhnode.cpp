@@ -20,8 +20,6 @@
 
 #include <math.h>
 
-#include <qapplication.h>
-
 #include "bvhnode.h"
 
 BVHNode::BVHNode(const QString& name)
@@ -35,9 +33,6 @@ BVHNode::BVHNode(const QString& name)
 
   // have clean one-time cache
   flushFrameCache();
-  // make sure all rotations and positions from the one-time cache get deleted on .clear()
-  rotations.setAutoDelete(true);
-  positions.setAutoDelete(true);
 
   numChannels=0;
 
@@ -94,7 +89,7 @@ void BVHNode::insertChild(BVHNode* newChild,int index)
 void BVHNode::removeChild(BVHNode* child)
 {
 // qDebug(QString("BVHNode(%1): removeChild(%2)").arg(name()).arg(child->name()));
-  children.remove(child);
+  children.removeAll(child);
 }
 
 void BVHNode::addKeyframe(int frame,Position pos,Rotation rot)
@@ -107,7 +102,7 @@ void BVHNode::addKeyframe(int frame,Position pos,Rotation rot)
 void BVHNode::setKeyframePosition(int frame,const Position& pos)
 {
 //  qDebug(QString("setKeyframePosition(%1)").arg(frame));
-  if(!isKeyframe(frame)) qDebug(QString("setKeyframePosition(%1): not a keyframe!").arg(frame));
+  if(!isKeyframe(frame)) qDebug("setKeyframePosition(%d): not a keyframe!",frame);
   else
   {
     FrameData& key=keyframes[frame];
@@ -118,7 +113,7 @@ void BVHNode::setKeyframePosition(int frame,const Position& pos)
 void BVHNode::setKeyframeRotation(int frame,const Rotation& rot)
 {
 //  qDebug(QString("setKeyframeRotation(%1)").arg(frame));
-  if(!isKeyframe(frame)) qDebug(QString("setKeyframeRotation(%1): not a keyframe!").arg(frame));
+  if(!isKeyframe(frame)) qDebug("setKeyframeRotation(%d): not a keyframe!",frame);
   else
   {
     FrameData& key=keyframes[frame];
@@ -128,7 +123,7 @@ void BVHNode::setKeyframeRotation(int frame,const Rotation& rot)
 
 void BVHNode::deleteKeyframe(int frame)
 {
-  keyframes.erase(frame);
+  keyframes.remove(frame);
 }
 
 void BVHNode::insertFrame(int frame)
@@ -309,7 +304,7 @@ int BVHNode::getKeyframeNumberBefore(int frame) const
 int BVHNode::getKeyframeNumberAfter(int frame) const
 {
   // get a list of all keyframe numbers
-  QValueList<int> keys=keyframeList();
+  QList<int> keys=keyframeList();
 
   // past the end? return -1
   if(frame>(int) keys[keyframes.count()-1])
@@ -324,14 +319,14 @@ int BVHNode::getKeyframeNumberAfter(int frame) const
 const FrameData BVHNode::keyframeDataByIndex(int index) const
 {
   // get a list of all keyframe numbers
-  QValueList<int> keys=keyframeList();
+  QList<int> keys=keyframeList();
   // get frame number of keyframe at given index
   int number=keys[index];
   // return keyframe data
   return keyframes[number];
 }
 
-const QValueList<int> BVHNode::keyframeList() const
+const QList<int> BVHNode::keyframeList() const
 {
   return keyframes.keys();
 }
@@ -363,19 +358,23 @@ void BVHNode::cachePosition(Position* pos)
 
 void BVHNode::flushFrameCache()
 {
+  // cal delete on all rotations and positions in the list
+  qDeleteAll(rotations);
+  qDeleteAll(positions);
+  // remove all references to the now deleted list items
   rotations.clear();
   positions.clear();
 }
 
 void BVHNode::dumpKeyframes()
 {
-  QValueList<int> keys=keyframeList();
-  for(unsigned int index=0;index<keyframes.count();index++)
+  QList<int> keys=keyframeList();
+  for(unsigned int index=0;index< (unsigned int) keyframes.count();index++)
   {
     Rotation rot=frameData(keys[index]).rotation();
     Position pos=frameData(keys[index]).position();
 
-    qDebug(QString("%1: %2 - Pos: <%3,%4,%5> Rot: <%6,%7,%8>").arg(name()).arg(keys[index]).arg(pos.x).arg(pos.y).arg(pos.z).arg(rot.x).arg(rot.y).arg(rot.z));
+    qDebug(QString("%1: %2 - Pos: <%3,%4,%5> Rot: <%6,%7,%8>").arg(name()).arg(keys[index]).arg(pos.x).arg(pos.y).arg(pos.z).arg(rot.x).arg(rot.y).arg(rot.z).toLatin1().constData());
   }
 }
 
@@ -431,14 +430,14 @@ void BVHNode::optimize()
   // PASS 1 - remove identical keyframes
 
   // get a list of all keyframe numbers
-  QValueList<int> keys=keyframeList();
-  QValueList<int> keysToDelete;
+  QList<int> keys=keyframeList();
+  QList<int> keysToDelete;
 
   // build a list of all identical keyframes to delete
-  for(unsigned int i=1;i<keys.count();i++)
+  for(unsigned int i=1;i< (unsigned int) keys.count();i++)
   {
     // if we're comparing the last keyframe, it only makes sense to check for the one before
-    if(i==keys.count()-1)
+    if(i==(unsigned int) keys.count()-1)
     {
       if(compareFrames(keys[i],keys[i-1]))
         keysToDelete.append(keys[i]);
@@ -449,7 +448,7 @@ void BVHNode::optimize()
   }
 
   // delete keyframes on the delete list
-  for(unsigned int i=0;i<keysToDelete.count();i++)
+  for(unsigned int i=0;i< (unsigned int) keysToDelete.count();i++)
     deleteKeyframe(keysToDelete[i]);
 
   // PASS 2 - remove keyframes that are superfluous due to linear interpolation

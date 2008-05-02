@@ -26,8 +26,6 @@
 #include <GL/glut.h>
 #endif
 
-#include <qstring.h>
-
 #include "prop.h"
 
 Prop::Prop(unsigned int propId,PropType newType,const QString& newName)

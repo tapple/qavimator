@@ -25,24 +25,21 @@
 #ifndef QAVIMATOR_H
 #define QAVIMATOR_H
 
-#include <qtimer.h>
-#include <qfileinfo.h>
-#include <qpixmap.h>
-
 #define UNTITLED_NAME "Untitled.avm"
 #define PLAY_IMAGE "data/play.png"
 #define PAUSE_IMAGE "data/pause.png"
 #define KEY_IMAGE "data/key.png"
 #define NOKEY_IMAGE "data/nokey.png"
 
-#include "mainapplicationform.h"
+#include "ui_mainapplicationform.h"
 #include "rotation.h"
 
 class Animation;
 class Prop;
 class Timeline;
+class QCloseEvent;
 
-class qavimator : public MainApplicationForm
+class qavimator : public QMainWindow, Ui::MainWindow
 {
   Q_OBJECT
 
@@ -60,10 +57,6 @@ class qavimator : public MainApplicationForm
     void resetCamera();
     void protectFrame(bool state);
 
-  public slots:
-    // prevent closing of main window if there are unsaved changes
-    bool close(bool deDelete);
-
   protected slots:
     void readSettings();
     void configChanged();
@@ -76,38 +69,100 @@ class qavimator : public MainApplicationForm
     void propRotated(Prop* prop,double x,double y,double z);
     void backgroundClicked();
 
-    void helpAbout();
-
-    void cb_PartChoice();
-    void cb_RotRoller(int dummy);
-    void cb_RotValue();
-    void cb_PosRoller(int dummy);
-    void cb_PosValue();
-
-    void propPosChanged(int dummy);
-    void propScaleChanged(int dummy);
-    void propRotChanged(int dummy);
-
-    void cb_timeout();
-    void cb_PlayBtn();
-    void cb_fpsValue(int fps);
-    void cb_FrameSlider(int position);
-
-    void easeInChanged(int change);
-    void easeOutChanged(int change);
-
-    void animationChanged(int which);
-
-    void figureChanged(int shape);
-    void scaleChanged(int percent);
-    void numFramesChanged(int num);
-    void keyframeButtonToggled(bool on);
+    void frameTimeout();
 
     void setCurrentFrame(int frame);
-    void setLoopInPoint(int inFrame);
-    void setLoopOutPoint(int outFrame);
 
-    // ------- Menu Action Slots (Callbacks) --------
+    void selectAnimation(Animation* animation);
+    void clearProps();
+
+    // autoconnection from designer UI
+
+    // ------- Menu Action Slots --------
+    void on_fileNewAction_triggered();
+    void on_fileOpenAction_triggered();
+    void on_fileAddAction_triggered();
+    void on_fileSaveAction_triggered();
+    void on_fileSaveAsAction_triggered();
+    void on_fileExportForSecondLifeAction_triggered();
+    void on_fileLoadPropsAction_triggered();
+    void on_fileSavePropsAction_triggered();
+    void on_fileExitAction_triggered();
+
+    void on_editCutAction_triggered();
+    void on_editCopyAction_triggered();
+    void on_editPasteAction_triggered();
+    void on_editOptimizeBVHAction_triggered();
+
+    void on_optionsSkeletonAction_toggled(bool on);
+    void on_optionsJointLimitsAction_toggled(bool on);
+    void on_optionsLoopAction_toggled(bool on);
+    void on_optionsProtectFirstFrameAction_toggled(bool on);
+    void on_optionsShowTimelineAction_toggled(bool on);
+    void on_optionsConfigureQAvimatorAction_triggered();
+
+    void on_helpAboutAction_triggered();
+
+    // ------- Additional Toolbar Element Slots -------
+
+    void on_resetCameraAction_triggered();
+
+    // ------- UI Element Slots --------
+    void on_selectAnimationCombo_activated(int);
+    void on_figureCombo_activated(int);
+    void on_scaleSpin_valueChanged(int newValue);
+    void on_editPartCombo_activated(int);
+    void on_xRotationEdit_returnPressed();
+    void on_xRotationEdit_lostFocus();
+    void on_xRotationSlider_valueChanged(int);
+    void on_yRotationEdit_returnPressed();
+    void on_yRotationEdit_lostFocus();
+    void on_yRotationSlider_valueChanged(int);
+    void on_zRotationEdit_returnPressed();
+    void on_zRotationEdit_lostFocus();
+    void on_zRotationSlider_valueChanged(int);
+    void on_xPositionEdit_returnPressed();
+    void on_xPositionEdit_lostFocus();
+    void on_xPositionSlider_valueChanged(int);
+    void on_yPositionEdit_returnPressed();
+    void on_yPositionEdit_lostFocus();
+    void on_yPositionSlider_valueChanged(int);
+    void on_zPositionEdit_returnPressed();
+    void on_zPositionEdit_lostFocus();
+    void on_zPositionSlider_valueChanged(int);
+    void on_easeInCheck_stateChanged(int newState);
+    void on_easeOutCheck_stateChanged(int newState);
+
+    void on_newBoxPropButton_clicked();
+    void on_newSpherePropButton_clicked();
+    void on_newConePropButton_clicked();
+    void on_newTorusPropButton_clicked();
+    void on_propNameCombo_activated(const QString& name);
+    void on_deletePropButton_clicked();
+    void on_attachToComboBox_activated(int attachmentPoint);
+    void on_propXPosSpin_valueChanged(int);
+    void on_propYPosSpin_valueChanged(int);
+    void on_propZPosSpin_valueChanged(int);
+    void on_propXScaleSpin_valueChanged(int);
+    void on_propYScaleSpin_valueChanged(int);
+    void on_propZScaleSpin_valueChanged(int);
+    void on_propXRotSpin_valueChanged(int);
+    void on_propYRotSpin_valueChanged(int);
+    void on_propZRotSpin_valueChanged(int);
+
+    void on_currentFrameSlider_valueChanged(int newValue);
+    void on_playButton_clicked();
+    void on_keyframeButton_toggled(bool on);
+    void on_loopInSpinBox_valueChanged(int newValue);
+    void on_loopOutSpinBox_valueChanged(int newValue);
+    void on_framesSpin_valueChanged(int num);
+    void on_fpsSpin_valueChanged(int num);
+    // end autoconnection from designer UI
+
+  protected:
+    // prevent closing of main window if there are unsaved changes
+    virtual void closeEvent(QCloseEvent* event);
+
     void fileNew();
     void fileOpen();
     void fileOpen(const QString& fileName);
@@ -116,6 +171,7 @@ class qavimator : public MainApplicationForm
     void fileAdd(const QString& fileName);
     void fileSave();
     void fileSaveAs();
+    void fileExportForSecondLife();
     void fileLoadProps();
     void fileSaveProps();
     void fileExit();
@@ -123,23 +179,44 @@ class qavimator : public MainApplicationForm
     void editCut();
     void editCopy();
     void editPaste();
-    void editOptimize();
+    void editOptimizeBVH();
 
-    void optionsSkeleton(bool on);
-    void optionsJointLimits(bool on);
-    void optionsLoop(bool on);
-    void optionsProtectFirstFrame(bool on);
-    void optionsShowTimeline(bool state);
-    void optionsConfigure();
+    void showSkeleton(bool on);
+    void setJointLimits(bool on);
+    void setLoop(bool on);
+    void setProtectFirstFrame(bool on);
+    void showTimeline(bool state);
+    void configure();
 
-    void newPropButtonClicked();
-    void attachToComboBoxChanged(int attachPoint);
-    void deletePropButtonClicked();
+    void helpAbout();
+
+    void animationChanged(int which);
+    void setAvatarShape(int shape);
+    void setAvatarScale(int percent);
+    void partChoice();
+    void rotationValue();
+    void rotationSlider();
+    void positionValue();
+    void positionSlider();
+
+    void easeInChanged(int change);
+    void easeOutChanged(int change);
+
+    void newProp(Prop::PropType);
     void selectProp(const QString& name);
-    void selectAnimation(Animation* animation);
-    void clearProps();
+    void deleteProp();
+    void attachProp(int attachmentPoint);
+    void propPositionChanged();
+    void propScaleChanged();
+    void propRotationChanged();
 
-  protected:
+    void frameSlider(int position);
+    void nextPlaystate();
+    void setLoopInPoint(int inFrame);
+    void setLoopOutPoint(int outFrame);
+    void numFramesChanged(int num);
+    void setFPS(int fps);
+
     void setSliderValue(QSlider* slider,QLineEdit* edit,float value);
 
     QString selectFileToOpen(const QString& caption);
@@ -180,15 +257,15 @@ class qavimator : public MainApplicationForm
     QString lastPath;
     QTimer timer;
     // list of animation ids mapped to combo box indexes
-    QPtrList<Animation> animationIds;
+    QList<Animation*> animationIds;
 
     QString currentPart;
 
     Timeline* timeline;
-    // pixmaps for play button
-    QPixmap playPixmap;
-    QPixmap loopPixmap;
-    QPixmap stopPixmap;
+    // icons for play button
+    QIcon playIcon;
+    QIcon loopIcon;
+    QIcon stopIcon;
 
     // holds the current playing status
     PlayState playstate;

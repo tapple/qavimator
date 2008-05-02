@@ -32,8 +32,7 @@
 #ifndef ANIMATIONVIEW_H
 #define ANIMATIONVIEW_H
 
-#include <qgl.h>
-#include <qobject.h>
+#include <QtOpenGL/QGLWidget>
 
 #include "animation.h"
 #include "camera.h"
@@ -48,17 +47,20 @@
 // first animation counts 0-ANIMATION_INCREMENT-1, next ANIMATION_INCREMENT++
 #define ANIMATION_INCREMENT 100
 
-#define OBJECT_START     8000
+#define OBJECT_START      8000
 
-#define DRAG_HANDLE_X    9000
-#define DRAG_HANDLE_Y    9001
-#define DRAG_HANDLE_Z    9002
-#define SCALE_HANDLE_X   9003
-#define SCALE_HANDLE_Y   9004
-#define SCALE_HANDLE_Z   9005
-#define ROTATE_HANDLE_X  9006
-#define ROTATE_HANDLE_Y  9007
-#define ROTATE_HANDLE_Z  9008
+#define DRAG_HANDLE_START OBJECT_START+1000
+#define DRAG_HANDLE_X     DRAG_HANDLE_START
+#define DRAG_HANDLE_Y     DRAG_HANDLE_START+1
+#define DRAG_HANDLE_Z     DRAG_HANDLE_START+2
+#define SCALE_HANDLE_X    DRAG_HANDLE_START+3
+#define SCALE_HANDLE_Y    DRAG_HANDLE_START+4
+#define SCALE_HANDLE_Z    DRAG_HANDLE_START+5
+#define ROTATE_HANDLE_X   DRAG_HANDLE_START+6
+#define ROTATE_HANDLE_Y   DRAG_HANDLE_START+7
+#define ROTATE_HANDLE_Z   DRAG_HANDLE_START+8
+
+class QMouseEvent;
 
 class AnimationView : public QGLWidget
 {
@@ -100,9 +102,9 @@ class AnimationView : public QGLWidget
     void hideSkeleton() { skeleton = false; }
     void selectPart(const QString& part);
     void selectProp(const QString& prop);
-    const QString& getSelectedPart();
-    const QString& getPartName(int index);
-    const QString& getSelectedPropName();
+    const QString getSelectedPart();
+    const QString getPartName(int index);
+    const QString getSelectedPropName();
 
     const Prop* addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr,int attach);
     void deleteProp(Prop* prop);
@@ -168,14 +170,14 @@ class AnimationView : public QGLWidget
     char modifier;
     unsigned int nextPropId;
 
-    QPtrList<Prop> propList;
+    QList<Prop*> propList;
     QPoint clickPos;           // holds the mouse click position for dragging
     QPoint returnPos;          // holds the mouse position to return to after dragging
 
     QStringList figureFiles;   // holds the names of the BVH files for male/female skeleton models
 
-    QPtrList<Animation> animList;
-    Animation *animation; // this is the "currently selected" animation
+    QList<Animation*> animList;
+    Animation* animation; // this is the "currently selected" animation
     Camera camera;
     double changeX, changeY, changeZ;
     BVHNode* joints[Animation::NUM_FIGURES];

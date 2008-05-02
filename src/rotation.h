@@ -21,7 +21,7 @@
 #ifndef ROTATION_H
 #define ROTATION_H
 
-#include <qstring.h>
+#include <QString>
 
 /**
 @author Zi Ree

@@ -21,9 +21,9 @@
 #ifndef BVHNODE_H
 #define BVHNODE_H
 
+#include <QtCore>
+
 #include <qstring.h>
-#include <qptrlist.h>
-#include <qmap.h>
 
 #include "rotation.h"
 
@@ -78,7 +78,7 @@ class BVHNode
 
     const FrameData frameData(int frame) const;
     const FrameData keyframeDataByIndex(int index) const;
-    const QValueList<int> keyframeList() const;
+    const QList<int> keyframeList() const;
 
     void addKeyframe(int frame,Position pos,Rotation rot);
     void deleteKeyframe(int frame);
@@ -132,12 +132,12 @@ class BVHNode
     int getKeyframeNumberAfter(int frame) const;
 
     QString m_name;
-    QPtrList<BVHNode> children;
+    QList<BVHNode*> children;
     QMap<int,FrameData> keyframes;
 
     // rotation/position cache on load, will be cleared once the animation is loaded
-    QPtrList<Rotation> rotations;
-    QPtrList<Position> positions;
+    QList<Rotation*> rotations;
+    QList<Position*> positions;
 };
 
 #endif

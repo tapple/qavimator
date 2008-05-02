@@ -18,14 +18,14 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <qptrlist.h>
-
 #ifndef PROP_H
 #define PROP_H
 
 /**
   @author Zi Ree
 */
+
+#include <QString>
 
 class Vertex
 {

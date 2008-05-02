@@ -1,13 +1,9 @@
-# Diese Datei wurde mit dem qmake-Manager von KDevelop erstellt. 
-# ------------------------------------------- 
-# Unterordner relativ zum Projektordner: .
-# Das Target ist Projekt im Unterordner 
+SUBDIRS += libquat \
+           src
 
-SUBDIRS += src \
-           libquat 
-TEMPLATE = subdirs
-CONFIG += release \
-warn_on \
-qt \
-thread
-QT += qt3support
+TEMPLATE = subdirs 
+
+CONFIG += warn_on \
+          qt \
+          thread \
+          ordered

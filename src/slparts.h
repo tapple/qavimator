@@ -22,7 +22,7 @@
 #ifndef SLPARTS_H
 #define SLPARTS_H
 
-#include <qstring.h>
+#include <QString>
 
 #ifdef MACOSX
 #include <glu.h>

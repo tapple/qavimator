@@ -25,9 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <qstring.h>
-#include <qfile.h>
-#include <qmessagebox.h>
+#include <QMessageBox>
 
 #include "bvh.h"
 
@@ -55,65 +53,65 @@ BVH::~ BVH()
 {
 }
 
-char* BVH::token(FILE *f,char* tokenBuf) const
+QString BVH::token()
 {
-  tokenBuf[0]='\0';
-
-  if (feof(f)) {
-    fprintf(stderr, "Bad BVH file: Premature EOF\n");
-    return tokenBuf;
+  if(tokenPos>=tokens.size())
+  {
+    qDebug("BVH::token(): no more tokens at index %d",tokenPos);
+    return QString();
   }
-
-  if(fscanf(f, "%s", tokenBuf)); // fix compiler warning
-  return tokenBuf;
+  return tokens[tokenPos++];
 }
 
-int BVH::expect_token(FILE *f, char *name) const
+bool BVH::expect_token(const QString& name)
 {
-  char tokenbuf[1024];
+  qDebug("BVH::expect_token('%s')",name.toLatin1().constData());
 
-  if (strcmp(token(f,tokenbuf), name)) {
-    fprintf(stderr, "Bad BVH file: %s missing\n", name);
-    return 0;
+  if(name!=token())
+  {
+    qDebug("BVH::expect_token(): Bad or outdated animation file: %s missing\n", name.toLatin1().constData());
+    return false;
   }
-  return 1;
+  return true;
 }
 
-BVHNode* BVH::bvhReadNode(FILE *f) const
+BVHNode* BVH::bvhReadNode()
 {
-  char buffer[1024];
-  const char *type = token(f,buffer);
-  if (!strcmp(type, "}")) { return NULL; }
+  qDebug("BVH::bvhReadNode()");
+
+  QString type=token();
+  if(type=="}") return NULL;
 
   // check for node type first
   BVHNodeType nodeType;
-  if (!strcasecmp(type, "ROOT")) { nodeType = BVH_ROOT; }
-  else if (!strcasecmp(type, "JOINT")) { nodeType = BVH_JOINT; }
-  else if (!strcasecmp(type, "END")) { nodeType = BVH_END; }
+  if      (type=="ROOT")  nodeType=BVH_ROOT;
+  else if (type=="JOINT") nodeType=BVH_JOINT;
+  else if (type=="End")   nodeType=BVH_END;
   else
   {
-    qDebug("Bad BVH file: unknown node type: %s\n",type);
+    qDebug("BVH::bvhReadNode(): Bad animation file: unknown node type: '%s'\n",type.toLatin1().constData());
     return NULL;
   }
 
   // add node with name
-  BVHNode* node = new BVHNode(token(f,buffer));
+  BVHNode* node=new BVHNode(token());
   if(!validNodes.contains(node->name()))
     node->type=BVH_NO_SL;
   else
     // set node type
     node->type=nodeType;
 
-  expect_token(f, "{");
-  expect_token(f, "OFFSET");
-  node->offset[0] = atof(token(f,buffer));
-  node->offset[1] = atof(token(f,buffer));
-  node->offset[2] = atof(token(f,buffer));
+  expect_token("{");
+  expect_token("OFFSET");
+  node->offset[0]=token().toFloat();
+  node->offset[1]=token().toFloat();
+  node->offset[2]=token().toFloat();
   node->ikOn = false;
   node->ikWeight = 0.0;
-  if (node->type != BVH_END) {
-    expect_token(f, "CHANNELS");
-    node->numChannels = atoi(token(f,buffer));
+  if(node->type!=BVH_END)
+  {
+    expect_token("CHANNELS");
+    node->numChannels=token().toFloat();
 
     // rotation order for this node
     QString order(QString::null);
@@ -121,20 +119,23 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
     {
       node->channelMin[i] = -10000;
       node->channelMax[i] = 10000;
-      type = token(f,buffer);
-      if     (!strcasecmp(type,"Xposition")) node->channelType[i]=BVH_XPOS;
-      else if(!strcasecmp(type,"Yposition")) node->channelType[i]=BVH_YPOS;
-      else if(!strcasecmp(type,"Zposition")) node->channelType[i]=BVH_ZPOS;
-      else if(!strcasecmp(type,"Xrotation")) {
-	node->channelType[i]=BVH_XROT;
+      type=token();
+      if     (type=="Xposition") node->channelType[i]=BVH_XPOS;
+      else if(type=="Yposition") node->channelType[i]=BVH_YPOS;
+      else if(type=="Zposition") node->channelType[i]=BVH_ZPOS;
+      else if(type=="Xrotation")
+      {
+        node->channelType[i]=BVH_XROT;
         order+='X';
       }
-      else if (!strcasecmp(type, "Yrotation")) {
-	node->channelType[i]=BVH_YROT;
+      else if(type=="Yrotation")
+      {
+        node->channelType[i]=BVH_YROT;
         order+='Y';
       }
-      else if (!strcasecmp(type, "Zrotation")) {
-	node->channelType[i]=BVH_ZROT;
+      else if(type=="Zrotation")
+      {
+        node->channelType[i]=BVH_ZROT;
         order+='Z';
       }
     }
@@ -147,17 +148,21 @@ BVHNode* BVH::bvhReadNode(FILE *f) const
     else if(order=="ZXY") node->channelOrder=BVH_ZXY;
   }
 
-  BVHNode* child = NULL;
-  do {
-    if ((child = bvhReadNode(f))) {
+  BVHNode* child=NULL;
+  do
+  {
+    if((child=bvhReadNode()))
+    {
       node->addChild(child);
     }
-  } while (child != NULL);
+  } while (child!=NULL);
+
   return node;
 }
 
 void BVH::removeNoSLNodes(BVHNode* root)
 {
+  qDebug("BVH::removeNoSLNodes()");
   // walk through list of all child nodes
   for(int i=0;i<root->numChildren();i++)
   {
@@ -165,6 +170,7 @@ void BVH::removeNoSLNodes(BVHNode* root)
     // if this is an unsupported node, remove it
     if(child->type==BVH_NO_SL)
     {
+      qDebug("BVH::removeNoSLNodes(): removing node '%s'",child->name().toLatin1().constData());
       // find all child joints of the unsupported child
       for(int j=0;j<child->numChildren();j++)
       {
@@ -183,38 +189,39 @@ void BVH::removeNoSLNodes(BVHNode* root)
   }
 }
 
-void BVH::assignChannels(BVHNode *node, FILE *f, int frame)
+void BVH::assignChannels(BVHNode* node,int frame)
 {
+//  qDebug("BVH::assignChannels()");
+
   // create new rotation and position objects
   Rotation* rot=new Rotation();
   Position* pos=new Position();
 
-  char buffer[1024];
-
-  for (int i=0; i<node->numChannels; i++)
+  for(int i=0;i<node->numChannels;i++)
   {
-    double value=atof(token(f,buffer));
+    double value=token().toFloat();
     BVHChannelType type=node->channelType[i];
-    if(type==BVH_XPOS) pos->x=value;
+    if     (type==BVH_XPOS) pos->x=value;
     else if(type==BVH_YPOS) pos->y=value;
     else if(type==BVH_ZPOS) pos->z=value;
     else if(type==BVH_XROT) rot->x=value;
     else if(type==BVH_YROT) rot->y=value;
     else if(type==BVH_ZROT) rot->z=value;
-    else qDebug("unknown channel type");
+    else qDebug("BVH::assignChannels(): unknown channel type %d",(int) type);
   }
 
   // put rotation and position into the node's cache for later keyframe referencing
   node->cacheRotation(rot);
   node->cachePosition(pos);
 
-  for (int i=0; i<node->numChildren(); i++) {
-    assignChannels(node->child(i), f, frame);
-  }
+  for (int i=0; i<node->numChildren(); i++)
+    assignChannels(node->child(i),frame);
 }
 
 void BVH::setChannelLimits(BVHNode *node,BVHChannelType type,double min,double max) const
 {
+  qDebug("BVH::setChannelLimits()");
+
   int i;
   if (!node) return;
   for (i=0; i<node->numChannels; i++) {
@@ -229,29 +236,30 @@ void BVH::setChannelLimits(BVHNode *node,BVHChannelType type,double min,double m
 // read joint limits file
 void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
 {
-  QFile f(limFile);
-  BVHNode *node;
+  qDebug("BVH::parseLimFile('%s')",limFile.toLatin1().constData());
 
-  if (!f.open(IO_ReadOnly))
+  QFile limit(limFile);
+
+  if(!limit.open(QIODevice::ReadOnly))
   {
     QMessageBox::critical(0,QObject::tr("Missing Limits File"),QObject::tr("<qt>Limits file not found at:<br>%1</qt>").arg(limFile));
     return;
   }
 
-  while (!f.atEnd())
+  while(!limit.atEnd())
   {
-    QString line;
-    if(!f.readLine(line,4096))
+    QString line=limit.readLine(4096).trimmed();
+    if(line.isEmpty())
     {
       QMessageBox::critical(0,QObject::tr("Error reading limits file"),QObject::tr("Error reading limits file."));
       return;
     }
 
-    QStringList parameters=QStringList::split(' ',line);
+    QStringList parameters=line.split(' ');
     QString name=parameters[0];
     double weight=parameters[1].toDouble();
 
-    node = bvhFindNode(root, name);
+    BVHNode* node=bvhFindNode(root,name);
     if(node)
     {
       node->ikWeight = weight;
@@ -262,15 +270,15 @@ void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
         double min=parameters[i*3+3].toDouble();
         double max=parameters[i*3+4].toDouble();
 
-        if(channel.startsWith("X")) setChannelLimits(node, BVH_XROT, min, max);
-        else if(channel.startsWith("Y")) setChannelLimits(node, BVH_YROT, min, max);
-        else if(channel.startsWith("Z")) setChannelLimits(node, BVH_ZROT, min, max);
+        if     (channel.startsWith("X")) setChannelLimits(node,BVH_XROT,min,max);
+        else if(channel.startsWith("Y")) setChannelLimits(node,BVH_YROT,min,max);
+        else if(channel.startsWith("Z")) setChannelLimits(node,BVH_ZROT,min,max);
       } // for
     }
     else
-      qDebug("Node %s not in animation. This will lead to problems!",name.latin1());
+      qDebug("BVH::parseLimFile(): Node '%s' not in animation. This will lead to problems!",name.toLatin1().constData());
   }
-  f.close();
+  limit.close();
 }
 
 // in BVH files, this is necessary so that
@@ -278,6 +286,8 @@ void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
 // blown away by interpolation
 void BVH::setAllKeyFramesHelper(BVHNode* node,int numberOfFrames) const
 {
+  qDebug("BVH::setAllKeyFramesHelper()");
+
   for(int i=0;i<numberOfFrames;i++)
   {
     const Rotation* rot=node->getCachedRotation(i);
@@ -293,46 +303,50 @@ void BVH::setAllKeyFramesHelper(BVHNode* node,int numberOfFrames) const
 
 void BVH::setAllKeyFrames(Animation* anim) const
 {
+  qDebug("BVH::setAllKeyFrames()");
+
   setAllKeyFramesHelper(anim->getMotion(),anim->getNumberOfFrames());
 }
 
 BVHNode* BVH::bvhRead(const QString& file)
 {
-  qDebug(QString("BVH::bvhRead(%1)").arg(file));
+  qDebug("BVH::bvhRead('%s')",file.toLatin1().constData());
 
-  char buffer[1024];
-  FILE *f = fopen(file, "rt");
-  BVHNode *root;
-
-  if(!f)
+  QFile animationFile(file);
+  if(!animationFile.open(QIODevice::ReadOnly))
   {
-    QMessageBox::critical(0,QObject::tr("File not found"),QObject::tr("BVH File not found: %1").arg(file.latin1()));
+    QMessageBox::critical(0,QObject::tr("File not found"),QObject::tr("BVH File not found: %1").arg(file.toLatin1().constData()));
     return NULL;
   }
 
-  expect_token(f, "HIERARCHY");
-  root = bvhReadNode(f);
+  inputFile=animationFile.readAll();
+  animationFile.close();
 
-  expect_token(f, "MOTION");
-  expect_token(f, "Frames:");
-  int totalFrames=atoi(token(f,buffer));
+  inputFile=inputFile.simplified();
+  tokens=inputFile.split(' ');
+
+  expect_token("HIERARCHY");
+
+  BVHNode* root=bvhReadNode();
+
+  expect_token("MOTION");
+  expect_token("Frames:");
+  int totalFrames=token().toInt();
   lastLoadedNumberOfFrames=totalFrames;
 
-  expect_token(f, "Frame");
-  expect_token(f, "Time:");
-  root->frameTime = atof(token(f,buffer));
+  expect_token("Frame");
+  expect_token("Time:");
+  root->frameTime=token().toFloat();
 
-  for (int i=0; i<totalFrames; i++) {
-    assignChannels(root, f, i);
-  }
+  for(int i=0;i<totalFrames;i++)
+    assignChannels(root,i);
 
   setAllKeyFramesHelper(root,totalFrames);
-  fclose(f);
 
   return(root);
 }
 
-void BVH::avmReadKeyFrame(BVHNode *root, FILE *f)
+void BVH::avmReadKeyFrame(BVHNode* root)
 {
   // NOTE: new system needs frame 0 as key frame
   // FIXME: find a better way without code duplication
@@ -340,12 +354,10 @@ void BVH::avmReadKeyFrame(BVHNode *root, FILE *f)
   const Position* pos=root->getCachedPosition(0);
   root->addKeyframe(0,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
 
-  char buffer[1024];
-  int numKeyFrames=atoi(token(f,buffer));
-  for (int i=0;i<numKeyFrames;i++)
+  int numKeyFrames=token().toInt();
+  for(int i=0;i<numKeyFrames;i++)
   {
-    token(f,buffer);
-    int key=atoi(buffer);
+    int key=token().toInt();
 
     if(key<lastLoadedNumberOfFrames)
     {
@@ -359,25 +371,26 @@ void BVH::avmReadKeyFrame(BVHNode *root, FILE *f)
   root->flushFrameCache();
 //  root->dumpKeyframes();
 
-  for (int i=0;i<root->numChildren();i++) {
-    avmReadKeyFrame(root->child(i), f);
-  }
+  for (int i=0;i<root->numChildren();i++)
+    avmReadKeyFrame(root->child(i));
 }
 
 // reads ease in / out data
-void BVH::avmReadKeyFrameProperties(BVHNode *root, FILE *f)
+void BVH::avmReadKeyFrameProperties(BVHNode* root)
 {
   // NOTE: key frame properties save key 0, too, so numKeyFrames here will be one higher than before
-  char buffer[1024];
 
-  token(f,buffer);
-  if(!strlen(buffer)) return;
+  qDebug("BVH::avmReadKeyFrameProperties()");
 
-  int numKeyFrames=atoi(buffer);
-  for (int i=0;i<numKeyFrames;i++)
+  QString numKeys=token();
+  if(numKeys.isEmpty()) return;
+
+  int numKeyFrames=numKeys.toInt();
+  qDebug("BVH::avmReadKeyFrameProperties(): reading properties for %d key frames",numKeyFrames);
+
+  for(int i=0;i<numKeyFrames;i++)
   {
-    token(f,buffer);
-    int key=atoi(buffer);
+    int key=token().toInt();
 
     if(key & 1) root->setEaseIn(root->keyframeDataByIndex(i).frameNumber(),true);
     if(key & 2) root->setEaseOut(root->keyframeDataByIndex(i).frameNumber(),true);
@@ -387,14 +400,14 @@ void BVH::avmReadKeyFrameProperties(BVHNode *root, FILE *f)
   root->flushFrameCache();
 //  root->dumpKeyframes();
 
-  for (int i=0;i<root->numChildren();i++) {
-    avmReadKeyFrameProperties(root->child(i), f);
-  }
+  for (int i=0;i<root->numChildren();i++)
+    avmReadKeyFrameProperties(root->child(i));
 }
 
+// for debugging only
 void BVH::dumpNodes(BVHNode* node,QString indent)
 {
-  qDebug(QString("%1 %2 (%3)").arg(indent).arg(node->name()).arg(node->numChildren()));
+  qDebug("%s %s (%d)",indent.toLatin1().constData(),node->name().toLatin1().constData(),node->numChildren());
   indent+="·--";
   for(int i=0;i<node->numChildren();i++)
   {
@@ -406,55 +419,51 @@ void BVH::dumpNodes(BVHNode* node,QString indent)
    with keyframe data tacked at the end -- Lex Neva */
 BVHNode* BVH::avmRead(const QString& file)
 {
-  qDebug("BVH::avmRead(%s)",file.latin1());
+  qDebug("BVH::avmRead(%s)",file.toLatin1().constData());
 
-  FILE *f = fopen(file, "rt");
-  char buffer[1024];
-  BVHNode *root;
+  QFile animationFile(file);
+  animationFile.open(QIODevice::ReadOnly);
+  inputFile=animationFile.readAll();
+  animationFile.close();
 
-  if(!f)
-  {
-    qDebug("AVM File not found: %s\n", file.latin1());
-    return NULL;
-  }
+  inputFile=inputFile.simplified();
+  tokens=inputFile.split(' ');
 
-  expect_token(f, "HIERARCHY");
-  root = bvhReadNode(f);
+  expect_token("HIERARCHY");
 
-  expect_token(f, "MOTION");
-  expect_token(f, "Frames:");
-  int totalFrames=atoi(token(f,buffer));
+  BVHNode* root=bvhReadNode();
+
+  expect_token("MOTION");
+  expect_token("Frames:");
+  int totalFrames=token().toInt();
   lastLoadedNumberOfFrames=totalFrames;
   lastLoadedLoopOut=totalFrames;
 //  qDebug("BVH::avmRead(): set loop out to totalFrames");
 
-  expect_token(f, "Frame");
-  expect_token(f, "Time:");
-  root->frameTime = atof(token(f,buffer));
+  expect_token("Frame");
+  expect_token("Time:");
+  root->frameTime=token().toFloat();
 
-  for (int i=0; i<totalFrames; i++) {
-    assignChannels(root, f, i);
+  for(int i=0;i<totalFrames;i++)
+  {
+    assignChannels(root,i);
   }
 
-  avmReadKeyFrame(root, f);
-  if (!feof(f)) {
-    if(expect_token(f, "Properties"))
-      avmReadKeyFrameProperties(root, f);
-  }
+  avmReadKeyFrame(root);
+
+  if(expect_token("Properties"))
+    avmReadKeyFrameProperties(root);
 
   // read remaining properties
-  while(!feof(f))
+  QString propertyName;
+  while(!(propertyName=token()).isEmpty())
   {
-    buffer[0]=0;
-    if(fgets(buffer,1023,f))
-    {
-      if(buffer[strlen(buffer)-1]=='\n') buffer[strlen(buffer)-1]=0;
-      QString property(buffer);
-      QString propertyName=property.section(' ',0,0);
-      QString propertyValue=property.section(' ',1,1);
+      QString propertyValue=token();
 
-      if(!propertyName.isEmpty())
+      if(!propertyValue.isEmpty())
       {
+        qDebug("BVH::avmRead(): Found extended property: '%s=%s'",propertyName.toLatin1().constData(),
+                                                                  propertyValue.toLatin1().constData());
         if(propertyName=="Scale:")
         {
           lastLoadedAvatarScale=propertyValue.toFloat();
@@ -474,12 +483,10 @@ BVHNode* BVH::avmRead(const QString& file)
           lastLoadedLoopOut=propertyValue.toInt();
         }
         else
-          qDebug("Unknown extended property '%s' (%s), ignoring.",propertyName.latin1(),propertyValue.latin1());
-      }
+          qDebug("BVH::avmRead(): Unknown extended property '%s' (%s), ignoring.",propertyName.toLatin1().constData(),
+                                                                                  propertyValue.toLatin1().constData());
     }
   } // while
-
-  fclose(f);
 
   return(root);
 }
@@ -495,11 +502,13 @@ BVHNode* BVH::animRead(const QString& file,const QString& limFile)
   // indicates "no loop points set"
   lastLoadedLoopIn=-1;
 //  qDebug("BVH::animRead(): set loop in to -1 to indicate missing loop points");
+  // reset token position
+  tokenPos=0;
 
   // rudimentary file type identification from filename
-  if(file.findRev(".bvh",-4,false)!=-1)
+  if(file.endsWith(".bvh",Qt::CaseInsensitive))
     root = bvhRead(file);
-  else if(file.findRev(".avm",-4,false)!=-1)
+  else if(file.endsWith(".avm",Qt::CaseInsensitive))
     root = avmRead(file);
   else
     return NULL;
@@ -524,8 +533,8 @@ void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
 {
   bvhIndent(f, depth);
   QString line=QString("%1 %2\n").arg(bvhTypeName[node->type]).arg(node->name());
-  fprintf(f,line);
-//  fprintf(f, "%s %s\n", bvhTypeName[node->type].latin1(), node->name);
+  fprintf(f,line.toLatin1().constData());
+//  fprintf(f, "%s %s\n", bvhTypeName[node->type].toLatin1().constData(), node->name);
   bvhIndent(f, depth);
   fprintf(f, "{\n");
   bvhIndent(f, depth+1);
@@ -537,7 +546,7 @@ void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
     bvhIndent(f, depth+1);
     fprintf(f, "CHANNELS %d ", node->numChannels);
     for (int i=0; i<node->numChannels; i++) {
-      fprintf(f, "%s ", bvhChannelName[node->channelType[i]].latin1());
+      fprintf(f, "%s ", bvhChannelName[node->channelType[i]].toLatin1().constData());
     }
     fprintf(f, "\n");
   }
@@ -578,7 +587,7 @@ void BVH::bvhWriteFrame(BVHNode *node, int frame, FILE *f)
 void BVH::bvhWrite(Animation* anim, const QString& file)
 {
   int i;
-  FILE *f = fopen(file, "wt");
+  FILE *f = fopen(file.toLatin1().constData(), "wt");
 
   BVHNode* root=anim->getMotion();
 
@@ -596,7 +605,7 @@ void BVH::bvhWrite(Animation* anim, const QString& file)
 
 void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f)
 {
-  const QValueList<int> keys=root->keyframeList();
+  const QList<int> keys=root->keyframeList();
   // no key frames (usually at joint ends), just write a 0\n line
   if(keys.count()==0)
   {
@@ -609,7 +618,7 @@ void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f)
     fprintf(f, "%u ", keys.count()-1);
 
     // skip frame 0 (always key frame) while saving and write all keys in a row
-    for (unsigned int i=1; i<keys.count(); i++)
+    for(unsigned int i=1;i< (unsigned int) keys.count();i++)
     {
       fprintf(f, "%d ", keys[i]);
     }
@@ -625,13 +634,14 @@ void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f)
 // writes ease in / out data
 void BVH::avmWriteKeyFrameProperties(BVHNode *root, FILE *f)
 {
-  const QValueList<int> keys=root->keyframeList();
+  const QList<int> keys=root->keyframeList();
 
   // NOTE: remember, ease in/out data always takes first frame into account
   fprintf(f,"%u ",keys.count());
 
   // NOTE: remember, ease in/out data always takes first frame into account
-  for (unsigned int i=0; i<keys.count(); i++) {
+  for(unsigned int i=0;i< (unsigned int) keys.count();i++)
+  {
     int type=0;
 
     if(root->keyframeDataByIndex(i).easeIn()) type|=1;
@@ -648,7 +658,7 @@ void BVH::avmWriteKeyFrameProperties(BVHNode *root, FILE *f)
 
 void BVH::avmWrite(Animation* anim,const QString& file)
 {
-  FILE *f = fopen(file, "wt");
+  FILE *f=fopen(file.toLatin1().constData(),"wt");
 
   BVHNode* root=anim->getMotion();
 
@@ -679,9 +689,9 @@ void BVH::avmWrite(Animation* anim,const QString& file)
 void BVH::animWrite(Animation* anim,const QString& file)
 {
   // rudimentary file type identification from filename
-  if(file.findRev(".bvh",-4,false)!=-1)
+  if(file.endsWith(".bvh",Qt::CaseInsensitive))
     bvhWrite(anim,file);
-  else if(file.findRev(".avm",-4,false)!=-1)
+  else if(file.endsWith(".avm",Qt::CaseInsensitive))
     avmWrite(anim,file);
 }
 
@@ -690,7 +700,7 @@ void BVH::bvhPrintNode(BVHNode *n, int depth)
   int i;
   for (i=0; i<depth*4; i++) { printf(" "); }
   QString line=QString("%1 (%2 %3 %4)").arg(n->name()).arg(n->offset[0]).arg(n->offset[1]).arg(n->offset[2]);
-  printf(line);
+  printf(line.toLatin1().constData());
 //  printf("%s (%lf %lf %lf)\n", n->name, n->offset[0], n->offset[1], n->offset[2]);
   for (i=0; i<n->numChildren(); i++) {
     bvhPrintNode(n->child(i), depth+1);
@@ -739,20 +749,20 @@ void BVH::bvhResetIK(BVHNode *root)
   }
 }
 
-const QString& BVH::bvhGetNameHelper(BVHNode* node,int index)
+const QString BVH::bvhGetNameHelper(BVHNode* node,int index)
 {
   nodeCount++;
   if(nodeCount==index) return node->name();
 
   for(int i=0;i<node->numChildren();i++)
   {
-    const QString& val=bvhGetNameHelper(node->child(i),index);
+    const QString val=bvhGetNameHelper(node->child(i),index);
     if(!val.isEmpty()) return val;
   }
-  return QString::null;
+  return QString();
 }
 
-const QString& BVH::bvhGetName(BVHNode* node,int index)
+const QString BVH::bvhGetName(BVHNode* node,int index)
 {
   nodeCount = 0;
   return bvhGetNameHelper(node, index);

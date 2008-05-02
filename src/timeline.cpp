@@ -18,29 +18,28 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <qpainter.h>
-#include <qapplication.h>
-#include <qtimer.h>
+#include <QPainter>
+#include <QPaintEvent>
 
 #include "timeline.h"
 #include "animation.h"
 #include "keyframelist.h"
 
-// FIXME: set this to 1 find out why variables get out of sync
-#define TIMELINE_POSITION_DEBUG   0
-
-Timeline::Timeline(QWidget *parent, const char *name, WFlags)
-  : QWidget(parent, name)
+Timeline::Timeline(QWidget *parent,Qt::WindowFlags) : QFrame(parent)
 {
+  qDebug("Timeline(0x%0lx)",(unsigned long) this);
+
+  // init offscreen pixmap as 0 so the first change of number of frames will not
+  // try to copy old pixmap data
+  offscreen=0;
+
   resize(50,50);
 
-  positionSync=false;
-  positionBarX=0;
-  backgroundBuffer.resize(KEY_WIDTH,50);
+  fullRepaint=false;
 
   animation=0;
   setCurrentFrame(0);
-  setCaption(tr("Timeline"));
+  setWindowTitle(tr("Timeline"));
 
   leftMouseButton=false;
   shift=false;
@@ -48,65 +47,92 @@ Timeline::Timeline(QWidget *parent, const char *name, WFlags)
   dragging=0;
   trackSelected=0;
 
-  setFocusPolicy(QWidget::StrongFocus);
+  setFocusPolicy(Qt::StrongFocus);
 }
 
 Timeline::~Timeline()
 {
 }
 
-void Timeline::paintEvent(QPaintEvent* e)
+void Timeline::paintEvent(QPaintEvent* /* e */)
 {
   if(!animation) return;
-
-  clearPosition();
-
   if(isHidden()) return;
+
+  qDebug("Timeline::paintEvent(%d)",(int) fullRepaint);
 
   QSize newSize=QSize(numOfFrames*KEY_WIDTH,(NUM_PARTS-2)*LINE_HEIGHT);
 
   if(newSize!=size())
   {
-    qDebug(QString("resizing timeline widget to %1x%1").arg(newSize.width()).arg(newSize.height()));
-    backgroundBuffer.resize(KEY_WIDTH,newSize.height());
+    qDebug("Timeline::paintEvent(): resizing timeline widget to %dx%d",newSize.width(),newSize.height());
     resize(newSize);
     emit resized(newSize);
   }
-
+/*
   // clip keyframe drawing to "dirty" area of redraw
   firstVisibleKeyX=e->rect().x()/KEY_WIDTH;
   visibleKeysX=e->rect().width()/KEY_WIDTH;
+*/
+  // clip keyframe drawing to "dirty" area of redraw
+  firstVisibleKeyX=0;
+  visibleKeysX=numOfFrames;
 
-  for(int part=1;part<NUM_PARTS;part++)
+  // full repaint only rarely needed
+  if(fullRepaint)
   {
-    drawTrack(part);
-  } // for
+    // clip keyframe drawing to "dirty" area of redraw
+    firstVisibleKeyX=0;
+    visibleKeysX=numOfFrames;
+
+    for(int part=1;part<NUM_PARTS;part++)
+    {
+      drawTrack(part);
+    } // for
+    fullRepaint=false;
+  }
 
   // reset keyframe clipping to have new or updated transition lines painted properly
   firstVisibleKeyX=0;
   visibleKeysX=numOfFrames;
 
-// draw updated rectangle as debug info
-// QPainter p(this);
-// p.drawRect(e->rect());
+  int xpos=frameSelected*KEY_WIDTH;
 
-  // redraw position as soon as repaint event has ended, because inside this event, all painting is
-  // clipped to e->region()
-  QTimer::singleShot(0,this,SLOT(drawPosition()));
+  QPainter p(this);
+  p.drawPixmap(0,0,*offscreen);
+
+  // draw current frame marker
+  p.fillRect(xpos+KEY_WIDTH/2-1,0,2,height(),QColor("#ff0000"));
+
+  qDebug("Timeline::paintEvent(): done");
 }
 
 void Timeline::setNumberOfFrames(int frames)
 {
+  qDebug("Timeline::setNumberOfFrames(%d==%d): %0lx",numOfFrames,frames,(unsigned long) offscreen);
+
   numOfFrames=frames;
+
+  QPixmap* newOffscreen=new QPixmap(numOfFrames*KEY_WIDTH,LINE_HEIGHT*NUM_PARTS);
+
+  // copy old offscreen pixmap to new pixmap, if there is one
+  if(offscreen)
+  {
+    QPainter p(newOffscreen);
+    p.drawPixmap(0,0,*offscreen);
+    delete offscreen;
+  }
+
+  offscreen=newOffscreen;
+
+  fullRepaint=true;
   repaint();
 }
 
 void Timeline::setCurrentFrame(int frame)
 {
-  clearPosition();
   frameSelected=frame;
   emit positionCenter(frameSelected*KEY_WIDTH);
-  drawPosition();
 }
 
 void Timeline::setAnimation(Animation* anim)
@@ -117,71 +143,37 @@ void Timeline::setAnimation(Animation* anim)
   if(animation)
   {
     disconnect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
-    disconnect(animation,SIGNAL(redrawTrack(int)),this,SLOT(redrawTrack(int)));
+    disconnect(animation,SIGNAL(redrawTrack(int)),this,SLOT(redrawTrackImmediately(int)));
     disconnect(this,SIGNAL(deleteFrame(int,int)),animation,SLOT(deleteFrame(int,int)));
     disconnect(this,SIGNAL(insertFrame(int,int)),animation,SLOT(insertFrame(int,int)));
-    numOfFrames=0;
   }
   animation=anim;
 
   if(animation)
   {
     connect(animation,SIGNAL(numberOfFrames(int)),this,SLOT(setNumberOfFrames(int)));
-    connect(animation,SIGNAL(redrawTrack(int)),this,SLOT(redrawTrack(int)));
+    connect(animation,SIGNAL(redrawTrack(int)),this,SLOT(redrawTrackImmediately(int)));
     connect(this,SIGNAL(deleteFrame(int,int)),animation,SLOT(deleteFrame(int,int)));
     connect(this,SIGNAL(insertFrame(int,int)),animation,SLOT(insertFrame(int,int)));
-    numOfFrames=animation->getNumberOfFrames();
+
+    qDebug("Timeline::setAnimation(): signal setup done");
   }
 
   emit animationChanged(anim);
 
+  fullRepaint=true;
   repaint();
 }
 
-void Timeline::clearPosition()
+void Timeline::redrawTrackImmediately(int track)
 {
-  if(!animation) return;
-
-  if(!positionSync) // debug
-  {
-#if TIMELINE_POSITION_DEBUG
-    qDebug("position bar has not been drawn, but asked to clear it!");
-#endif
-    return;
-  }
-  positionSync=false;
-
-  bitBlt(this,positionBarX,0,&backgroundBuffer,0,0,KEY_WIDTH,height());
-}
-
-void Timeline::drawPosition()
-{
-  if(!animation) return;
-
-  if(positionSync)
-  {
-#if TIMELINE_POSITION_DEBUG==1
-    qDebug("position bar has not been cleared, but asked to draw it!");
-#endif
-    return;
-  }
-  positionSync=true;    // debug
-
-  QPainter p(this);
-  int xpos=frameSelected*KEY_WIDTH;
-
-  bitBlt(&backgroundBuffer,0,0,this,xpos,0,KEY_WIDTH,height());
-  positionBarX=xpos;
-
-  p.setPen(QColor("#ff0000"));
-  p.drawRect(xpos+KEY_WIDTH/2-1,0,2,height());
+  drawTrack(track);
+  repaint();
 }
 
 void Timeline::redrawTrack(int track)
 {
-  clearPosition();
   drawTrack(track);
-  drawPosition();
 }
 
 void Timeline::drawKeyframe(int track,int frame)
@@ -192,16 +184,16 @@ void Timeline::drawKeyframe(int track,int frame)
 
   int ypos=(track-1)*LINE_HEIGHT;
 
-  QPainter p(this);
+  QPainter p(offscreen);
   // calculate x position
   int xpos=frame*KEY_WIDTH;
 
-  QColorGroup::ColorRole keyColor=QColorGroup::Foreground;
+  QPalette::ColorRole keyColor=QPalette::Foreground;
 
 #ifdef Q_OS_WIN32
   // on windows systems use text highlight color to contrast with track highlight
   if(trackSelected==track)
-    keyColor=QColorGroup::HighlightedText;
+    keyColor=QPalette::HighlightedText;
 #endif
 
   QColor color(palette().color(QPalette::Active,keyColor));
@@ -231,18 +223,18 @@ void Timeline::drawKeyframe(int track,int frame)
     p.setBrush(QBrush(color));
 
     if(ps && ns)
-      p.drawEllipse(xpos,ypos,KEY_WIDTH,LINE_HEIGHT);
+      p.drawEllipse(xpos,ypos,KEY_WIDTH-1,LINE_HEIGHT-1);
 
     else if(ns)
     {
-      QPointArray triangle(3);
+      QPolygon triangle(3);
       triangle.putPoints(0,3, xpos,ypos+(LINE_HEIGHT-1)/2, xpos+KEY_WIDTH-1,ypos, xpos+KEY_WIDTH-1,ypos+LINE_HEIGHT-1);
 
       p.drawPolygon(triangle);
     }
     else if(ps)
     {
-      QPointArray triangle(3);
+      QPolygon triangle(3);
       triangle.putPoints(0,3, xpos+KEY_WIDTH-1,ypos+(LINE_HEIGHT-1)/2, xpos,ypos, xpos,ypos+LINE_HEIGHT-1);
 
       p.drawPolygon(triangle);
@@ -259,12 +251,10 @@ void Timeline::selectTrack(int track)
   // if the user clicked on a different track
   if(oldTrack!=trackSelected)
   {
-    clearPosition();
     // draw old track with old color
     drawTrack(oldTrack);
     // draw new track
     drawTrack(trackSelected);
-    drawPosition();
   }
 }
 
@@ -272,30 +262,31 @@ void Timeline::drawTrack(int track)
 {
   // do not draw track number 0
   if(!track) return;
+  if(!offscreen) return;
 //  qDebug("first %d vis %d",firstVisibleKeyX,visibleKeysX);
-//  qDebug(QString("drawTrack(%1)").arg(track));
-
-  // if this is a "Site end" marker (end of group of limbs) do nothing more
-  QString trackName=animation->getPartName(track);
+  qDebug("Timeline::drawTrack(%d, %d)",track,trackSelected);
 
   // normal tracks get default background color
-  QColorGroup::ColorRole baseColor=QColorGroup::Background;
+  QPalette::ColorRole baseColor=QPalette::Background;
   // normal tracks get default foreground colors for keyframe transition lines
-  QColorGroup::ColorRole lineColor=QColorGroup::Foreground;
+  QPalette::ColorRole lineColor=QPalette::Foreground;
   // selected tracks get other color, unless it's a "Site" track (end of limbs group)
+  QString trackName=animation->getPartName(track);
   if(track==trackSelected && trackName!="Site")
   {
-    baseColor=QColorGroup::Highlight;
+    baseColor=QPalette::Highlight;
 #ifdef Q_OS_WIN32
     // additionally, set inverse highlight color for transition lines on windows for contrast
-    lineColor=QColorGroup::HighlightedText;
+    lineColor=QPalette::HighlightedText;
 #endif
   }
 
-  QPainter p(this);
-
   int light=0;
   int y=(track-1)*LINE_HEIGHT;
+
+  // temporary painter, must be destroyed before entering main keyframe loop,
+  // or we clash with drawKeyframe() painter
+  QPainter* p=new QPainter(offscreen);
 
   // find widget coordinates of clipped area and decide if we paint light or dark background
   int firstGreyShade=(firstVisibleKeyX/10);
@@ -306,27 +297,28 @@ void Timeline::drawTrack(int track)
   for(int x=firstGreyShade;x<(firstGreyShade+visibleKeysX+10)*KEY_WIDTH;x+=10*KEY_WIDTH)
   {
     // draw a filled rectangle in background color, alternatingly darkened by 5 %
-    p.fillRect(x,y,x+10*KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,baseColor).dark(100+5*light));
+    p->fillRect(x,y,x+10*KEY_WIDTH,LINE_HEIGHT,palette().color(QPalette::Active,baseColor).dark(100+5*light));
     light=1-light;
   }
 
   // if this is a "Site end" marker (end of group of limbs) do nothing more
-  if(trackName=="Site") return;
+  if(trackName=="Site")
+  {
+    delete p;
+    return;
+  }
 
   // draw straight line as track marker within "dirty" redraw region
-  p.fillRect(firstVisibleKeyX*KEY_WIDTH,y+LINE_HEIGHT/2,(visibleKeysX+1)*KEY_WIDTH,1,palette().color(QPalette::Active,baseColor).dark(115));
-  p.fillRect(firstVisibleKeyX*KEY_WIDTH,y+LINE_HEIGHT/2+1,(visibleKeysX+1)*KEY_WIDTH,1,palette().color(QPalette::Active,baseColor).light(115));
+  p->fillRect(firstVisibleKeyX*KEY_WIDTH,y+LINE_HEIGHT/2,(visibleKeysX+1)*KEY_WIDTH,1,palette().color(QPalette::Active,baseColor).dark(115));
+  p->fillRect(firstVisibleKeyX*KEY_WIDTH,y+LINE_HEIGHT/2+1,(visibleKeysX+1)*KEY_WIDTH,1,palette().color(QPalette::Active,baseColor).light(115));
+
+  delete p;
 
   // get the list of key frames
   const BVHNode* joint=animation->getNode(track);
   // start drawing rest of key frames
   if(joint->numKeyframes())
   {
-    // get foreground color
-    QColor color(palette().color(QPalette::Active,QColorGroup::Foreground));
-    // set drawing pen to foreground color
-    p.setPen(color);
-
     // reset previous frame marker
     int oldFrame=0;
     // iterate through list of key frames
@@ -342,6 +334,8 @@ void Timeline::drawTrack(int track)
         // if this key frame is not at the first animation frame
         if(frameNum>0)
         {
+          // create new painter here, will be out of scope before drawKeyframe() gets called
+          QPainter p(offscreen);
           // check if it differs from the previous frame, if it does, draw a line there
           // but only if this line is inside the "dirty" redraw region
           if(
@@ -449,13 +443,13 @@ void Timeline::mousePressEvent(QMouseEvent* e)
     drawKeyframe(trackSelected,frameSelected);
   }
   emit trackClicked(trackSelected);
+  repaint();
   // remember mouse button state
   leftMouseButton=true;
 }
 
 void Timeline::mouseReleaseEvent(QMouseEvent*)
 {
-  clearPosition();
   leftMouseButton=false;
   if(dragging)
   {
@@ -463,8 +457,8 @@ void Timeline::mouseReleaseEvent(QMouseEvent*)
     dragging=0;
     // remove highlight from keyframe
     drawKeyframe(trackSelected,frameSelected);
+    repaint();
   }
-  drawPosition();
 }
 
 void Timeline::mouseMoveEvent(QMouseEvent* e)
@@ -540,26 +534,25 @@ void Timeline::keyPressEvent(QKeyEvent* e)
     case Qt::Key_Shift:
       shift=true;
       break;
+
     case Qt::Key_Delete:
       emit deleteFrame(trackSelected,frameSelected);
       if(trackSelected)
       {
-        clearPosition();
         drawTrack(trackSelected);
-        drawPosition();
       }
       else repaint();
       break;
+
     case Qt::Key_Insert:
       emit insertFrame(trackSelected,frameSelected);
       if(trackSelected)
       {
-        clearPosition();
         drawTrack(trackSelected);
-        drawPosition();
       }
       else repaint();
       break;
+
     default:
       e->ignore();
       return;

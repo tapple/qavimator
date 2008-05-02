@@ -69,7 +69,13 @@ public:
 
     void setRotation(const MT_Vector3& axis, MT_Scalar mt_angle) {
         MT_Scalar d = axis.length();
-        MT_assert(!MT_fuzzyZero(d));
+        if(MT_fuzzyZero(d))
+        {
+          printf("MT_Quaternion::setRotation(): d=%lf would cause division by zero. Calculation aborted.\n",d);
+          return;
+        }
+/*        MT_assert(!MT_fuzzyZero(d)); */
+
         MT_Scalar s = sin(mt_angle * MT_Scalar(0.5)) / d;
         setValue(axis[0] * s, axis[1] * s, axis[2] * s, 
                  cos(mt_angle * MT_Scalar(0.5)));

@@ -46,6 +46,9 @@ SOURCES += MEM_RefCountedC-Api.cpp \
            MT_Vector2.cpp \
            MT_Vector3.cpp \
            MT_Vector4.cpp 
+
+DEFINES += NDEBUG=1
+
 CONFIG += release \
 warn_on \
 qt \

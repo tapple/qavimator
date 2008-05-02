@@ -18,67 +18,67 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include <qcheckbox.h>
-#include <qspinbox.h>
-#include <qapplication.h>
-
 #include "settings.h"
 #include "settingsdialog.h"
 
-SettingsDialog::SettingsDialog(QWidget* parent,const char* name,bool modal,WFlags f)
-: SettingsDialogForm(parent,name,modal,f)
+SettingsDialog::SettingsDialog(QWidget* parent) : QDialog(parent)
 {
+  qDebug("SettingsDialog::SettingsDialog()");
+
+  setupUi(this);
+
   useFogCheckbox->setChecked(Settings::fog());
   floorTranslucencySpin->setValue(Settings::floorTranslucency());
-  easeInCheck->setChecked(Settings::easeIn());
-  easeOutCheck->setChecked(Settings::easeOut());
+  easeInCheckbox->setChecked(Settings::easeIn());
+  easeOutCheckbox->setChecked(Settings::easeOut());
 }
 
 SettingsDialog::~SettingsDialog()
 {
+  qDebug("SettingsDialog::~SettingsDialog()");
 }
 
-void SettingsDialog::accept()
+void SettingsDialog::on_applyButton_clicked()
 {
   qDebug("accept()");
 
   Settings::setFog(useFogCheckbox->isChecked());
   Settings::setFloorTranslucency(floorTranslucencySpin->value());
-  Settings::setEaseIn(easeInCheck->isChecked());
-  Settings::setEaseOut(easeOutCheck->isChecked());
+  Settings::setEaseIn(easeInCheckbox->isChecked());
+  Settings::setEaseOut(easeOutCheckbox->isChecked());
   emit configChanged();
   qApp->processEvents();
 }
 
-void SettingsDialog::acceptOk()
+void SettingsDialog::on_okButton_clicked()
 {
   qDebug("acceptOk()");
+  on_applyButton_clicked();
   accept();
-  QDialog::accept();
 }
 
-void SettingsDialog::reject()
+void SettingsDialog::on_cancelButton_clicked()
 {
   qDebug("reject()");
-  QDialog::reject();
+  reject();
 }
 
-void SettingsDialog::useFogToggled(bool state)
+void SettingsDialog::on_useFogCheckbox_toggled(bool state)
 {
   qDebug("useFogToggled(%d)",state);
 }
 
-void SettingsDialog::floorTranslucencyChanged(int value)
+void SettingsDialog::on_floorTranslucencySpin_valueChanged(int value)
 {
   qDebug("floorTranslucencyChanged(%d)",value);
 }
 
-void SettingsDialog::easeInToggled(bool state)
+void SettingsDialog::on_easeInCheckbox_toggled(bool state)
 {
   qDebug("easeInToggled(%d)",state);
 }
 
-void SettingsDialog::easeOutToggled(bool state)
+void SettingsDialog::on_easeOutCheckbox_toggled(bool state)
 {
   qDebug("easeOutToggled(%d)",state);
 }

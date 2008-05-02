@@ -111,7 +111,12 @@ public:
   
     void setRotation(const MT_Quaternion& q) {
         MT_Scalar d = q.length2();
-        MT_assert(!MT_fuzzyZero2(d));
+        if(MT_fuzzyZero2(d))
+        {
+          printf("MT_Matrix3x3::setRotation(): d=%lf would cause division by zero. Calculation aborted.\n",d);
+          return;
+        }
+/*        MT_assert(!MT_fuzzyZero2(d)); */
         MT_Scalar s = MT_Scalar(2.0) / d;
         MT_Scalar xs = q[0] * s,   ys = q[1] * s,   zs = q[2] * s;
         MT_Scalar wx = q[3] * xs,  wy = q[3] * ys,  wz = q[3] * zs;
