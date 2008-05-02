@@ -67,8 +67,6 @@ INSTALLS += target \
 
 target.path = /usr/bin
 
-target.files += ../bin/qavimator
-
 datafiles.path = /usr/share/qavimator/data
 
 datafiles.files += ../bin/data/SLMale.bvh \
