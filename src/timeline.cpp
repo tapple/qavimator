@@ -537,20 +537,24 @@ void Timeline::keyPressEvent(QKeyEvent* e)
 
     case Qt::Key_Delete:
       emit deleteFrame(trackSelected,frameSelected);
+
       if(trackSelected)
-      {
         drawTrack(trackSelected);
-      }
-      else repaint();
+      else
+        fullRepaint=true;
+
+      repaint();
       break;
 
     case Qt::Key_Insert:
       emit insertFrame(trackSelected,frameSelected);
+
       if(trackSelected)
-      {
         drawTrack(trackSelected);
-      }
-      else repaint();
+      else
+        fullRepaint=true;
+
+      repaint();
       break;
 
     default:
