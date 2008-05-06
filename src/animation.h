@@ -36,8 +36,21 @@ class Animation : public QObject
   Q_OBJECT
 
   public:
-    typedef enum { IK_LHAND=0, IK_RHAND, IK_LFOOT, IK_RFOOT, NUM_IK } IKPartType;
-    typedef enum { FIGURE_MALE=0, FIGURE_FEMALE,NUM_FIGURES } FigureType;
+    typedef enum
+    {
+      IK_LHAND=0,
+      IK_RHAND,
+      IK_LFOOT,
+      IK_RFOOT,
+      NUM_IK
+    } IKPartType;
+
+    typedef enum
+    {
+      FIGURE_MALE=0,
+      FIGURE_FEMALE,
+      NUM_FIGURES
+    } FigureType;
 
     Animation(BVH* bvh,const QString& bvhFile=QString::null);
     ~Animation();
@@ -91,12 +104,12 @@ class Animation : public QObject
     Position getPosition(const QString& jointName);
     int getRotationOrder(const QString& jointName);
     void addKeyFrameAllJoints();
-    void addKeyFrame(BVHNode *joint);
+    void addKeyFrame(BVHNode* joint);
     bool isKeyFrame();
     bool isKeyFrame(const QString& jointName);
     bool isKeyFrame(int jointNumber,int frame);
     void delKeyFrameAllJoints();
-    void delKeyFrame(BVHNode *joint,bool silent=false); // silent = only send signal to timeline
+    void delKeyFrame(BVHNode* joint,bool silent=false); // silent = only send signal to timeline
     bool toggleKeyFrameAllJoints();
     bool toggleKeyFrame(const QString& jointName);
     void setFrameTime(double frameTime);
@@ -114,7 +127,7 @@ class Animation : public QObject
 
     void optimize();
 
-    enum { MAX_PARTS = 64 };
+    enum { MAX_PARTS=64 };
 
   public slots:
     void delKeyFrame(int jointNumber,int frame);
@@ -130,7 +143,7 @@ class Animation : public QObject
 
   protected:
     BVH* bvh;
-    BVHNode *frames;
+    BVHNode* frames;
 
     FigureType figureType;
 
@@ -148,14 +161,14 @@ class Animation : public QObject
     int loopOutPoint;
 
     bool mirrored;
-    unsigned int partMirror[ MAX_PARTS + 1 ];
+    unsigned int partMirror[MAX_PARTS+1];
     bool limits;
     bool ikOn[NUM_IK];
     IKTree ikTree;
 
-    void recursiveAddKeyFrame(BVHNode *joint);
-    bool isKeyFrameHelper(BVHNode *joint);
-    void recursiveDelKeyFrame(BVHNode *joint);
+    void recursiveAddKeyFrame(BVHNode* joint);
+    bool isKeyFrameHelper(BVHNode* joint);
+    void recursiveDelKeyFrame(BVHNode* joint);
     void insertFrameHelper(BVHNode* joint,int frame);
     void deleteFrameHelper(BVHNode* joint,int frame);
     void optimizeHelper(BVHNode* joint);

@@ -27,6 +27,7 @@ HEADERS += animation.h \
            iktree.h \
            keyframelist.h \
            math3d.h \
+           playstate.h \
            prop.h \
            qavimator.h \
            rotation.h \

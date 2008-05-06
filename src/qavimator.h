@@ -33,6 +33,7 @@
 
 #include "ui_mainapplicationform.h"
 #include "rotation.h"
+#include "playstate.h"
 
 class Animation;
 class Prop;
@@ -46,8 +47,6 @@ class qavimator : public QMainWindow, Ui::MainWindow
   public:
     qavimator();
     ~qavimator();
-
-    typedef enum { PLAYSTATE_STOPPED=0, PLAYSTATE_LOOPING, PLAYSTATE_PLAYING, NUM_PLAYSTATES } PlayState;
 
   signals:
     void enableRotation(bool state);
