@@ -336,7 +336,9 @@ BVHNode* BVH::bvhRead(const QString& file)
 
   expect_token("Frame");
   expect_token("Time:");
-  root->frameTime=token().toFloat();
+
+  // store FPS
+  lastLoadedFrameTime=token().toFloat();
 
   for(int i=0;i<totalFrames;i++)
     assignChannels(root,i);
@@ -442,7 +444,9 @@ BVHNode* BVH::avmRead(const QString& file)
 
   expect_token("Frame");
   expect_token("Time:");
-  root->frameTime=token().toFloat();
+
+  // set FPS
+  lastLoadedFrameTime=token().toFloat();
 
   for(int i=0;i<totalFrames;i++)
   {
@@ -595,7 +599,7 @@ void BVH::bvhWrite(Animation* anim, const QString& file)
   bvhWriteNode(root, f, 0);
   fprintf(f, "MOTION\n");
   fprintf(f, "Frames:\t%d\n", anim->getNumberOfFrames());
-  fprintf(f, "Frame Time:\t%f\n", root->frameTime);
+  fprintf(f, "Frame Time:\t%f\n", anim->frameTime());
   for (i=0; i<anim->getNumberOfFrames(); i++) {
     bvhWriteFrame(root, i, f);
     fprintf(f, "\n");
@@ -667,7 +671,7 @@ void BVH::avmWrite(Animation* anim,const QString& file)
   fprintf(f, "MOTION\n");
   fprintf(f, "Frames:\t%d\n", anim->getNumberOfFrames());
 //  qDebug("Frames:\t%d\n", anim->getNumberOfFrames());
-  fprintf(f, "Frame Time:\t%f\n", root->frameTime);
+  fprintf(f, "Frame Time:\t%f\n", anim->frameTime());
   for (int i=0; i<anim->getNumberOfFrames(); i++) {
     bvhWriteFrame(root, i, f);
     fprintf(f, "\n");
@@ -854,18 +858,13 @@ void BVH::bvhSetFrameData(BVHNode* node,int frame)
   bvhSetFrameDataHelper(node,frame);
 }
 
-void BVH::bvhDelete(BVHNode *node) {
-  if (node) {
-    for (int i=0;i<node->numChildren();i++)
+void BVH::bvhDelete(BVHNode* node)
+{
+  if(node)
+  {
+    for(int i=0;i<node->numChildren();i++)
       bvhDelete(node->child(i));
 
     delete node;
   }
-}
-
-void BVH::bvhSetFrameTime(BVHNode *node, double frameTime) {
-  node->frameTime = frameTime;
-
-  for (int i=0;i<node->numChildren();i++)
-      bvhSetFrameTime(node->child(i), frameTime);
 }

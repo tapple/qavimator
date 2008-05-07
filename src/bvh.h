@@ -38,32 +38,32 @@ class BVH
     BVH();
     ~BVH();
 
-    BVHNode *bvhRead(const QString& file);
+    BVHNode* bvhRead(const QString& file);
 
-    void assignChannels(BVHNode *node, FILE *f, int frame);
-    void setChannelLimits(BVHNode *node,BVHChannelType type,double min,double max) const;
+    void assignChannels(BVHNode* node, FILE* f, int frame);
+    void setChannelLimits(BVHNode* node,BVHChannelType type,double min,double max) const;
     void parseLimFile(BVHNode* root,const QString& limFile) const;
 
     void setNumFrames(int numFrames);
     int numFrames() const;
     void setAllKeyFrames(Animation* anim) const;
-    void bvhIndent(FILE *f, int depth);
-    void bvhWriteNode(BVHNode *node, FILE *f, int depth);
-    void bvhWriteFrame(BVHNode *node, int frame, FILE *f);
-    void bvhPrintNode(BVHNode *n, int depth);
+    void bvhIndent(FILE* f, int depth);
+    void bvhWriteNode(BVHNode* node, FILE* f, int depth);
+    void bvhWriteFrame(BVHNode* node, int frame, FILE* f);
+    void bvhPrintNode(BVHNode* n, int depth);
 
     void bvhWrite(Animation* root,const QString& file);
     BVHNode* bvhFindNode(BVHNode* root,const QString& name) const;
 
-    void bvhGetChannelLimits(BVHNode *node, BVHChannelType type, double *min, double *max);
-    void bvhResetIK(BVHNode *root);
+    void bvhGetChannelLimits(BVHNode* node, BVHChannelType type, double *min, double *max);
+    void bvhResetIK(BVHNode* root);
 
     const QString bvhGetName(BVHNode* node,int index);
     int bvhGetIndex(BVHNode* node,const QString& name);
-    void bvhCopyOffsets(BVHNode *dst,BVHNode *src);
+    void bvhCopyOffsets(BVHNode* dst,BVHNode* src);
 
     void bvhGetFrameData(BVHNode* node,int frame);
-    void bvhSetFrameData(BVHNode *node,int frame);
+    void bvhSetFrameData(BVHNode* node,int frame);
 
     // lex neva's stuff:
     BVHNode* animRead(const QString& file,const QString& limFile);
@@ -71,8 +71,7 @@ class BVH
 
     void avmWrite(Animation* root,const QString& file);
     void animWrite(Animation* root,const QString& file);
-    void bvhDelete(BVHNode *node);
-    void bvhSetFrameTime(BVHNode *node, double frameTime);
+    void bvhDelete(BVHNode* node);
 
     QStringList bvhTypeName;
     QStringList bvhChannelName;
@@ -80,6 +79,7 @@ class BVH
     int lastLoadedLoopIn;
     int lastLoadedLoopOut;
     float lastLoadedAvatarScale;
+    double lastLoadedFrameTime;
     Animation::FigureType lastLoadedFigureType;
     int nodeCount;
 
@@ -102,8 +102,8 @@ class BVH
     void avmReadKeyFrame(BVHNode* root);
     void avmReadKeyFrameProperties(BVHNode* root);
 
-    void avmWriteKeyFrame(BVHNode *root, FILE *f);
-    void avmWriteKeyFrameProperties(BVHNode *root, FILE *f);
+    void avmWriteKeyFrame(BVHNode* root, FILE* f);
+    void avmWriteKeyFrameProperties(BVHNode* root, FILE* f);
 
     // removes all unknown nodes from the animation
     void removeNoSLNodes(BVHNode* root);
@@ -116,7 +116,7 @@ class BVH
     int bvhGetIndexHelper(BVHNode* node,const QString& name);
 
     void bvhGetFrameDataHelper(BVHNode* node,int frame);
-    void bvhSetFrameDataHelper(BVHNode *node,int frame);
+    void bvhSetFrameDataHelper(BVHNode* node,int frame);
 
     int pasteIndex;
 };

@@ -49,6 +49,7 @@ qavimator::qavimator() : QMainWindow(0)
   setAttribute(Qt::WA_DeleteOnClose);
   frameDataValid=false;
   currentPart=QString::null;
+  longestRunningTime=0.0;
 
   readSettings();
 
@@ -529,7 +530,8 @@ void qavimator::updateInputs()
     setYPos(pos.y);
     setZPos(pos.z);
   }
-  else {
+  else
+  {
     emit enablePosition(false);
   }
 
@@ -538,6 +540,7 @@ void qavimator::updateInputs()
 
   framesSpin->setValue(anim->getNumberOfFrames());
   currentFrameSlider->setMaximum(anim->getNumberOfFrames()-1);
+  fpsSpin->setValue(anim->fps());
 
   // prevent feedback loop
   scaleSpin->blockSignals(true);
@@ -649,7 +652,7 @@ void qavimator::nextPlaystate()
         anim->setLoop(false);
       }
 
-      timer.start((int)(anim->frameTime()*1000));
+      timer.start((int)(1.0/anim->fps()*1000.0));
       break;
     }
     case PLAYSTATE_LOOPING:
@@ -676,7 +679,16 @@ void qavimator::nextPlaystate()
 void qavimator::setFPS(int fps)
 {
   qDebug("qavimator::setFPS(%d)",fps);
-  animationView->setFrameTime(1.0/(double) fps);
+
+  Animation* anim=animationView->getAnimation();
+  if(!anim) return;
+
+  // sanity check
+  if(fps<1) fps=1;
+  else if(fps>50) fps=50;
+
+  anim->setFPS(fps);
+  calculateLongestRunningTime();
 }
 
 void qavimator::frameSlider(int position)
@@ -715,6 +727,7 @@ void qavimator::numFramesChanged(int num)
   if(num<1) num=1;
   Animation* anim=animationView->getAnimation();
   anim->setNumberOfFrames(num);
+  calculateLongestRunningTime();
 
   // re-check loop boundaries (if loop set at all)
   if(anim->getLoopInPoint()!=-1)
@@ -758,6 +771,7 @@ void qavimator::fileNew()
 
   // add new animation to internal list
   animationIds.append(anim);
+  calculateLongestRunningTime();
   // add new animation to combo box
   addToOpenFiles(UNTITLED_NAME);
 
@@ -863,6 +877,7 @@ void qavimator::fileAdd(const QString& name)
     addToOpenFiles(file);
     Animation* anim=new Animation(animationView->getBVH(),file);
     animationIds.append(anim);
+    calculateLongestRunningTime();
 
     setCurrentFile(file);
 
@@ -906,6 +921,10 @@ void qavimator::fileAdd(const QString& name)
     updateInputs();
     updateFps();
     anim->setDirty(false);
+
+// makeshift tool for new independant playback testing
+// anim->setPlaystate(PLAYSTATE_LOOPING);
+
   }
 }
 
@@ -1307,14 +1326,14 @@ void qavimator::setSliderValue(QSlider* slider,QLineEdit* edit,float value)
 
 void qavimator::updateFps()
 {
-  double frameTime=animationView->getAnimation()->frameTime();
+  int fps=animationView->getAnimation()->fps();
 
   // guard against division by zero
-  if(frameTime!=0.0)
+  if(fps)
   {
     // don't send FPS change back to Animation object
     framesSpin->blockSignals(true);
-    fpsSpin->setValue((int)(1/frameTime));
+    fpsSpin->setValue(fps);
     // re-enable FPS signal
     framesSpin->blockSignals(false);
   }
@@ -1362,6 +1381,7 @@ bool qavimator::clearOpenFiles()
   selectAnimationCombo->clear();
   animationIds.clear();
   setCurrentFile(UNTITLED_NAME);
+  longestRunningTime=0.0;
 
   return true;
 }
@@ -1376,18 +1396,22 @@ void qavimator::setCurrentFile(const QString& fileName)
 // this slot gets called from Animation::setFrame(int)
 void qavimator::setCurrentFrame(int frame)
 {
-  currentFrameSlider->blockSignals(true);
-  currentFrameSlider->setValue(frame);
-  currentFrameLabel->setText(QString::number(frame+1));
-  currentFrameSlider->blockSignals(false);
-  timeline->setCurrentFrame(frame);
-  animationView->setFrame(frame);
-  updateInputs();
-  updateKeyBtn();
-  // check if we are at the first frame and if it's protected
-  if(frame==0 && protectFirstFrame) protect=true;
-  else protect=false;
-  emit protectFrame(protect);
+  if(sender()==animationIds.at(selectAnimationCombo->currentIndex()))
+  {
+    currentFrameSlider->blockSignals(true);
+    currentFrameSlider->setValue(frame);
+    currentFrameSlider->blockSignals(false);
+    currentFrameLabel->setText(QString::number(frame+1));
+
+    timeline->setCurrentFrame(frame);
+//  animationView->setFrame(frame);
+    updateInputs();
+    updateKeyBtn();
+    // check if we are at the first frame and if it's protected
+    if(frame==0 && protectFirstFrame) protect=true;
+    else protect=false;
+    emit protectFrame(protect);
+  }
 }
 
 // this slot gets called when someone clicks one of the "New Prop" buttons
@@ -1651,8 +1675,21 @@ void qavimator::closeEvent(QCloseEvent* event)
     event->ignore();
   else
     event->accept();
+}
 
-//  return QMainWindow::close();
+// calculates the longest running time of all animations
+double qavimator::calculateLongestRunningTime()
+{
+  qDebug("qavimator::calculateLongestRunningTime()");
+  longestRunningTime=0.0;
+  for(unsigned int index=0;index< (unsigned int) animationIds.count();index++)
+  {
+    Animation* anim=animationIds.at(index);
+    double time=anim->getNumberOfFrames()/((double) anim->fps());
+    if(time>longestRunningTime) longestRunningTime=time;
+  }
+  qDebug("qavimator::calculateLongestRunningTime(): longestRunningTime now: %f seconds",longestRunningTime);
+  return longestRunningTime;
 }
 
 // -------------------------------------------------------------------------

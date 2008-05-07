@@ -60,6 +60,7 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   setFigureType(bvh->lastLoadedFigureType);
   setLoopInPoint(bvh->lastLoadedLoopIn);
   setLoopOutPoint(bvh->lastLoadedLoopOut);
+  setFrameTime(bvh->lastLoadedFrameTime);
 
   ikTree.set(frames);
   setIK(IK_LHAND, false);
@@ -69,6 +70,11 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
 
   setLoop(false);
   setDirty(false);
+
+  currentPlayTime=0.0;
+  setPlaystate(PLAYSTATE_STOPPED);
+
+  connect(&timer,SIGNAL(timeout()),this,SLOT(playbackTimeout()));
 }
 
 Animation::~Animation()
@@ -98,19 +104,33 @@ void Animation::saveBVH(const QString& bvhFile)
   setDirty(false);
 }
 
-double Animation::frameTime()
+int Animation::fps() const
 {
   if(frames)
-    return frames->frameTime;
+    return framesPerSecond;
   else
     return 0;
 }
 
-void Animation::setFrameTime(double frameTime)
+void Animation::setFPS(int fps)
 {
   if(frames)
-    bvh->bvhSetFrameTime(frames,frameTime);
-  setDirty(true);
+  {
+    framesPerSecond=fps;
+    setDirty(true);
+  }
+}
+
+// convenience
+void Animation::setFrameTime(double frameTime)
+{
+  framesPerSecond=(int) (1.0/frameTime+0.5);
+}
+
+// convenience
+double Animation::frameTime() const
+{
+  return 1.0/framesPerSecond;
 }
 
 int Animation::getNumberOfFrames()
@@ -964,4 +984,41 @@ void Animation::setFigureType(FigureType type)
   // safety check if figure is valid
   if(type>=0 && type<NUM_FIGURES)
     figureType=type;
+}
+
+void Animation::nextPlaystate()
+{
+}
+
+void Animation::setPlaystate(PlayState state)
+{
+  switch(state)
+  {
+    case PLAYSTATE_LOOPING:
+    case PLAYSTATE_PLAYING:
+      timer.start(PLAYBACK_RESOLUTION);
+      break;
+    case PLAYSTATE_STOPPED:
+      timer.stop();
+      break;
+    default:
+      break;
+  }
+
+  playstate=state;
+}
+
+// slot
+void Animation::playbackTimeout()
+{
+//  qDebug("Animation::playbackTimeout()");
+
+  currentPlayTime+=PLAYBACK_RESOLUTION/1000.0;
+
+  while(currentPlayTime>=frameTime())
+  {
+//    qDebug("Animation::playbackTimeout(%lx): !!! currentPlayTime=%f frameTime=%f",this,currentPlayTime,frameTime);
+    currentPlayTime-=frameTime();
+    stepForward();
+  }
 }

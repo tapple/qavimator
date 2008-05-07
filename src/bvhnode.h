@@ -122,8 +122,6 @@ class BVHNode
     double ikGoalDir[3];
     double ikWeight;
 
-    double frameTime;
-
   protected:
     void setName(const QString& newName);
     double interpolate(double from,double to,int steps,int pos,bool easeOut,bool easeIn) const;

@@ -1,4 +1,4 @@
-DEFINES += QT_NO_DEBUG_OUTPUT
+# DEFINES += QT_NO_DEBUG_OUTPUT
 
 SOURCES += animation.cpp \
            animationview.cpp \

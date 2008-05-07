@@ -22,12 +22,19 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
+#include <QTimer>
+
 #include "iktree.h"
+#include "playstate.h"
 #include "rotation.h"
 
 #define DEFAULT_POSE "data/TPose.avm"
 // #define DEFAULT_POSE "data/Relaxed.bvh"
 #define LIMITS_FILE "data/SL.lim"
+
+// playback resolution in milliseconds
+// this is the speed of the internal sync timer, not of the animation itself
+#define PLAYBACK_RESOLUTION     20.0
 
 class BVH;
 
@@ -57,7 +64,6 @@ class Animation : public QObject
 
     void loadBVH(const QString& bvhFile);
     void saveBVH(const QString& bvhFile);
-    double frameTime();
     int getNumberOfFrames();
     void setNumberOfFrames(int num);
     int getFrame();
@@ -75,6 +81,14 @@ class Animation : public QObject
     bool getMirrored();
     unsigned int getPartMirror(int index);
     const QString getPartMirror(const QString& name) const;
+
+    // get and set frames per second
+    void setFPS(int fps);
+    int fps() const;
+
+    // convenience functions
+    void setFrameTime(double frameTime);
+    double frameTime() const;
 
     float getAvatarScale();
     void setAvatarScale(float newScale);
@@ -94,6 +108,9 @@ class Animation : public QObject
     void setDirty(bool state);
     void setLoop(bool loop);
 
+    void nextPlaystate();
+    void setPlaystate(PlayState state);
+
     const FrameData keyframeDataByIndex(int jointNumber,int index);
 
     void setRotation(const QString& jointName,double x,double y,double z);
@@ -112,7 +129,6 @@ class Animation : public QObject
     void delKeyFrame(BVHNode* joint,bool silent=false); // silent = only send signal to timeline
     bool toggleKeyFrameAllJoints();
     bool toggleKeyFrame(const QString& jointName);
-    void setFrameTime(double frameTime);
 
     void setEaseIn(const QString& jointName,bool state);
     void setEaseOut(const QString& jointName,bool state);
@@ -133,6 +149,9 @@ class Animation : public QObject
     void delKeyFrame(int jointNumber,int frame);
     void insertFrame(int jointNumber,int frame);
     void deleteFrame(int jointNumber,int frame);
+
+    // advances curentPlayTime and sends appropriate currentFrame signals
+    void playbackTimeout();
 
   signals:
     void numberOfFrames(int num);
@@ -155,6 +174,11 @@ class Animation : public QObject
 
     int frame;
     int totalFrames;
+    int framesPerSecond;
+
+    // for playback
+    double currentPlayTime;
+    int playstate;
 
     bool loop;            // should we loop when using stepForward()?
     int loopInPoint;
@@ -180,6 +204,7 @@ class Animation : public QObject
     void solveIK();
 
     QString dataPath;
+    QTimer timer;
 };
 
 #endif

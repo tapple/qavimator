@@ -226,11 +226,11 @@ void AnimationView::stepForward()
   } // for
 }
 
-void AnimationView::setFrameTime(double time)
+void AnimationView::setFPS(int fps)
 {
   for(unsigned int i=0;i< (unsigned int) animList.count();i++)
   {
-    animList.at(i)->setFrameTime(time);
+    animList.at(i)->setFPS(fps);
   } // for
 }
 

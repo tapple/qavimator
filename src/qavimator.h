@@ -234,6 +234,10 @@ class qavimator : public QMainWindow, Ui::MainWindow
     void updateInputs();
     void updatePropSpins(const Prop* prop);
 
+    // calculates the longest running time of all loaded animations, returns it
+    // and stores it in longestRunningTime member variable
+    double calculateLongestRunningTime();
+
     void setX(float x);
     void setY(float y);
     void setZ(float z);
@@ -276,6 +280,9 @@ class qavimator : public QMainWindow, Ui::MainWindow
     bool protectFirstFrame;
     // will be true if a frame is protected
     bool protect;
+
+    // holds the longest running time of all currently opened animations
+    double longestRunningTime;
 };
 
 #endif
