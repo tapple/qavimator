@@ -30,7 +30,7 @@
       <item row="1" column="0" colspan="3" >
        <widget class="TimelineView" native="1" name="timelineView" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+         <sizepolicy vsizetype="Minimum" hsizetype="Expanding" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>

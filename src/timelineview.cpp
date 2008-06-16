@@ -98,7 +98,9 @@ TimelineTracks::~TimelineTracks()
 
 QSize TimelineTracks::sizeHint() const
 {
-  return QSize(LEFT_STRUT,(NUM_PARTS-2)*LINE_HEIGHT+2);
+//####
+// return QSize(LEFT_STRUT,(NUM_PARTS-2)*LINE_HEIGHT+2);
+  return QSize(LEFT_STRUT,(NUM_PARTS-1)*LINE_HEIGHT+2);
 }
 
 void TimelineTracks::paintEvent(QPaintEvent*)
@@ -119,7 +121,9 @@ void TimelineTracks::drawTrack(int track)
     QPainter p(this);
     QPalette::ColorRole textColor=QPalette::Foreground;
 
-    int y=(track-1)*LINE_HEIGHT+2;
+//####
+//    int y=(track-1)*LINE_HEIGHT+2;
+    int y=track*LINE_HEIGHT+2;
 
     if(track==selectedTrack)
     {

@@ -345,7 +345,7 @@ BVHNode* BVH::bvhRead(const QString& file)
 
   setAllKeyFramesHelper(root,totalFrames);
 
-  return(root);
+  return root;
 }
 
 void BVH::avmReadKeyFrame(BVHNode* root)
@@ -492,7 +492,7 @@ BVHNode* BVH::avmRead(const QString& file)
     }
   } // while
 
-  return(root);
+  return root;
 }
 
 BVHNode* BVH::animRead(const QString& file,const QString& limFile)
@@ -768,8 +768,8 @@ const QString BVH::bvhGetNameHelper(BVHNode* node,int index)
 
 const QString BVH::bvhGetName(BVHNode* node,int index)
 {
-  nodeCount = 0;
-  return bvhGetNameHelper(node, index);
+  nodeCount=0;
+  return bvhGetNameHelper(node,index);
 }
 
 int BVH::bvhGetIndexHelper(BVHNode* node,const QString& name)

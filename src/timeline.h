@@ -24,6 +24,7 @@
 #include <QFrame>
 
 #include "keyframelist.h"
+#include "track.h"
 
 #define KEY_WIDTH   10
 #define KEY_HEIGHT  10
@@ -48,6 +49,7 @@ class Timeline : public QFrame
     ~Timeline();
 
     void setAnimation(Animation* anim);
+    void addTrack(BVHNode* node);
     void selectTrack(int track);
 
   signals:
@@ -76,10 +78,11 @@ class Timeline : public QFrame
     virtual void keyReleaseEvent(QKeyEvent* event);
 
     void drawKeyframe(int track,int frame);
-    void drawTrack(int track);
+    void drawTrack(Track& track);
     bool isDirty(int frame);      // returns true if frame is inside "dirty" redraw region
 
     Animation* animation;
+    QList<Track> tracks;
 
     int numOfFrames;
     int currentFrame;

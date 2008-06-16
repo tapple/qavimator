@@ -661,7 +661,7 @@ bool Animation::isKeyFrameHelper(BVHNode *joint)
   if(joint->isKeyframe(frame))
     return true;
 
-  for (int i=0;i<joint->numChildren();i++)
+  for(int i=0;i<joint->numChildren();i++)
   {
     if(isKeyFrameHelper(joint->child(i)))
     {

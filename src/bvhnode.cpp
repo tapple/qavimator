@@ -271,7 +271,7 @@ const FrameData BVHNode::getKeyframeBefore(int frame) const
   if(frame==0)
   {
     // should never happen
-    qDebug("BVHNode::getKeyframeBefore(int frame): frame==0!");
+    qDebug("BVHNode::getKeyframeBefore(int frame): frame==0, node %s!",name().toLatin1().constData());
     return keyframes[0];
   }
   return frameData(getKeyframeNumberBefore(frame));
