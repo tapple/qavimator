@@ -6,14 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>645</width>
-    <height>772</height>
+    <width>664</width>
+    <height>818</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>64</y>
+     <width>664</width>
+     <height>754</height>
+    </rect>
+   </property>
    <layout class="QGridLayout" >
     <item rowspan="2" row="0" column="0" >
      <layout class="QGridLayout" >
@@ -30,7 +38,7 @@
       <item row="1" column="0" colspan="3" >
        <widget class="TimelineView" native="1" name="timelineView" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Minimum" hsizetype="Expanding" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -56,7 +64,8 @@
          <string/>
         </property>
         <property name="icon" >
-         <iconset resource="icons.qrc" >:/icons/icons/loop.png</iconset>
+         <iconset resource="icons.qrc" >
+          <normaloff>:/icons/icons/loop.png</normaloff>:/icons/icons/loop.png</iconset>
         </property>
        </widget>
       </item>
@@ -66,7 +75,8 @@
          <string/>
         </property>
         <property name="icon" >
-         <iconset resource="icons.qrc" >:/icons/icons/key.png</iconset>
+         <iconset resource="icons.qrc" >
+          <normaloff>:/icons/icons/key.png</normaloff>:/icons/icons/key.png</iconset>
         </property>
         <property name="checkable" >
          <bool>true</bool>
@@ -87,6 +97,14 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="avatarTab" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>272</width>
+         <height>602</height>
+        </rect>
+       </property>
        <attribute name="title" >
         <string>Avatar</string>
        </attribute>
@@ -203,6 +221,11 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <item>
+           <property name="text" >
+            <string>position</string>
+           </property>
+          </item>
           <item>
            <property name="text" >
             <string>hip</string>
@@ -344,7 +367,7 @@
               </size>
              </property>
              <property name="styleSheet" >
-              <string>color: #ab0000;
+              <string notr="true" >color: #ab0000;
 </string>
              </property>
              <property name="text" >
@@ -406,7 +429,7 @@
               </size>
              </property>
              <property name="styleSheet" >
-              <string>color: #20af00;
+              <string notr="true" >color: #20af00;
 </string>
              </property>
              <property name="text" >
@@ -468,7 +491,7 @@
               </size>
              </property>
              <property name="styleSheet" >
-              <string>color: #0000e2;
+              <string notr="true" >color: #0000e2;
 </string>
              </property>
              <property name="text" >
@@ -670,7 +693,7 @@
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>20</width>
             <height>31</height>
@@ -681,6 +704,14 @@
        </layout>
       </widget>
       <widget class="QWidget" name="propsTab" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>272</width>
+         <height>602</height>
+        </rect>
+       </property>
        <attribute name="title" >
         <string>Props</string>
        </attribute>
@@ -693,7 +724,8 @@
              <string/>
             </property>
             <property name="icon" >
-             <iconset resource="icons.qrc" >:/icons/icons/box.png</iconset>
+             <iconset resource="icons.qrc" >
+              <normaloff>:/icons/icons/box.png</normaloff>:/icons/icons/box.png</iconset>
             </property>
            </widget>
           </item>
@@ -703,7 +735,8 @@
              <string/>
             </property>
             <property name="icon" >
-             <iconset resource="icons.qrc" >:/icons/icons/sphere.png</iconset>
+             <iconset resource="icons.qrc" >
+              <normaloff>:/icons/icons/sphere.png</normaloff>:/icons/icons/sphere.png</iconset>
             </property>
            </widget>
           </item>
@@ -713,7 +746,8 @@
              <string/>
             </property>
             <property name="icon" >
-             <iconset resource="icons.qrc" >:/icons/icons/cone.png</iconset>
+             <iconset resource="icons.qrc" >
+              <normaloff>:/icons/icons/cone.png</normaloff>:/icons/icons/cone.png</iconset>
             </property>
            </widget>
           </item>
@@ -723,7 +757,8 @@
              <string/>
             </property>
             <property name="icon" >
-             <iconset resource="icons.qrc" >:/icons/icons/torus.png</iconset>
+             <iconset resource="icons.qrc" >
+              <normaloff>:/icons/icons/torus.png</normaloff>:/icons/icons/torus.png</iconset>
             </property>
            </widget>
           </item>
@@ -764,7 +799,8 @@
            <string/>
           </property>
           <property name="icon" >
-           <iconset resource="icons.qrc" >:/icons/icons/delete.png</iconset>
+           <iconset resource="icons.qrc" >
+            <normaloff>:/icons/icons/delete.png</normaloff>:/icons/icons/delete.png</iconset>
           </property>
          </widget>
         </item>
@@ -1198,7 +1234,7 @@
           <property name="orientation" >
            <enum>Qt::Vertical</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>20</width>
             <height>40</height>
@@ -1220,7 +1256,7 @@
         <property name="sizeType" >
          <enum>QSizePolicy::Preferred</enum>
         </property>
-        <property name="sizeHint" >
+        <property name="sizeHint" stdset="0" >
          <size>
           <width>0</width>
           <height>20</height>
@@ -1278,7 +1314,7 @@
         <property name="sizeType" >
          <enum>QSizePolicy::Preferred</enum>
         </property>
-        <property name="sizeHint" >
+        <property name="sizeHint" stdset="0" >
          <size>
           <width>0</width>
           <height>20</height>
@@ -1338,7 +1374,7 @@
           <property name="sizeType" >
            <enum>QSizePolicy::Preferred</enum>
           </property>
-          <property name="sizeHint" >
+          <property name="sizeHint" stdset="0" >
            <size>
             <width>0</width>
             <height>20</height>
@@ -1447,8 +1483,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>645</width>
-     <height>27</height>
+     <width>664</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile" >
@@ -1507,6 +1543,14 @@
    <addaction name="menuHelp" />
   </widget>
   <widget class="QToolBar" name="toolBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>26</y>
+     <width>664</width>
+     <height>38</height>
+    </rect>
+   </property>
    <property name="windowTitle" >
     <string>toolBar</string>
    </property>
@@ -1537,23 +1581,32 @@
   </widget>
   <action name="fileNewAction" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/filenew.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/filenew.png</normaloff>:/icons/icons/filenew.png</iconset>
    </property>
    <property name="text" >
     <string>New</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="fileOpenAction" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/fileopen.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/fileopen.png</normaloff>:/icons/icons/fileopen.png</iconset>
    </property>
    <property name="text" >
     <string>Open ...</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="fileAddAction" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/fileadd.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/fileadd.png</normaloff>:/icons/icons/fileadd.png</iconset>
    </property>
    <property name="text" >
     <string>Add...</string>
@@ -1561,18 +1614,26 @@
   </action>
   <action name="fileSaveAction" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/filesave.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/filesave.png</normaloff>:/icons/icons/filesave.png</iconset>
    </property>
    <property name="text" >
     <string>Save</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="fileSaveAsAction" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/filesaveas.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/filesaveas.png</normaloff>:/icons/icons/filesaveas.png</iconset>
    </property>
    <property name="text" >
     <string>Save As...</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+A</string>
    </property>
   </action>
   <action name="fileLoadPropsAction" >
@@ -1589,16 +1650,23 @@
    <property name="text" >
     <string>Exit</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+Q</string>
+   </property>
   </action>
   <action name="editUndoAction" >
    <property name="enabled" >
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/undo.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/undo.png</normaloff>:/icons/icons/undo.png</iconset>
    </property>
    <property name="text" >
     <string>Undo</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+Z</string>
    </property>
   </action>
   <action name="editRedoAction" >
@@ -1606,34 +1674,50 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/redo.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/redo.png</normaloff>:/icons/icons/redo.png</iconset>
    </property>
    <property name="text" >
     <string>Redo</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+Shift+Z</string>
+   </property>
   </action>
   <action name="editCutAction" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/editcut.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/editcut.png</normaloff>:/icons/icons/editcut.png</iconset>
    </property>
    <property name="text" >
     <string>Cut</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+X</string>
+   </property>
   </action>
   <action name="editCopyAction" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/editcopy.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/editcopy.png</normaloff>:/icons/icons/editcopy.png</iconset>
    </property>
    <property name="text" >
     <string>Copy</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+C</string>
+   </property>
   </action>
   <action name="editPasteAction" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/editpaste.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/editpaste.png</normaloff>:/icons/icons/editpaste.png</iconset>
    </property>
    <property name="text" >
     <string>Paste</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+V</string>
    </property>
   </action>
   <action name="editOptimizeBVHAction" >
@@ -1693,6 +1777,9 @@
    <property name="text" >
     <string>Contents...</string>
    </property>
+   <property name="shortcut" >
+    <string>Ctrl+Shift+?, Backspace, Backspace, Del</string>
+   </property>
   </action>
   <action name="helpIndexAction" >
    <property name="enabled" >
@@ -1709,10 +1796,14 @@
   </action>
   <action name="resetCameraAction" >
    <property name="icon" >
-    <iconset resource="icons.qrc" >:/icons/icons/resetcamera.png</iconset>
+    <iconset resource="icons.qrc" >
+     <normaloff>:/icons/icons/resetcamera.png</normaloff>:/icons/icons/resetcamera.png</iconset>
    </property>
    <property name="text" >
     <string>Reset Camera</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+0</string>
    </property>
   </action>
   <action name="fileExportForSecondLifeAction" >

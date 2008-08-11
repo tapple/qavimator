@@ -73,10 +73,10 @@ class Animation : public QObject
     int getLoopInPoint();
     void setLoopOutPoint(int outFrame);
     int getLoopOutPoint();
-    void setIK(const QString& jointName, bool flag);
-    bool getIK(const QString& jointName);
+    void setIK(BVHNode* node, bool flag);
+    bool getIK(BVHNode* node);
     const QString getPartName(int index) const;
-    int getPartIndex(const QString& part);
+    int getPartIndex(BVHNode* node);
     void setMirrored(bool mirror);
     bool getMirrored();
     unsigned int getPartMirror(int index);
@@ -113,40 +113,40 @@ class Animation : public QObject
 
     const FrameData keyframeDataByIndex(int jointNumber,int index);
 
-    void setRotation(const QString& jointName,double x,double y,double z);
-    Rotation getRotation(const QString& jointName);
+    void setRotation(BVHNode* node,double x,double y,double z);
+    Rotation getRotation(BVHNode* node);
     void useRotationLimits(bool flag);
-    RotationLimits getRotationLimits(const QString& jointName);
-    void setPosition(const QString& jointName,double x,double y,double z);
-    Position getPosition(const QString& jointName);
+    RotationLimits getRotationLimits(BVHNode* node);
+    void setPosition(double x,double y,double z);
+    Position getPosition();
     int getRotationOrder(const QString& jointName);
     void addKeyFrameAllJoints();
     void addKeyFrame(BVHNode* joint);
     bool isKeyFrame();
     bool isKeyFrame(const QString& jointName);
     bool isKeyFrame(int jointNumber,int frame);
-    void delKeyFrameAllJoints();
-    void delKeyFrame(BVHNode* joint,bool silent=false); // silent = only send signal to timeline
+    void deleteKeyFrameAllJoints();
+    void deleteKeyFrame(BVHNode* joint,int frame,bool silent=false); // silent = only send signal to timeline
     bool toggleKeyFrameAllJoints();
-    bool toggleKeyFrame(const QString& jointName);
+    bool toggleKeyFrame(BVHNode* node);
 
-    void setEaseIn(const QString& jointName,bool state);
-    void setEaseOut(const QString& jointName,bool state);
-    bool easeIn(const QString& jointName);
-    bool easeOut(const QString& jointName);
+    void setEaseIn(BVHNode* node,int frameNum,bool state);
+    void setEaseOut(BVHNode* node,int frameNum,bool state);
+    bool easeIn(BVHNode* node,int frameNum);
+    bool easeOut(BVHNode* node,int frameNum);
 
-    const int numKeyFrames(int jointNumber);
+    int numKeyFrames(int jointNumber);
     void copyKeyFrame(int jointNumber,int from,int to);
     void moveKeyFrame(int jointNumber,int from,int to,bool copy=false);
 
-    bool compareFrames(const QString& jointName,int key1,int key2);
+    bool compareFrames(const BVHNode* joint,int key1,int key2) const;
 
     void optimize();
 
     enum { MAX_PARTS=64 };
 
   public slots:
-    void delKeyFrame(int jointNumber,int frame);
+    void deleteKeyFrame(int jointNumber,int frame);
     void insertFrame(int jointNumber,int frame);
     void deleteFrame(int jointNumber,int frame);
 
@@ -163,6 +163,7 @@ class Animation : public QObject
   protected:
     BVH* bvh;
     BVHNode* frames;
+    BVHNode* positionNode;
 
     FigureType figureType;
 
@@ -192,7 +193,7 @@ class Animation : public QObject
 
     void recursiveAddKeyFrame(BVHNode* joint);
     bool isKeyFrameHelper(BVHNode* joint);
-    void recursiveDelKeyFrame(BVHNode* joint);
+    void recursiveDeleteKeyFrame(BVHNode* joint);
     void insertFrameHelper(BVHNode* joint,int frame);
     void deleteFrameHelper(BVHNode* joint,int frame);
     void optimizeHelper(BVHNode* joint);

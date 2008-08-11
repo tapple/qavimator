@@ -60,8 +60,8 @@ class qavimator : public QMainWindow, Ui::MainWindow
     void readSettings();
     void configChanged();
 
-    void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimits,Position pos);
-    void partDragged(const QString& partName,double changeX,double changeY,double changeZ);
+    void partClicked(BVHNode* node,Rotation rot,RotationLimits rotLimits,Position pos);
+    void partDragged(BVHNode* node,double changeX,double changeY,double changeZ);
     void propClicked(Prop* prop);
     void propDragged(Prop* prop,double x,double y,double z);
     void propScaled(Prop* prop,double x,double y,double z);
@@ -262,7 +262,10 @@ class qavimator : public QMainWindow, Ui::MainWindow
     // list of animation ids mapped to combo box indexes
     QList<Animation*> animationIds;
 
-    QString currentPart;
+    // mapping of combo box indexes to node ids
+    QList<int> nodeMapping;
+
+    BVHNode* currentPart;
 
     Timeline* timeline;
     // icons for play button

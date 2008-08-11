@@ -39,6 +39,13 @@
 
 qavimator::qavimator() : QMainWindow(0)
 {
+  nodeMapping <<  0
+              <<  1 <<  2 <<  3 <<  4 << 5
+              <<  7 <<  8 <<  9 << 10
+              << 12 << 13 << 14 << 15
+              << 17 << 18 << 19
+              << 21 << 22 << 23;
+
   QCoreApplication::setOrganizationName("DeZiRee");
   QCoreApplication::setOrganizationDomain("qavimator.org");
   QCoreApplication::setApplicationName("QAvinmator");
@@ -48,24 +55,22 @@ qavimator::qavimator() : QMainWindow(0)
   setWindowTitle("qavimator");
   setAttribute(Qt::WA_DeleteOnClose);
   frameDataValid=false;
-  currentPart=QString::null;
+  currentPart=0;
   longestRunningTime=0.0;
 
   readSettings();
 
-  connect(animationView,SIGNAL(partClicked(const QString&,
+  connect(animationView,SIGNAL(partClicked(BVHNode*,
                                            Rotation,
                                            RotationLimits,
                                            Position)),
-                     this,SLOT(partClicked(const QString&,
+                     this,SLOT(partClicked(BVHNode*,
                                            Rotation,
                                            RotationLimits,
                                            Position)));
 
-  connect(animationView,SIGNAL(partDragged(const QString&,
-                                           double,double,double)),
-                     this,SLOT(partDragged(const QString&,
-                                           double,double,double)));
+  connect(animationView,SIGNAL(partDragged(BVHNode*,double,double,double)),
+                     this,SLOT(partDragged(BVHNode*,double,double,double)));
 
   connect(animationView,SIGNAL(propClicked(Prop*)),this,SLOT(propClicked(Prop*)));
 
@@ -130,6 +135,8 @@ qavimator::qavimator() : QMainWindow(0)
 
   // playback stopped by default
   setPlaystate(PLAYSTATE_STOPPED);
+
+  updateInputs();
 }
 
 qavimator::~qavimator()
@@ -213,37 +220,49 @@ void qavimator::readSettings()
 }
 
 // slot gets called by AnimationView::mousePressEvent()
-void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits limits,Position pos)
+void qavimator::partClicked(BVHNode* node,Rotation rot,RotationLimits limits,Position pos)
 {
   avatarPropsTab->setCurrentIndex(0);
   emit enableProps(false);
-  if(!partName.isEmpty())
+
+  if(!node)
   {
-    currentPart=partName;
+    qDebug("qavimator::partClicked(node,...): node==0!");
+    return;
+  }
+
+  if(node)
+  {
+    qDebug("qavimator::partClicked(node): %s",node->name().toLatin1().constData());
+    currentPart=node;
 
     for(int index=0;index<editPartCombo->count();index++)
-      if(editPartCombo->itemText(index)==partName) editPartCombo->setCurrentIndex(index);
+      if(editPartCombo->itemText(index)==currentPart->name()) editPartCombo->setCurrentIndex(index);
 
     setX(rot.x);
     setY(rot.y);
     setZ(rot.z);
 
-    if(partName=="hip")
+//    emit enablePosition(!protect);
+    if(node->type==BVH_POS)
+      emit enableRotation(false);
+    else
+      emit enableRotation(!protect);
+
+    setXPos(pos.x);
+    setYPos(pos.y);
+    setZPos(pos.z);
+
+    // hip gets a full 360 degree limit, all others according to SL.lim
+    // maybe this shouldn't be like this to allow for multi rotation spins
+    if(currentPart->type==BVH_ROOT)
     {
-      emit enablePosition(!protect);
-
-      setXPos(pos.x);
-      setYPos(pos.y);
-      setZPos(pos.z);
-
       xRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
       yRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
       zRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
     }
     else
     {
-      emit enablePosition(false);
-
       xRotationSlider->setRange((int)(limits.xMin*PRECISION),(int)(limits.xMax*PRECISION));
       yRotationSlider->setRange((int)(limits.yMin*PRECISION),(int)(limits.yMax*PRECISION));
       zRotationSlider->setRange((int)(limits.zMin*PRECISION),(int)(limits.zMax*PRECISION));
@@ -255,19 +274,19 @@ void qavimator::partClicked(const QString& partName,Rotation rot,RotationLimits 
 }
 
 // slot gets called by AnimationView::mouseMoveEvent()
-void qavimator::partDragged(const QString& partName,double x,double y,double z)
+void qavimator::partDragged(BVHNode* node,double x,double y,double z)
 {
-  if(!partName.isEmpty())
+  if(node)
   {
     // check if this frame is protected
     if(!protect)
     {
       // get animation object
-      Animation *anim=animationView->getAnimation();
+      Animation* anim=animationView->getAnimation();
       // get rotation values for selected part
-      Rotation rot=anim->getRotation(partName);
+      Rotation rot=anim->getRotation(node);
       // get rotation limits for part
-      RotationLimits rotLimits=anim->getRotationLimits(partName);
+      RotationLimits rotLimits=anim->getRotationLimits(node);
 
       // calculate new rotation (x, y, z are the modifiers)
       double newX=rot.x+x;
@@ -292,13 +311,13 @@ void qavimator::partDragged(const QString& partName,double x,double y,double z)
       setY(newY);
       setZ(newZ);
 
-      animationView->getAnimation()->setRotation(partName,newX,newY,newZ);
+      animationView->getAnimation()->setRotation(node,newX,newY,newZ);
       animationView->repaint();
 
       updateKeyBtn();
     }
   }
-  else qDebug("qavimator::partDragged(): partName==\"\"!");
+  else qDebug("qavimator::partDragged(): node==0!");
 }
 
 // slot gets called by AnimationView::propClicked()
@@ -344,25 +363,27 @@ void qavimator::propRotated(Prop* prop,double x,double y,double z)
 // slot gets called by AnimationView::mouseButtonClicked()
 void qavimator::backgroundClicked()
 {
-  currentPart=QString::null;
+  currentPart=0;
 
   emit enableRotation(false);
-  emit enablePosition(false);
   emit enableProps(false);
   emit enableEaseInOut(false);
+  editPartCombo->setCurrentIndex(0);
   updateKeyBtn();
 }
 
 // slot gets called by body part dropdown list
 void qavimator::partChoice()
 {
+  // get node number from entry list in combo box
+  int nodeNumber=nodeMapping[editPartCombo->currentIndex()];
   // selectPart will fire partClicked signal, so we don't bother
-  // about updating controls or currentPart string ourselves here
-  animationView->selectPart(editPartCombo->currentText());
+  // about updating controls or currentPart pointer ourselves here
+  animationView->selectPart(nodeNumber);
+  timelineView->selectTrack(nodeNumber);
+
   animationView->setFocus();
   emit enableProps(false);
-  // only enable rotation, position (for the hip) will be enabled elsewhere
-  emit enableRotation(true);
 }
 
 // gets called whenever a body part rotation slider is moved
@@ -377,7 +398,7 @@ void qavimator::rotationSlider()
   setZ(z);
 
   Animation* anim=animationView->getAnimation();
-  if(!animationView->getSelectedPart().isEmpty())
+  if(animationView->getSelectedPart())
   {
     anim->setRotation(animationView->getSelectedPart(),x,y,z);
     animationView->repaint();
@@ -414,7 +435,7 @@ void qavimator::rotationValue()
   setZ(z);
 
   Animation* anim=animationView->getAnimation();
-  if(!animationView->getSelectedPart().isEmpty())
+  if(animationView->getSelectedPart())
   {
     anim->setRotation(animationView->getSelectedPart(), x, y, z);
     animationView->repaint();
@@ -433,17 +454,16 @@ void qavimator::positionSlider()
   setYPos(y);
   setZPos(z);
 
-  if(!currentPart.isEmpty())
-  {
-    animationView->getAnimation()->setPosition(currentPart,x,y,z);
-    animationView->repaint();
-  }
+  animationView->getAnimation()->setPosition(x,y,z);
+  animationView->repaint();
 
   updateKeyBtn();
 }
 
 void qavimator::positionValue()
 {
+  qDebug("qavimator::positionValue()");
+
   double x=xPositionEdit->text().toDouble();
   double y=yPositionEdit->text().toDouble();
   double z=zPositionEdit->text().toDouble();
@@ -468,11 +488,8 @@ void qavimator::positionValue()
   setYPos(y);
   setZPos(z);
 
-  if(!currentPart.isEmpty())
-  {
-    animationView->getAnimation()->setPosition(currentPart,x,y,z);
-    animationView->repaint();
-  }
+  animationView->getAnimation()->setPosition(x,y,z);
+  animationView->repaint();
 
   updateKeyBtn();
 }
@@ -484,7 +501,7 @@ void qavimator::updateInputs()
 
   Animation* anim=animationView->getAnimation();
 
-  if(anim && !currentPart.isEmpty())
+  if(anim && currentPart)
   {
     Rotation rot=anim->getRotation(currentPart);
 
@@ -501,7 +518,7 @@ void qavimator::updateInputs()
     double yMax=rotLimits.yMax;
     double zMax=rotLimits.zMax;
 
-    if(currentPart=="hip")
+    if(currentPart->type==BVH_ROOT)
     {
       xRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
       yRotationSlider->setRange(-359*PRECISION, 359*PRECISION);
@@ -521,19 +538,12 @@ void qavimator::updateInputs()
   else
     emit enableRotation(false);
 
-  if(currentPart=="hip")
-  {
-    emit enablePosition(!protect);
-    Position pos=anim->getPosition("hip");
+  emit enablePosition(!protect);
+  Position pos=anim->getPosition();
 
-    setXPos(pos.x);
-    setYPos(pos.y);
-    setZPos(pos.z);
-  }
-  else
-  {
-    emit enablePosition(false);
-  }
+  setXPos(pos.x);
+  setYPos(pos.y);
+  setZPos(pos.z);
 
 // we do that in nextPlaystate() now
 //  playButton->setIcon(playing ? stopIcon : playIcon);
@@ -571,21 +581,24 @@ void qavimator::updateInputs()
 void qavimator::updateKeyBtn()
 {
   Animation* anim=animationView->getAnimation();
+  qDebug("qavimator::updateKeyBtn(): anim=%lx",(unsigned long) anim);
 
   // make sure we don't send a toggle signal on display update
   keyframeButton->blockSignals(true);
 
-  bool hasKeyframe=anim->isKeyFrame(animationView->getSelectedPart());
+  int frame=anim->getFrame();
+  int partIndex=animationView->getSelectedPartIndex();
+  bool hasKeyframe=anim->isKeyFrame(partIndex,frame);
   keyframeButton->setDown(hasKeyframe);
 
   // re-enable toggle signal
   keyframeButton->blockSignals(false);
 
-  if(hasKeyframe && !currentPart.isEmpty())
+  if(hasKeyframe && currentPart)
   {
     emit enableEaseInOut(true);
-    easeInCheck->setChecked(anim->easeIn(currentPart));
-    easeOutCheck->setChecked(anim->easeOut(currentPart));
+    easeInCheck->setChecked(anim->easeIn(currentPart,anim->getFrame()));
+    easeOutCheck->setChecked(anim->easeOut(currentPart,anim->getFrame()));
   }
   else
     emit enableEaseInOut(false);
@@ -595,12 +608,13 @@ void qavimator::updateKeyBtn()
 
 void qavimator::enableInputs(bool state)
 {
+  // protection overrides state for keyframe button
   if(protect) state=false;
-
-  emit enableRotation(state);
-  if(currentPart=="hip") emit enablePosition(state);
-
   keyframeButton->setEnabled(state);
+
+  // do not enable rotation if we have no part selected
+  if(!currentPart) state=false;
+  emit enableRotation(state);
 }
 
 void qavimator::frameTimeout()
@@ -697,9 +711,9 @@ void qavimator::frameSlider(int position)
   if(position==0 && protectFirstFrame) protect=true;
   else protect=false;
 
+  emit protectFrame(protect);
   setPlaystate(PLAYSTATE_STOPPED);
   animationView->setFrame(position);
-  emit protectFrame(protect);
 
   updateInputs();
 }
@@ -743,14 +757,18 @@ void qavimator::easeInChanged(int change)
 {
   bool ease=false;
   if(change==Qt::Checked) ease=true;
-  animationView->getAnimation()->setEaseIn(currentPart,ease);
+
+  Animation* anim=animationView->getAnimation();
+  anim->setEaseIn(currentPart,anim->getFrame(),ease);
 }
 
 void qavimator::easeOutChanged(int change)
 {
   bool ease=false;
   if(change==Qt::Checked) ease=true;
-  animationView->getAnimation()->setEaseOut(currentPart,ease);
+
+  Animation* anim=animationView->getAnimation();
+  anim->setEaseOut(currentPart,anim->getFrame(),ease);
 }
 
 // ------ Menu Action Slots (Callbacks) -----------
@@ -807,7 +825,7 @@ void qavimator::fileNew()
   updateFps();
 
   emit enableRotation(false);
-  emit enablePosition(false);
+  emit enablePosition(true);
   emit enableProps(false);
 
   anim->setDirty(false);
@@ -917,7 +935,7 @@ void qavimator::fileAdd(const QString& name)
     // FIXME: code duplication
     connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
 
-    animationView->selectPart(editPartCombo->currentText());
+    animationView->selectPart(nodeMapping[editPartCombo->currentIndex()]);
     updateInputs();
     updateFps();
     anim->setDirty(false);
@@ -1396,7 +1414,10 @@ void qavimator::setCurrentFile(const QString& fileName)
 // this slot gets called from Animation::setFrame(int)
 void qavimator::setCurrentFrame(int frame)
 {
-  if(sender()==animationIds.at(selectAnimationCombo->currentIndex()))
+  // make sure current frame is only updated when no animation is playing (manual change,
+  // program startup) or that only the currently selected animation updates the frame
+  // position, so we don't have jumping back and forth while playing multiple animations
+  if(playstate==PLAYSTATE_STOPPED || sender()==animationIds.at(selectAnimationCombo->currentIndex()))
   {
     currentFrameSlider->blockSignals(true);
     currentFrameSlider->setValue(frame);
@@ -1405,12 +1426,12 @@ void qavimator::setCurrentFrame(int frame)
 
     timeline->setCurrentFrame(frame);
 //  animationView->setFrame(frame);
-    updateInputs();
-    updateKeyBtn();
     // check if we are at the first frame and if it's protected
     if(frame==0 && protectFirstFrame) protect=true;
     else protect=false;
     emit protectFrame(protect);
+    updateInputs();
+    updateKeyBtn();
   }
 }
 

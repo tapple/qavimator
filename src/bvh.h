@@ -81,6 +81,8 @@ class BVH
     float lastLoadedAvatarScale;
     double lastLoadedFrameTime;
     Animation::FigureType lastLoadedFigureType;
+    BVHNode* lastLoadedPositionNode;
+
     int nodeCount;
 
     QList<Rotation> rotationCopyBuffer;
@@ -91,7 +93,11 @@ class BVH
     QStringList tokens;
     int tokenPos;
 
+    // remember if the loaded animation is in old or new AVM format
+    bool havePositionKeys;
+
     QStringList validNodes;
+    BVHNode* positionNode;
 
     QString token();
     bool expect_token(const QString& expect);

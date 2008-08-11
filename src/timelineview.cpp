@@ -80,8 +80,8 @@ void TimelineView::selectTrack(int track)
 
 void TimelineView::backgroundClicked()
 {
-  timeline->selectTrack(0);
-  timelineTracks->selectTrack(0);
+  timeline->selectTrack(-1);
+  timelineTracks->selectTrack(-1);
 }
 
 // --------------
@@ -93,13 +93,11 @@ TimelineTracks::TimelineTracks(QWidget* parent,Qt::WindowFlags f) : QWidget(pare
 
 TimelineTracks::~TimelineTracks()
 {
-  selectedTrack=0;
+  selectedTrack=-1;
 }
 
 QSize TimelineTracks::sizeHint() const
 {
-//####
-// return QSize(LEFT_STRUT,(NUM_PARTS-2)*LINE_HEIGHT+2);
   return QSize(LEFT_STRUT,(NUM_PARTS-1)*LINE_HEIGHT+2);
 }
 
@@ -108,12 +106,12 @@ void TimelineTracks::paintEvent(QPaintEvent*)
   resize(sizeHint());
   if(!animation) return;
 
-  for(int part=1;part<NUM_PARTS;part++) drawTrack(part);
+  for(int part=0;part<NUM_PARTS;part++) drawTrack(part);
 }
 
 void TimelineTracks::drawTrack(int track)
 {
-  if(track==0) return;
+  if(track==-1) return;
 
   QString trackName=(animation) ? animation->getPartName(track) : "";
   if(trackName!="Site")
@@ -121,8 +119,6 @@ void TimelineTracks::drawTrack(int track)
     QPainter p(this);
     QPalette::ColorRole textColor=QPalette::Foreground;
 
-//####
-//    int y=(track-1)*LINE_HEIGHT+2;
     int y=track*LINE_HEIGHT+2;
 
     if(track==selectedTrack)

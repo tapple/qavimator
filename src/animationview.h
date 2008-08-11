@@ -94,16 +94,17 @@ class AnimationView : public QGLWidget
     void setFPS(int fps);
 
     // getAnimation returns the *current* animation
-    Animation *getAnimation() { return animation; }
-    Animation *getAnimation(unsigned int index) { return animList.at(index); }
-    Animation *getLastAnimation() { return animList.last(); }
+    Animation* getAnimation() { return animation; }
+    Animation* getAnimation(unsigned int index) { return animList.at(index); }
+    Animation* getLastAnimation() { return animList.last(); }
     bool isSkeletonOn() { return skeleton; }
     void showSkeleton() { skeleton = true; }
     void hideSkeleton() { skeleton = false; }
-    void selectPart(const QString& part);
+    void selectPart(BVHNode* node);
     void selectProp(const QString& prop);
-    const QString getSelectedPart();
-    const QString getPartName(int index);
+    BVHNode* getSelectedPart();
+    unsigned int getSelectedPartIndex();
+    // const QString getPartName(int index);
     const QString getSelectedPropName();
 
     const Prop* addProp(Prop::PropType type,double x,double y,double z,double xs,double ys,double zs,double xr,double yr,double zr,int attach);
@@ -113,11 +114,11 @@ class AnimationView : public QGLWidget
     Prop* getPropById(unsigned int id);
 
   signals:
-    void partClicked(const QString& partName,Rotation rot,RotationLimits rotLimit,Position pos);
+    void partClicked(BVHNode* node,Rotation rot,RotationLimits rotLimit,Position pos);
     void partClicked(int part);
     void propClicked(Prop* prop);
 
-    void partDragged(const QString&,double changeX,double changeY,double changeZ);
+    void partDragged(BVHNode* node,double changeX,double changeY,double changeZ);
 
     void propDragged(Prop* prop,double changeX,double changeY,double changeZ);
     void propRotated(Prop* prop,double changeX,double changeY,double changeZ);
@@ -135,7 +136,7 @@ class AnimationView : public QGLWidget
     void draw();
 
   protected:
-    typedef enum
+    enum
     {
       MODE_PARTS,
       MODE_SKELETON,

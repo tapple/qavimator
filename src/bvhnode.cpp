@@ -271,7 +271,7 @@ const FrameData BVHNode::getKeyframeBefore(int frame) const
   if(frame==0)
   {
     // should never happen
-    qDebug("BVHNode::getKeyframeBefore(int frame): frame==0, node %s!",name().toLatin1().constData());
+    qDebug("BVHNode::getKeyframeBefore(int frame): frame==0!");
     return keyframes[0];
   }
   return frameData(getKeyframeNumberBefore(frame));
@@ -296,7 +296,7 @@ int BVHNode::getKeyframeNumberBefore(int frame) const
   }
 
   // find previous key
-  while(--frame && !isKeyframe(frame));
+  while(--frame && !isKeyframe(frame)) {};
 
   return frame;
 }
@@ -311,7 +311,7 @@ int BVHNode::getKeyframeNumberAfter(int frame) const
     return -1;
 
   // find next key
-  while(++frame && !isKeyframe(frame));
+  while(++frame && !isKeyframe(frame)) {};
 
   return frame;
 }
@@ -406,21 +406,26 @@ bool BVHNode::easeOut(int frame)
   return false;
 }
 
-bool BVHNode::compareFrames(int key1,int key2)
+bool BVHNode::compareFrames(int key1,int key2) const
 {
-  const Rotation rot1=frameData(key1).rotation();
-  const Rotation rot2=frameData(key2).rotation();
+  if(type==BVH_POS)
+  {
+    const Position pos1=frameData(key1).position();
+    const Position pos2=frameData(key2).position();
 
-  if(rot1.x!=rot2.x) return false;
-  if(rot1.y!=rot2.y) return false;
-  if(rot1.z!=rot2.z) return false;
+    if(pos1.x!=pos2.x) return false;
+    if(pos1.y!=pos2.y) return false;
+    if(pos1.z!=pos2.z) return false;
+  }
+  else
+  {
+    const Rotation rot1=frameData(key1).rotation();
+    const Rotation rot2=frameData(key2).rotation();
 
-  const Position pos1=frameData(key1).position();
-  const Position pos2=frameData(key2).position();
-
-  if(pos1.x!=pos2.x) return false;
-  if(pos1.y!=pos2.y) return false;
-  if(pos1.z!=pos2.z) return false;
+    if(rot1.x!=rot2.x) return false;
+    if(rot1.y!=rot2.y) return false;
+    if(rot1.z!=rot2.z) return false;
+  }
 
   return true;
 }
@@ -477,17 +482,9 @@ void BVHNode::optimize()
   {
     int distance=itCurrent.key()-itBefore.key();
 
-    Rotation rDifference=Rotation::difference((*itBefore).rotation(),(*itCurrent).rotation());
-
-    rDifference.x/=distance;
-    rDifference.y/=distance;
-    rDifference.z/=distance;
-
-    if(fabs(rDifference.x-oldRDifference.x)<tolerance && 
-       fabs(rDifference.y-oldRDifference.y)<tolerance &&
-       fabs(rDifference.z-oldRDifference.z)<tolerance)
+    // optimize positions if this is the position node
+    if(type==BVH_POS)
     {
-
       Position pDifference=Position::difference((*itBefore).position(),(*itCurrent).position());
 
       pDifference.x/=distance;
@@ -504,11 +501,28 @@ void BVHNode::optimize()
 
       oldPDifference=pDifference;
     }
+    // otherwise optimize rotations
+    else
+    {
+      Rotation rDifference=Rotation::difference((*itBefore).rotation(),(*itCurrent).rotation());
+
+      rDifference.x/=distance;
+      rDifference.y/=distance;
+      rDifference.z/=distance;
+
+      if(fabs(rDifference.x-oldRDifference.x)<tolerance &&
+        fabs(rDifference.y-oldRDifference.y)<tolerance &&
+        fabs(rDifference.z-oldRDifference.z)<tolerance)
+      {
+          // never delete the key in the first frame
+          if(itBefore.key()!=0) keyframes.remove(itBefore.key());
+      }
+
+      oldRDifference=rDifference;
+    }
 
     itBefore=itCurrent;
     itCurrent++;
-
-    oldRDifference=rDifference;
   } // while
 }
 
@@ -586,6 +600,16 @@ void FrameData::setRotation(const Rotation& rot)
   m_rotation.z=rot.z;
 //  qDebug(QString("FrameData::setRotation(<%1,%2,%3>)").arg(m_rotation.x).arg(m_rotation.y).arg(m_rotation.z));
 //  m_rotation=rot;
+}
+
+// debugging
+void FrameData::dump() const
+{
+  qDebug("FrameData::dump()");
+  qDebug("Frame Number: %d",m_frameNumber);
+  qDebug("Rotation: %lf, %lf, %lf",m_rotation.x,m_rotation.y,m_rotation.z);
+  qDebug("Position: %lf, %lf, %lf",m_position.x,m_position.y,m_position.z);
+  qDebug("Ease in/out: %d / %d",m_easeIn,m_easeOut);
 }
 
 FrameData::~FrameData()

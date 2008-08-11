@@ -118,7 +118,7 @@ void AnimationView::selectAnimation(unsigned int index)
   if(index< (unsigned int) animList.count())
   {
     animation=animList.at(index);
-    emit animationSelected(animation);
+    emit animationSelected(getAnimation());
     repaint();
   }
 }
@@ -602,7 +602,7 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     unsigned int selected=pickPart(event->x(),event->y());
 
     // if another part than the current one has been clicked, switch off mirror mode
-    if(selected!=partSelected) animation->setMirrored(false);
+    if(selected!=partSelected) getAnimation()->setMirrored(false);
 
     // background clicked, reset all
     if(!selected)
@@ -620,14 +620,14 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
       propSelected=0;
       propDragging=0;
 
-      const QString& part=getSelectedPart();
+      BVHNode* part=getSelectedPart();
       changeX = changeY = changeZ = 0;
       dragX = dragY = 0;
 
       emit partClicked(part,
-                       Rotation(animation->getRotation(part)),
-                       animation->getRotationLimits(part),
-                       Position(animation->getPosition(part))
+                       Rotation(getAnimation()->getRotation(part)),
+                       getAnimation()->getRotationLimits(part),
+                       Position(getAnimation()->getPosition())
                       );
       emit partClicked(partSelected % ANIMATION_INCREMENT);
     }
@@ -676,10 +676,10 @@ void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
   if(selected>=OBJECT_START) return;
 
   if(modifier & SHIFT)
-    animation->setMirrored(true);
+    getAnimation()->setMirrored(true);
   else if(selected && selected < OBJECT_START)
-    animation->setIK(getPartName(selected),
-                     !animation->getIK(getPartName(selected)));
+    getAnimation()->setIK(getAnimation()->getNode(selected),
+                     !getAnimation()->getIK(getAnimation()->getNode(selected)));
   repaint();
 }
 
@@ -761,7 +761,12 @@ void AnimationView::drawFigure(Animation* anim,unsigned int index)
     float scale=anim->getAvatarScale();
     glScalef(scale,scale,scale);
 
+    Position pos=anim->getPosition();
+    glTranslatef(pos.x,pos.y,pos.z);
+
+    // visual compensation
     glTranslatef(0, 2, 0);
+
     selectName = index*ANIMATION_INCREMENT;
     glEnable(GL_DEPTH_TEST);
     drawPart(anim,index,anim->getFrame(),anim->getMotion(),joints[figType],MODE_PARTS);
@@ -819,22 +824,6 @@ void AnimationView::drawPart(Animation* anim,unsigned int currentAnimationIndex,
         glutSolidSphere(1,16,16);
       }
     }
-    if(joints->type==BVH_ROOT)
-    {
-      Position pos=motion->frameData(frame).position();
-      glTranslatef(pos.x,pos.y,pos.z);
-/*
-      for (int i=0; i<motion->numChannels; i++) {
-        float value = motion->frame[frame][i];
-        switch(motion->channelType[i]) {
-          case BVH_XPOS: glTranslatef(value, 0, 0); break;
-          case BVH_YPOS: glTranslatef(0, value, 0); break;
-          case BVH_ZPOS: glTranslatef(0, 0, value); break;
-          default: break;
-        }
-      }
-*/
-    }
 
     Rotation rot=motion->frameData(frame).rotation();
     for(int i=0;i<motion->numChannels;i++)
@@ -891,7 +880,7 @@ void AnimationView::drawPart(Animation* anim,unsigned int currentAnimationIndex,
         glColor4f(0.4,0.5,0.3,1);
       else
         glColor4f(0.6,0.5,0.5,1);
-      if(anim->getIK(motion->name()))
+      if(anim->getIK(motion))
       {
         glGetFloatv(GL_CURRENT_COLOR,color);
         glColor4f(color[0],color[1],color[2]+0.3,color[3]);
@@ -1115,29 +1104,42 @@ void AnimationView::drawCircle(int axis,float radius,int width)
 
 }
 
-const QString AnimationView::getSelectedPart()
+BVHNode* AnimationView::getSelectedPart()
 {
-  return getPartName(partSelected);
+  return getAnimation()->getNode(partSelected % ANIMATION_INCREMENT);
 }
 
+unsigned int AnimationView::getSelectedPartIndex()
+{
+  return partSelected % ANIMATION_INCREMENT;
+}
+/*
 const QString AnimationView::getPartName(int index)
 {
   // get part name from animation, with respect to multiple animations in view
-  return animation->getPartName(index % ANIMATION_INCREMENT);
+  return getAnimation()->getPartName(index % ANIMATION_INCREMENT);
 }
-
+*/
 // returns the selected prop name or an empty string if none selected
 const QString AnimationView::getSelectedPropName()
 {
   for(unsigned int index=0;index< (unsigned int) propList.count();index++)
-    if(propList.at(index)->id==partSelected) return propList.at(index)->name();
+    if(propList.at(index)->id==propSelected) return propList.at(index)->name();
   return QString();
 }
 
 void AnimationView::selectPart(int partNum)
 {
-  QString partName=getPartName(partNum);
-  if(partName=="Site")
+  BVHNode* node=getAnimation()->getNode(partNum);
+  qDebug("AnimationView::selectPart(%d)",partNum);
+
+  if(!node)
+  {
+    qDebug("AnimationView::selectPart(%d): node==0!",partNum);
+    return;
+  }
+
+  if(node->type==BVH_END)
   {
     partSelected=0;
     propSelected=0;
@@ -1145,19 +1147,33 @@ void AnimationView::selectPart(int partNum)
     emit backgroundClicked();
     repaint();
   }
-  else selectPart(partName);
+  else selectPart(node);
 }
 
-void AnimationView::selectPart(const QString& part)
+void AnimationView::selectPart(BVHNode* node)
 {
+  if(!node)
+  {
+    qDebug("AnimationView::selectPart(node): node==0!");
+    return;
+  }
+
+  qDebug("AnimationView::selectPart(node): %s",node->name().toLatin1().constData());
   // make sure no prop is selected anymore
   propSelected=0;
   propDragging=0;
-  partSelected=animation->getPartIndex(part);
-  emit partClicked(part,
-                   Rotation(animation->getRotation(part)),
-                   animation->getRotationLimits(part),
-                   Position(animation->getPosition(part))
+
+  // find out the index count of the animation we're working with currently
+  int animationIndex=animList.indexOf(getAnimation());
+
+  // get the part index to be selected, including the proper animation increment
+  // FIXME: when we are adding support for removing animations we need to remember
+  //        the increment for each animation so they don't get confused
+  partSelected=getAnimation()->getPartIndex(node)+ANIMATION_INCREMENT*animationIndex;
+  emit partClicked(node,
+                   Rotation(getAnimation()->getRotation(node)),
+                   getAnimation()->getRotationLimits(node),
+                   Position(getAnimation()->getPosition())
                   );
   repaint();
 }

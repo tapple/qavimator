@@ -61,6 +61,7 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   setLoopInPoint(bvh->lastLoadedLoopIn);
   setLoopOutPoint(bvh->lastLoadedLoopOut);
   setFrameTime(bvh->lastLoadedFrameTime);
+  positionNode=bvh->lastLoadedPositionNode;
 
   ikTree.set(frames);
   setIK(IK_LHAND, false);
@@ -81,12 +82,10 @@ Animation::~Animation()
 {
   qDebug("Animation::~Animation(%lx)",(unsigned long) this);
 
-  // remove keyframes
-  if(frames)
-  {
-    bvh->bvhDelete(frames);
-    frames=NULL;
-  }
+  // remove rotation keyframes
+  if(frames) bvh->bvhDelete(frames);
+  // remove position keyframes
+  if(positionNode) delete positionNode;
 }
 
 void Animation::loadBVH(const QString& bvhFile)
@@ -213,49 +212,69 @@ int Animation::stepForward()
   return 0;
 }
 
-void Animation::setEaseIn(const QString& name,bool state)
+void Animation::setEaseIn(BVHNode* node,int frameNum,bool state)
 {
-  BVHNode* node=bvh->bvhFindNode(frames,name);
-  if(node->isKeyframe(frame))
+  if(!node)
+  {
+    qDebug("Animation::setEaseIn(): node==0!");
+    return;
+  }
+
+  if(node->isKeyframe(frameNum))
   {
     setDirty(true);
-    node->setEaseIn(frame,state);
+    node->setEaseIn(frameNum,state);
     // tell main class that the keyframe has changed
-    emit redrawTrack(getPartIndex(name));
+    emit redrawTrack(getPartIndex(node));
   }
 }
 
-void Animation::setEaseOut(const QString& name,bool state)
+void Animation::setEaseOut(BVHNode* node,int frameNum,bool state)
 {
-  BVHNode* node=bvh->bvhFindNode(frames,name);
-  if(node->isKeyframe(frame))
+  if(!node)
+  {
+    qDebug("Animation::setEaseOut(): node==0!");
+    return;
+  }
+
+  if(node->isKeyframe(frameNum))
   {
     setDirty(true);
-    node->setEaseOut(frame,state);
+    node->setEaseOut(frameNum,state);
     // tell main class that the keyframe has changed
-    emit redrawTrack(getPartIndex(name));
+    emit redrawTrack(getPartIndex(node));
   }
 }
 
-bool Animation::easeIn(const QString& name)
+bool Animation::easeIn(BVHNode* node,int frameNum)
 {
-  BVHNode* node=bvh->bvhFindNode(frames,name);
-  if(node->isKeyframe(frame))
+  if(!node)
   {
-    return node->easeIn(frame);
+    qDebug("Animation::easeIn(): node==0!");
+    return false;
   }
-  qDebug("Animation::easeIn(%s): requested easeIn for non-keyframe!",name.toLatin1().constData());
+
+  if(node->isKeyframe(frameNum))
+  {
+    return node->easeIn(frameNum);
+  }
+  qDebug("Animation::easeIn(%s): requested easeIn for non-keyframe!",node->name().toLatin1().constData());
   return false;
 }
 
-bool Animation::easeOut(const QString& name)
+bool Animation::easeOut(BVHNode* node,int frameNum)
 {
-  BVHNode* node=bvh->bvhFindNode(frames,name);
-  if(node->isKeyframe(frame))
+  if(!node)
   {
-    return node->easeOut(frame);
+    qDebug("Animation::easeOut(): node==0!");
+    return false;
   }
-  qDebug("Animation::easeOut(%s): requested easeOut for non-keyframe!",name.toLatin1().constData());
+
+  if(node->isKeyframe(frameNum))
+  {
+    return node->easeOut(frameNum);
+  }
+  qDebug("Animation::easeOut(%s): requested easeOut for non-keyframe!",node->name().toLatin1().constData());
   return false;
 }
 
@@ -309,7 +328,7 @@ void Animation::applyIK(const QString& name)
     setDirty(true);
     addKeyFrame(node);
     node->setKeyframeRotation(frame,rot);
-    emit redrawTrack(getPartIndex(name));
+    emit redrawTrack(getPartIndex(node));
 //    }
   }
 }
@@ -373,8 +392,10 @@ void Animation::setIK(IKPartType part,bool flag)
   }
 }
 
-void Animation::setIK(const QString& jointName,bool flag)
+void Animation::setIK(BVHNode* node,bool flag)
 {
+  QString jointName=node->name();
+
   if(jointName=="lHand" ||
      jointName=="lForeArm" ||
      jointName=="lShldr" ||
@@ -403,8 +424,10 @@ void Animation::setIK(const QString& jointName,bool flag)
   }
 }
 
-bool Animation::getIK(const QString& jointName)
+bool Animation::getIK(BVHNode* node)
 {
+  QString jointName=node->name();
+
   if(jointName=="lHand" ||
      jointName=="lForeArm" ||
      jointName=="lShldr" ||
@@ -451,9 +474,8 @@ void Animation::solveIK()
   ikTree.solve(frame);
 }
 
-void Animation::setRotation(const QString& jointName,double x,double y,double z)
+void Animation::setRotation(BVHNode* node,double x,double y,double z)
 {
-  BVHNode* node=bvh->bvhFindNode(frames,jointName);
   BVHNode* node2=NULL;
 
   QString mirrorName;
@@ -476,12 +498,12 @@ void Animation::setRotation(const QString& jointName,double x,double y,double z)
     else
     {
       node->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
-      setEaseIn(node->name(),Settings::easeIn());
-      setEaseOut(node->name(),Settings::easeOut());
+      setEaseIn(node,frame,Settings::easeIn());
+      setEaseOut(node,frame,Settings::easeOut());
     }
 
     //      node->dumpKeyframes();
-    mirrorName=getPartMirror(jointName);
+    mirrorName=getPartMirror(node->name());
     if(mirrored && !mirrorName.isEmpty())
     {
       node2=bvh->bvhFindNode(frames,mirrorName);
@@ -492,29 +514,31 @@ void Animation::setRotation(const QString& jointName,double x,double y,double z)
       else
       {
         node2->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
-        setEaseIn(node->name(),Settings::easeIn());
-        setEaseOut(node->name(),Settings::easeOut());
+        setEaseIn(node,frame,Settings::easeIn());
+        setEaseOut(node,frame,Settings::easeOut());
       }
 
       // tell timeline that this keyframe has changed (added or changed is the same here)
-      emit redrawTrack(getPartIndex(jointName));
+      emit redrawTrack(getPartIndex(node));
     }
     setDirty(true);
     // tell timeline that this keyframe has changed (added or changed is the same here)
-    emit redrawTrack(getPartIndex(jointName));
+    emit redrawTrack(getPartIndex(node));
     emit frameChanged();
+  }
+  else
+  {
+    qDebug("Animaiton::setRotation(): node==0!");
   }
 }
 
-Rotation Animation::getRotation(const QString& jointName)
+Rotation Animation::getRotation(BVHNode* node)
 {
-  if(!jointName.isEmpty())
+  if(node)
   {
-    BVHNode* node=bvh->bvhFindNode(frames,jointName);
-    if(node)
-      return node->frameData(frame).rotation();
+    return node->frameData(frame).rotation();
   }
-  qDebug("Animation::getRotation(): jointName==0!");
+  qDebug("Animation::getRotation(): node==0!");
   return Rotation();
 }
 
@@ -524,21 +548,17 @@ void Animation::useRotationLimits(bool flag)
   ikTree.setJointLimits(flag);
 }
 
-RotationLimits Animation::getRotationLimits(const QString& jointName)
+RotationLimits Animation::getRotationLimits(BVHNode* node)
 {
-  if(!jointName.isEmpty())
+  if(node)
   {
     double xMin,yMin,zMin,xMax,yMax,zMax;
 
     if(limits)
     {
-      BVHNode* node=bvh->bvhFindNode(frames,jointName);
-      if(node)
-      {
-        bvh->bvhGetChannelLimits(node,BVH_XROT,&xMin,&xMax);
-        bvh->bvhGetChannelLimits(node,BVH_YROT,&yMin,&yMax);
-        bvh->bvhGetChannelLimits(node,BVH_ZROT,&zMin,&zMax);
-      }
+      bvh->bvhGetChannelLimits(node,BVH_XROT,&xMin,&xMax);
+      bvh->bvhGetChannelLimits(node,BVH_YROT,&yMin,&yMax);
+      bvh->bvhGetChannelLimits(node,BVH_ZROT,&zMin,&zMax);
     }
     else
     {
@@ -546,10 +566,10 @@ RotationLimits Animation::getRotationLimits(const QString& jointName)
       xMax=yMax=zMax=180;
     }
 
-    RotationLimits rotLimit(jointName,xMin,xMax,yMin,yMax,zMin,zMax);
+    RotationLimits rotLimit(node->name(),xMin,xMax,yMin,yMax,zMin,zMax);
     return rotLimit;
   }
-  qDebug("Animation::getRotationLimits(): jointName==0!");
+  qDebug("Animation::getRotationLimits(): node==0!");
   return RotationLimits(QString::null,0,0,0,0,0,0);
 }
 
@@ -563,53 +583,47 @@ int Animation::getRotationOrder(const QString& jointName)
   return 0;
 }
 
-void Animation::setPosition(const QString& jointName,double x,double y,double z)
+void Animation::setPosition(double x,double y,double z)
 {
-  BVHNode* node=bvh->bvhFindNode(frames,jointName);
-  if(node)
+  for(int i=0;i<NUM_IK;i++)
   {
-    for(int i=0;i<NUM_IK;i++)
+    if(ikOn[i])
     {
-      if(ikOn[i])
-      {
-        solveIK();
-        break;
-      }
+      solveIK();
+      break;
     }
-    // new keyframe system
-    if(node->isKeyframe(frame))
-      node->setKeyframePosition(frame,Position(x,y,z));
-    else
-    {
-      node->addKeyframe(frame,Position(x,y,z),node->frameData(frame).rotation());
-      setEaseIn(node->name(),Settings::easeIn());
-      setEaseOut(node->name(),true);
-    }
-    setDirty(true);
-    // tell timeline that this keyframe has changed (added or changed is the same here)
-    emit redrawTrack(getPartIndex(jointName));
-    emit frameChanged();
   }
+  // new keyframe system
+  if(positionNode->isKeyframe(frame))
+    positionNode->setKeyframePosition(frame,Position(x,y,z));
+  else
+  {
+    positionNode->addKeyframe(frame,Position(x,y,z),Rotation());
+    setEaseIn(positionNode,frame,Settings::easeIn());
+    setEaseOut(positionNode,frame,Settings::easeOut());
+  }
+  setDirty(true);
+  // tell timeline that this keyframe has changed (added or changed is the same here)
+  emit redrawTrack(0);
+  emit frameChanged();
 }
 
-Position Animation::getPosition(const QString& jointName)
+Position Animation::getPosition()
 {
-  BVHNode* node=bvh->bvhFindNode(frames,jointName);
-
-  if(node)
-    return node->frameData(frame).position();
-
-  return Position();
+  return positionNode->frameData(frame).position();
 }
 
 const QString Animation::getPartName(int index) const
 {
+  //  exception fot position pseudonode
+  if(index==0) return positionNode->name();
   return bvh->bvhGetName(frames,index);
 }
 
-int Animation::getPartIndex(const QString& part)
+int Animation::getPartIndex(BVHNode* node)
 {
-  return bvh->bvhGetIndex(frames,part);
+  if(node==positionNode) return 0;
+  return bvh->bvhGetIndex(frames,node->name());
 }
 
 BVHNode* Animation::getMotion()
@@ -645,14 +659,14 @@ void Animation::addKeyFrameAllJoints()
 
 void Animation::addKeyFrame(BVHNode* joint)
 {
-  joint->addKeyframe(frame,getPosition(joint->name()),getRotation(joint->name()));
+  joint->addKeyframe(frame,getPosition(),getRotation(joint));
 
-  setEaseIn(joint->name(),Settings::easeIn());
-  setEaseOut(joint->name(),Settings::easeOut());
+  setEaseIn(joint,frame,Settings::easeIn());
+  setEaseOut(joint,frame,Settings::easeOut());
 
   setDirty(true);
 
-  emit redrawTrack(getPartIndex(joint->name()));
+  emit redrawTrack(getPartIndex(joint));
   emit frameChanged();
 }
 
@@ -661,7 +675,7 @@ bool Animation::isKeyFrameHelper(BVHNode *joint)
   if(joint->isKeyframe(frame))
     return true;
 
-  for(int i=0;i<joint->numChildren();i++)
+  for (int i=0;i<joint->numChildren();i++)
   {
     if(isKeyFrameHelper(joint->child(i)))
     {
@@ -681,10 +695,12 @@ bool Animation::isKeyFrame(const QString& jointName)
     BVHNode* node=bvh->bvhFindNode(frames,jointName);
     return node->isKeyframe(frame);
   }
+  qDebug("Animation::isKeyFrame('%s'): no node found.",jointName.toLatin1().constData());
 }
 
 bool Animation::isKeyFrame()
 {
+  if(positionNode->isKeyframe(frame)) return true;
   return isKeyFrameHelper(frames);
 }
 
@@ -694,61 +710,60 @@ bool Animation::isKeyFrame(int jointNumber,int frame)
   return joint->isKeyframe(frame);
 }
 
-void Animation::delKeyFrame(BVHNode* joint,bool silent)
+void Animation::deleteKeyFrame(BVHNode* joint,int frameNum,bool silent)
 {
   // never delete first keyframe
-  if(frame)
+  if(frameNum)
   {
-    joint->deleteKeyframe(frame);
+    joint->deleteKeyframe(frameNum);
     setDirty(true);
   }
 
   // if silent is true then only send a signal to the timeline but not to the animation view
   if(!silent) emit frameChanged();
-  emit redrawTrack(getPartIndex(joint->name()));
+  emit redrawTrack(getPartIndex(joint));
 }
 
-void Animation::delKeyFrame(int jointNumber,int frame)
+void Animation::deleteKeyFrame(int jointNumber,int frameNum)
 {
   // frames should always be current frame, but better play safe for future enhancements
-  setFrame(frame);
+  setFrame(frameNum);
   if(jointNumber)
   {
      BVHNode* joint=getNode(jointNumber);
-     if(joint->isKeyframe(frame)) delKeyFrame(joint);
+     if(joint->isKeyframe(frameNum)) deleteKeyFrame(joint,frameNum);
   }
-  else if(isKeyFrame()) delKeyFrameAllJoints();
+  else if(isKeyFrame()) deleteKeyFrameAllJoints();
 
   // tell main class that the keyframe has changed
-  emit currentFrame(frame);
+  emit currentFrame(frameNum);
 }
 
-void Animation::recursiveDelKeyFrame(BVHNode* joint)
+void Animation::recursiveDeleteKeyFrame(BVHNode* joint)
 {
-  delKeyFrame(joint);
+  deleteKeyFrame(joint,frame);
 
   for(int i=0;i<joint->numChildren();i++)
-    recursiveDelKeyFrame(joint->child(i));
+    recursiveDeleteKeyFrame(joint->child(i));
 }
 
-void Animation::delKeyFrameAllJoints()
+void Animation::deleteKeyFrameAllJoints()
 {
   // never delete the first keyframe
   if(frame==0) return;
-  recursiveDelKeyFrame(frames);
+  recursiveDeleteKeyFrame(frames);
 }
 
-bool Animation::toggleKeyFrame(const QString& jointName)
+bool Animation::toggleKeyFrame(BVHNode* node)
 {
-  if(jointName.isEmpty())
+  qDebug("node %d",(int) node);
+  if(!node)
     return toggleKeyFrameAllJoints();
   else
   {
-    BVHNode* node=bvh->bvhFindNode(frames,jointName);
-
     if (node->isKeyframe(frame))
     {
-      delKeyFrame(node);
+      deleteKeyFrame(node,frame);
       return false;
     }
     else
@@ -767,7 +782,7 @@ bool Animation::toggleKeyFrameAllJoints()
 
   if(isKeyFrame())
   {
-    delKeyFrameAllJoints();
+    deleteKeyFrameAllJoints();
     return false;
   }
   else
@@ -820,7 +835,7 @@ const QString Animation::getPartMirror(const QString& name) const
   return bvh->bvhGetName(frames,index);
 }
 
-const int Animation::numKeyFrames(int jointNumber)
+int Animation::numKeyFrames(int jointNumber)
 {
   BVHNode* node=bvh->bvhFindNode(frames,getPartName(jointNumber));
 //  qDebug(QString("Animation::numKeyFrames(): joint number %1 has %2 keyframes").arg(jointNumber).arg(node->numKeyFrames));
@@ -837,38 +852,50 @@ void Animation::copyKeyFrame(int jointNumber,int from,int to)
 // moves the position and rotation data of one body part to another key frame position
 void Animation::moveKeyFrame(int jointNumber,int from,int to,bool copy)
 {
+  qDebug("Animation::moveKeyFrame(): jointNumber: %d",jointNumber);
   // set frame pointer to source frame position
   setFrame(from);
 
   // get the joint structure
   BVHNode* joint=getNode(jointNumber);
-  const FrameData& frameData=joint->frameData(frame);
-
-  // get rotation and position of the body part
-  Rotation rot=frameData.rotation();
-  Position pos=frameData.position();
-
-  // silently (true) delete key frame if not copy mode
-  // we do copy mode here to avoid code duplication
-  if(!copy) delKeyFrame(joint,true);
+  const FrameData& frameData=joint->frameData(from);
+//  frameData.dump();
 
   // block all further signals to avoid flickering
   blockSignals(true);
+
+  // silently (true) delete key frame if not copy mode
+  // we do copy mode here to avoid code duplication
+  if(!copy) deleteKeyFrame(joint,from,true);
+
   setFrame(to);
-  setRotation(joint->name(),rot.x,rot.y,rot.z);
-  joint->setEaseIn(frame,frameData.easeIn());
-  joint->setEaseOut(frame,frameData.easeOut());
-  blockSignals(false);
+
+  // move rotation or position of the body part
+  if(joint->type==BVH_POS)
+  {
+    Position pos=frameData.position();
+    setPosition(pos.x,pos.y,pos.z);
+  }
+  else
+  {
+    Rotation rot=frameData.rotation();
+    setRotation(joint,rot.x,rot.y,rot.z);
+  }
+  // only now set ease in/out, because setRotation/setPosition sets to default when the
+  // target position has no keyframe yet
+  joint->setEaseIn(to,frameData.easeIn());
+  joint->setEaseOut(to,frameData.easeOut());
   // now re-enable signals so we get updates on screen
-  setPosition(joint->name(),pos.x,pos.y,pos.z);
+  blockSignals(false);
+
   // tell timeline where we are now
   emit currentFrame(frame);
 }
 
-bool Animation::compareFrames(const QString& jointName,int key1,int key2)
+bool Animation::compareFrames(const BVHNode* node,int key1,int key2) const
 {
-  BVHNode* node=bvh->bvhFindNode(frames,jointName);
   if(node) return node->compareFrames(key1,key2);
+  qDebug("Animation::compareFrames(node): node==0!");
   return false;
 }
 
@@ -880,6 +907,9 @@ const FrameData Animation::keyframeDataByIndex(int jointNumber,int index)
 
 BVHNode* Animation::getNode(int jointNumber)
 {
+  //####
+  // joint number 0 needs to return the hip position pseudonode
+  if(jointNumber==0) return positionNode;
   // get the joint structure
   return bvh->bvhFindNode(frames,getPartName(jointNumber));
 }
@@ -911,7 +941,7 @@ void Animation::deleteFrameHelper(BVHNode* joint,int frame)
   joint->deleteFrame(frame);
   for(int i=0;i<joint->numChildren();i++)
     deleteFrameHelper(joint->child(i),frame);
-  emit redrawTrack(getPartIndex(joint->name()));
+  emit redrawTrack(getPartIndex(joint));
 }
 
 // delete frame from a joint, if track==0 recursively delete from all joints
@@ -935,7 +965,7 @@ void Animation::optimizeHelper(BVHNode* joint)
   if(joint->type!=BVH_END)
   {
     joint->optimize();
-    emit redrawTrack(getPartIndex(joint->name()));
+    emit redrawTrack(getPartIndex(joint));
   }
 
   for(int i=0;i<joint->numChildren();i++)
@@ -944,6 +974,7 @@ void Animation::optimizeHelper(BVHNode* joint)
 
 void Animation::optimize()
 {
+  optimizeHelper(positionNode);
   optimizeHelper(frames);
   setDirty(true);
 }

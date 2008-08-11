@@ -29,7 +29,7 @@
 
 #define MAX_FRAMES 1800
 
-typedef enum { BVH_ROOT, BVH_JOINT, BVH_END, BVH_NO_SL } BVHNodeType;
+typedef enum { BVH_POS, BVH_ROOT, BVH_JOINT, BVH_END, BVH_NO_SL } BVHNodeType;
 typedef enum { BVH_XPOS, BVH_YPOS, BVH_ZPOS, BVH_XROT, BVH_YROT, BVH_ZROT } BVHChannelType;
 typedef enum { BVH_XYZ=1, BVH_ZYX, BVH_XZY, BVH_YZX, BVH_YXZ, BVH_ZXY} BVHOrderType;
 
@@ -52,6 +52,9 @@ class FrameData
     bool easeOut() const;
     void setEaseIn(bool state);
     void setEaseOut(bool state);
+
+    // for debugging purposes, dumps all frame data to debug console
+    void dump() const;
 
   protected:
     unsigned int m_frameNumber;
@@ -103,7 +106,7 @@ class BVHNode
     void cachePosition(Position* pos);
     void flushFrameCache();
 
-    bool compareFrames(int key1,int key2);
+    bool compareFrames(int key1,int key2) const;
     void optimize();
 
     void dumpKeyframes();

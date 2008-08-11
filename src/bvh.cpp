@@ -31,9 +31,11 @@
 
 BVH::BVH()
 {
+  bvhTypeName.append("POS");
   bvhTypeName.append("ROOT");
   bvhTypeName.append("JOINT");
   bvhTypeName.append("End");
+  bvhTypeName.append("NoSL");
   bvhChannelName.append("Xposition");
   bvhChannelName.append("Yposition");
   bvhChannelName.append("Zposition");
@@ -106,8 +108,8 @@ BVHNode* BVH::bvhReadNode()
   node->offset[0]=token().toFloat();
   node->offset[1]=token().toFloat();
   node->offset[2]=token().toFloat();
-  node->ikOn = false;
-  node->ikWeight = 0.0;
+  node->ikOn=false;
+  node->ikWeight=0.0;
   if(node->type!=BVH_END)
   {
     expect_token("CHANNELS");
@@ -214,7 +216,7 @@ void BVH::assignChannels(BVHNode* node,int frame)
   node->cacheRotation(rot);
   node->cachePosition(pos);
 
-  for (int i=0; i<node->numChildren(); i++)
+  for(int i=0;i<node->numChildren();i++)
     assignChannels(node->child(i),frame);
 }
 
@@ -223,11 +225,13 @@ void BVH::setChannelLimits(BVHNode *node,BVHChannelType type,double min,double m
   qDebug("BVH::setChannelLimits()");
 
   int i;
-  if (!node) return;
-  for (i=0; i<node->numChannels; i++) {
-    if (node->channelType[i] == type) {
-      node->channelMin[i] = min;
-      node->channelMax[i] = max;
+  if(!node) return;
+  for(i=0;i<node->numChannels;i++)
+  {
+    if(node->channelType[i]==type)
+    {
+      node->channelMin[i]=min;
+      node->channelMax[i]=max;
       return;
     }
   }
@@ -262,7 +266,7 @@ void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
     BVHNode* node=bvhFindNode(root,name);
     if(node)
     {
-      node->ikWeight = weight;
+      node->ikWeight=weight;
 
       for(int i=0;i<3;i++)
       {
@@ -297,7 +301,7 @@ void BVH::setAllKeyFramesHelper(BVHNode* node,int numberOfFrames) const
       node->addKeyframe(i,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
   }
 
-  for (int i=0;i<node->numChildren();i++)
+  for(int i=0;i<node->numChildren();i++)
     setAllKeyFramesHelper(node->child(i),numberOfFrames);
 }
 
@@ -345,7 +349,7 @@ BVHNode* BVH::bvhRead(const QString& file)
 
   setAllKeyFramesHelper(root,totalFrames);
 
-  return root;
+  return(root);
 }
 
 void BVH::avmReadKeyFrame(BVHNode* root)
@@ -355,6 +359,8 @@ void BVH::avmReadKeyFrame(BVHNode* root)
   const Rotation* rot=root->getCachedRotation(0);
   const Position* pos=root->getCachedPosition(0);
   root->addKeyframe(0,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
+  if(root->type==BVH_ROOT)
+    lastLoadedPositionNode->addKeyframe(0,Position(pos->x,pos->y,pos->z),Rotation(rot->x,rot->y,rot->z));
 
   int numKeyFrames=token().toInt();
   for(int i=0;i<numKeyFrames;i++)
@@ -373,7 +379,7 @@ void BVH::avmReadKeyFrame(BVHNode* root)
   root->flushFrameCache();
 //  root->dumpKeyframes();
 
-  for (int i=0;i<root->numChildren();i++)
+  for(int i=0;i<root->numChildren();i++)
     avmReadKeyFrame(root->child(i));
 }
 
@@ -398,11 +404,7 @@ void BVH::avmReadKeyFrameProperties(BVHNode* root)
     if(key & 2) root->setEaseOut(root->keyframeDataByIndex(i).frameNumber(),true);
   }
 
-  // all keyframes are found, flush the node's cache to free up memory
-  root->flushFrameCache();
-//  root->dumpKeyframes();
-
-  for (int i=0;i<root->numChildren();i++)
+  for(int i=0;i<root->numChildren();i++)
     avmReadKeyFrameProperties(root->child(i));
 }
 
@@ -486,19 +488,51 @@ BVHNode* BVH::avmRead(const QString& file)
 //          qDebug("BVH::avmRead(): set loop out to "+propertyValue);
           lastLoadedLoopOut=propertyValue.toInt();
         }
+        else if(propertyName=="Positions:")
+        {
+          // remember that this is a new animation that has seperate position keyframes
+          havePositionKeys=true;
+
+          int num=propertyValue.toInt();
+          qDebug("Reading %d Positions:",num);
+          for(int index=0;index<num;index++)
+          {
+            int key=token().toInt();
+            qDebug("Reading position frame %d",key);
+            const FrameData& frameData=root->frameData(key);
+            lastLoadedPositionNode->addKeyframe(key,frameData.position(),Rotation());
+          } // for
+        }
+        else if(propertyName=="PositionsEase:")
+        {
+          int num=propertyValue.toInt();
+          qDebug("Reading %d PositionsEases:",num);
+          for(int index=0;index<num;index++)
+          {
+            int key=token().toInt();
+            qDebug("Reading position ease for key index %d: %d",index,key);
+
+            if(key & 1) lastLoadedPositionNode->setEaseIn(lastLoadedPositionNode->keyframeDataByIndex(index).frameNumber(),true);
+            if(key & 2) lastLoadedPositionNode->setEaseOut(lastLoadedPositionNode->keyframeDataByIndex(index).frameNumber(),true);
+
+          } // for
+        }
         else
           qDebug("BVH::avmRead(): Unknown extended property '%s' (%s), ignoring.",propertyName.toLatin1().constData(),
                                                                                   propertyValue.toLatin1().constData());
     }
   } // while
 
-  return root;
+  return(root);
 }
 
 BVHNode* BVH::animRead(const QString& file,const QString& limFile)
 {
   BVHNode* root;
 
+  // positions pseudonode
+  lastLoadedPositionNode=new BVHNode("position");
+  lastLoadedPositionNode->type=BVH_POS;
   // default avatar scale for BVH and AVM files
   lastLoadedAvatarScale=1.0;
   // default figure type
@@ -509,6 +543,8 @@ BVHNode* BVH::animRead(const QString& file,const QString& limFile)
   // reset token position
   tokenPos=0;
 
+  // assume old style animation format for compatibility
+  havePositionKeys=false;
   // rudimentary file type identification from filename
   if(file.endsWith(".bvh",Qt::CaseInsensitive))
     root = bvhRead(file);
@@ -518,10 +554,23 @@ BVHNode* BVH::animRead(const QString& file,const QString& limFile)
     return NULL;
 
   if(!limFile.isEmpty())
-    parseLimFile(root, limFile);
+    parseLimFile(root,limFile);
 
   removeNoSLNodes(root);
 //  dumpNodes(root,QString::null);
+
+  // old style animation or BVH format means we need to add position keyframes ourselves
+  if(!havePositionKeys)
+  {
+    for(int index=0;index<root->numKeyframes();index++)
+    {
+      const FrameData& frameData=root->keyframeDataByIndex(index);
+      int frameNum=frameData.frameNumber();
+      lastLoadedPositionNode->addKeyframe(frameNum,frameData.position(),Rotation());
+      lastLoadedPositionNode->setEaseIn(frameNum,frameData.easeIn());
+      lastLoadedPositionNode->setEaseOut(frameNum,frameData.easeOut());
+    }
+  }
 
   return root;
 }
@@ -564,7 +613,7 @@ void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
 void BVH::bvhWriteFrame(BVHNode *node, int frame, FILE *f)
 {
   Rotation rot=node->frameData(frame).rotation();
-  Position pos=node->frameData(frame).position();
+  Position pos=positionNode->frameData(frame).position();
 
   // preserve channel order while writing
   for (int i=0; i<node->numChannels; i++)
@@ -594,6 +643,7 @@ void BVH::bvhWrite(Animation* anim, const QString& file)
   FILE *f = fopen(file.toLatin1().constData(), "wt");
 
   BVHNode* root=anim->getMotion();
+  positionNode=anim->getNode(0);
 
   fprintf(f, "HIERARCHY\n");
   bvhWriteNode(root, f, 0);
@@ -607,36 +657,36 @@ void BVH::bvhWrite(Animation* anim, const QString& file)
   fclose(f);
 }
 
-void BVH::avmWriteKeyFrame(BVHNode *root, FILE *f)
+void BVH::avmWriteKeyFrame(BVHNode* root, FILE* f)
 {
   const QList<int> keys=root->keyframeList();
   // no key frames (usually at joint ends), just write a 0\n line
   if(keys.count()==0)
   {
-    fprintf(f, "0\n");
+    fprintf(f,"0\n");
   }
   // write line of key files
   else
   {
     // write number of key files
-    fprintf(f, "%u ", keys.count()-1);
+    fprintf(f,"%u ",keys.count()-1);
 
     // skip frame 0 (always key frame) while saving and write all keys in a row
     for(unsigned int i=1;i< (unsigned int) keys.count();i++)
     {
-      fprintf(f, "%d ", keys[i]);
+      fprintf(f,"%d ",keys[i]);
     }
-    fprintf(f, "\n");
+    fprintf(f,"\n");
   }
 
-  for (int i=0;i<root->numChildren();i++)
+  for(int i=0;i<root->numChildren();i++)
   {
-    avmWriteKeyFrame(root->child(i), f);
+    avmWriteKeyFrame(root->child(i),f);
   }
 }
 
 // writes ease in / out data
-void BVH::avmWriteKeyFrameProperties(BVHNode *root, FILE *f)
+void BVH::avmWriteKeyFrameProperties(BVHNode* root, FILE* f)
 {
   const QList<int> keys=root->keyframeList();
 
@@ -651,41 +701,51 @@ void BVH::avmWriteKeyFrameProperties(BVHNode *root, FILE *f)
     if(root->keyframeDataByIndex(i).easeIn()) type|=1;
     if(root->keyframeDataByIndex(i).easeOut()) type|=2;
 
-    fprintf(f, "%d ", type);
+    fprintf(f,"%d ",type);
   }
-  fprintf(f, "\n");
+  fprintf(f,"\n");
 
-  for (int i=0;i<root->numChildren();i++) {
-    avmWriteKeyFrameProperties(root->child(i), f);
+  for(int i=0;i<root->numChildren();i++)
+  {
+    avmWriteKeyFrameProperties(root->child(i),f);
   }
 }
 
 void BVH::avmWrite(Animation* anim,const QString& file)
 {
-  FILE *f=fopen(file.toLatin1().constData(),"wt");
+  FILE* f=fopen(file.toLatin1().constData(),"wt");
 
   BVHNode* root=anim->getMotion();
+  positionNode=anim->getNode(0);
 
-  fprintf(f, "HIERARCHY\n");
-  bvhWriteNode(root, f, 0);
-  fprintf(f, "MOTION\n");
-  fprintf(f, "Frames:\t%d\n", anim->getNumberOfFrames());
-//  qDebug("Frames:\t%d\n", anim->getNumberOfFrames());
-  fprintf(f, "Frame Time:\t%f\n", anim->frameTime());
-  for (int i=0; i<anim->getNumberOfFrames(); i++) {
-    bvhWriteFrame(root, i, f);
-    fprintf(f, "\n");
+  fprintf(f,"HIERARCHY\n");
+  bvhWriteNode(root,f,0);
+  fprintf(f,"MOTION\n");
+  fprintf(f,"Frames:\t%d\n",anim->getNumberOfFrames());
+//  qDebug("Frames:\t%d\n",anim->getNumberOfFrames());
+  fprintf(f,"Frame Time:\t%f\n",anim->frameTime());
+  for(int i=0;i<anim->getNumberOfFrames();i++)
+  {
+    bvhWriteFrame(root,i,f);
+    fprintf(f,"\n");
   }
 
-  avmWriteKeyFrame(root, f);
-  fprintf(f, "Properties\n");
-  avmWriteKeyFrameProperties(root, f);
+  avmWriteKeyFrame(root,f);
+  fprintf(f,"Properties\n");
+  avmWriteKeyFrameProperties(root,f);
 
   // write remaining properties
-  fprintf(f, "Scale: %f\n",anim->getAvatarScale());
-  fprintf(f, "Figure: %d\n",anim->getFigureType());
-  fprintf(f, "LoopIn: %d\n",anim->getLoopInPoint());
-  fprintf(f, "LoopOut: %d\n",anim->getLoopOutPoint());
+  fprintf(f,"Scale: %f\n",anim->getAvatarScale());
+  fprintf(f,"Figure: %d\n",anim->getFigureType());
+  fprintf(f,"LoopIn: %d\n",anim->getLoopInPoint());
+  fprintf(f,"LoopOut: %d\n",anim->getLoopOutPoint());
+
+  // HACK: add-on for position key support - this needs to be revised badly
+  // HACK: we need a new file format that makes it easier to add new features
+  fprintf(f,"Positions: ");
+  avmWriteKeyFrame(positionNode,f);
+  fprintf(f,"PositionsEase: ");
+  avmWriteKeyFrameProperties(positionNode,f);
 
   fclose(f);
 }
@@ -725,29 +785,33 @@ BVHNode* BVH::bvhFindNode(BVHNode* root,const QString& name) const
   return NULL;
 }
 
-void BVH::bvhGetChannelLimits(BVHNode *node, BVHChannelType type,
-			 double *min, double *max)
+void BVH::bvhGetChannelLimits(BVHNode* node,BVHChannelType type,double* min, double* max)
 {
   int i;
-  if (!node) {
-    *min = -10000;
-    *max = 10000;
+  if(!node)
+  {
+    *min=-10000;
+    *max=10000;
     return;
   }
-  for (i=0; i<node->numChannels; i++) {
-    if (node->channelType[i] == type) {
-      *min = node->channelMin[i];
-      *max = node->channelMax[i];
+  for(i=0;i<node->numChannels;i++)
+  {
+    if(node->channelType[i]==type)
+    {
+      *min=node->channelMin[i];
+      *max=node->channelMax[i];
     }
   }
 }
 
-void BVH::bvhResetIK(BVHNode *root)
+void BVH::bvhResetIK(BVHNode* root)
 {
   int i;
-  if (root) {
-    root->ikOn = false;
-    for (i=0; i<root->numChildren(); i++) {
+  if(root)
+  {
+    root->ikOn=false;
+    for(i=0;i<root->numChildren();i++)
+    {
       bvhResetIK(root->child(i));
     }
   }
@@ -769,7 +833,7 @@ const QString BVH::bvhGetNameHelper(BVHNode* node,int index)
 const QString BVH::bvhGetName(BVHNode* node,int index)
 {
   nodeCount=0;
-  return bvhGetNameHelper(node,index);
+  return bvhGetNameHelper(node, index);
 }
 
 int BVH::bvhGetIndexHelper(BVHNode* node,const QString& name)
@@ -780,7 +844,7 @@ int BVH::bvhGetIndexHelper(BVHNode* node,const QString& name)
   for(int i=0;i<node->numChildren();i++)
   {
     int val;
-    if ((val = bvhGetIndexHelper(node->child(i), name)))
+    if((val=bvhGetIndexHelper(node->child(i),name)))
       return val;
   }
   return 0;
@@ -789,18 +853,19 @@ int BVH::bvhGetIndexHelper(BVHNode* node,const QString& name)
 int BVH::bvhGetIndex(BVHNode* node,const QString& name)
 {
   nodeCount=0;
-  return bvhGetIndexHelper(node, name);
+  return bvhGetIndexHelper(node,name);
 }
 
-void BVH::bvhCopyOffsets(BVHNode *dst,BVHNode *src)
+void BVH::bvhCopyOffsets(BVHNode* dst,BVHNode* src)
 {
   int i;
-  if (!dst || !src) return;
-  dst->offset[0] = src->offset[0];
-  dst->offset[1] = src->offset[1];
-  dst->offset[2] = src->offset[2];
-  for (i=0; i<src->numChildren(); i++) {
-    bvhCopyOffsets(dst->child(i), src->child(i));
+  if(!dst || !src) return;
+  dst->offset[0]=src->offset[0];
+  dst->offset[1]=src->offset[1];
+  dst->offset[2]=src->offset[2];
+  for(i=0;i<src->numChildren();i++)
+  {
+    bvhCopyOffsets(dst->child(i),src->child(i));
   }
 }
 

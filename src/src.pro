@@ -17,8 +17,7 @@ SOURCES += animation.cpp \
            slpartsfemale.cpp \
            slpartsmale.cpp \
            timeline.cpp \
-           timelineview.cpp \
-           track.cpp
+           timelineview.cpp
 
 HEADERS += animation.h \
            animationview.h \
@@ -36,8 +35,7 @@ HEADERS += animation.h \
            settingsdialog.h \
            slparts.h \
            timeline.h \
-           timelineview.h \
-           track.h
+           timelineview.h
 
 FORMS += mainapplicationform.ui \
          settingsdialogform.ui
