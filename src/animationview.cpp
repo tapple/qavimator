@@ -18,9 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifdef MACOSX
-#include <glu.h>
-#include <glut.h>
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
 #else
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -592,7 +592,8 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     // remember mouse position to return to
     returnPos=QCursor::pos();
     // place mouse in the center of our view to avoid slamming against the screen border
-    QCursor::setPos(mapToGlobal(QPoint(width()/2,height()/2)));
+    //// Causes problems on leopard
+    ////QCursor::setPos(mapToGlobal(QPoint(width()/2,height()/2)));
     // remember new mouse position for dragging
     clickPos=QCursor::pos();
     // put in position for distance calculation
@@ -660,7 +661,8 @@ void AnimationView::mouseReleaseEvent(QMouseEvent* event)
   if(event->button()==Qt::LeftButton)
   {
     // move mouse cursor back to the beginning of the dragging process
-    QCursor::setPos(returnPos);
+    //// causes problems on leopard
+    ////QCursor::setPos(returnPos);
     // show mouse cursor again
     setCursor(Qt::ArrowCursor);
     leftMouseButton=false;

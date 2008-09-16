@@ -18,9 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifdef MACOSX
-#include <glu.h>
-#include <glut.h>
+#ifdef __APPLE__
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
 #else
 #include <GL/glu.h>
 #include <GL/glut.h>

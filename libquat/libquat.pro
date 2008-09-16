@@ -49,6 +49,10 @@ SOURCES += MEM_RefCountedC-Api.cpp \
 
 DEFINES += NDEBUG=1
 
+macx {
+  CONFIG += x86 ppc
+}
+
 CONFIG += release \
 warn_on \
 qt \

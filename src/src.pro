@@ -96,10 +96,10 @@ win32 {
 }
 
 macx {
-  DEFINES += MACOSX
+  DEFINES -= QAVIMATOR_DATAPATH=\\\"/usr/share/qavimator\\\"
   DEFINES += QAVIMATOR_DATAPATH=\\\".\\\"
-  LIBS += -framework OpenGL -framework AGL -framework GLUT -bind_at_load
   LIBS -= -lGLU -lglut
-  INCLUDEPATH += /Developer/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/GLUT.framework/Versions/A/Headers
+  LIBS += -framework OpenGL -framework AGL -framework GLUT -bind_at_load
+  CONFIG += x86 ppc
   QMAKE_POST_LINK += sh fixbundle.sh
 }

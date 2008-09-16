@@ -833,8 +833,12 @@ void qavimator::fileNew()
 
 QString qavimator::selectFileToOpen(const QString& caption)
 {
-  QString file=QFileDialog::getOpenFileName(this,caption,lastPath,ANIM_FILTER);
-
+   //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
+#ifdef __APPLE__
+   QString file=QFileDialog::getOpenFileName(NULL,caption,lastPath,ANIM_FILTER);
+#else
+   QString file=QFileDialog::getOpenFileName(this,caption,lastPath,ANIM_FILTER);
+#endif
   if(!file.isEmpty())
   {
     QFileInfo fileInfo(file);
@@ -958,7 +962,12 @@ void qavimator::fileSave()
 // Menu Action: File / Save As...
 void qavimator::fileSaveAs()
 {
-  QString file=QFileDialog::getSaveFileName(this,tr("Save Animation File"),currentFile,ANIM_FILTER);
+   //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
+#ifdef __APPLE__
+   QString file=QFileDialog::getSaveFileName(NULL,tr("Save Animation File"),currentFile,ANIM_FILTER);
+#else
+   QString file=QFileDialog::getSaveFileName(this,tr("Save Animation File"),currentFile,ANIM_FILTER);
+#endif
 
   if(!file.isEmpty())
   {
@@ -1003,7 +1012,12 @@ void qavimator::fileExportForSecondLife()
 // Menu Action: File / Load Props...
 void qavimator::fileLoadProps()
 {
-  QString fileName=QFileDialog::getOpenFileName(this,QString(),lastPath,PROP_FILTER);
+   //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
+#ifdef __APPLE__
+   QString fileName=QFileDialog::getOpenFileName(NULL,QString(),lastPath,PROP_FILTER);
+#else
+   QString fileName=QFileDialog::getOpenFileName(this,QString(),lastPath,PROP_FILTER);
+#endif
 
   if(!fileName.isEmpty())
   {
@@ -1064,7 +1078,12 @@ void qavimator::fileLoadProps()
 // Menu Action: File / Save Props...
 void qavimator::fileSaveProps()
 {
-  QString fileName=QFileDialog::getSaveFileName(this,tr("Save Props"),currentFile,PROP_FILTER);
+   //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
+#ifdef __APPLE__
+   QString fileName=QFileDialog::getSaveFileName(NULL,tr("Save Props"),currentFile,PROP_FILTER);
+#else
+   QString fileName=QFileDialog::getSaveFileName(this,tr("Save Props"),currentFile,PROP_FILTER);
+#endif
 
   if(!fileName.isEmpty())
   {
