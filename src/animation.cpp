@@ -756,7 +756,7 @@ void Animation::deleteKeyFrameAllJoints()
 
 bool Animation::toggleKeyFrame(BVHNode* node)
 {
-  qDebug("node %d",(int) node);
+//  qDebug("node %d",(int) node);
   if(!node)
     return toggleKeyFrameAllJoints();
   else
