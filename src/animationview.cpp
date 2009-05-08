@@ -21,6 +21,7 @@
 #ifdef __APPLE__
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
+#include <QApplication.h>
 #else
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -75,7 +76,12 @@ AnimationView::AnimationView(QWidget* parent,const char* /* name */,Animation* a
   zSelect=false;
   nextPropId=OBJECT_START;
 
+#ifdef __APPLE__
+  QString dataPath=QApplication::applicationDirPath() + "/../Resources";
+#else
   QString dataPath=QAVIMATOR_DATAPATH;
+#endif
+
   QString limFile=dataPath+"/"+LIMITS_FILE;
   qDebug("AnimationView::AnimationView(): using limits file '%s'",limFile.toLatin1().constData());
 

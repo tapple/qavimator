@@ -19,6 +19,10 @@
  *
  */
 
+#ifdef __APPLE__
+#include <QApplication.h>
+#endif
+
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
@@ -44,7 +48,12 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   QString fileName;
 
   // pick up path from src.pro qmake file's DEFINES section, i.e. usr/share/qavimator
+  //dataPath=QAVIMATOR_DATAPATH;
+#ifdef __APPLE__
+  dataPath=QApplication::applicationDirPath() + "/../Resources";
+#else
   dataPath=QAVIMATOR_DATAPATH;
+#endif
 
   // load BVH that defines motion
   if (!bvhFile.isEmpty())
