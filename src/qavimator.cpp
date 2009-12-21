@@ -795,23 +795,18 @@ void qavimator::fileNew()
 
   anim->useRotationLimits(jointLimits);
 
-  // FIXME: code duplication
-  connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
-
-  editPartCombo->setCurrentIndex(1);
-
-  setPlaystate(PLAYSTATE_STOPPED);
-
   if(protectFirstFrame)
   {
 //    qDebug("qavimator::fileNew(): adding loop points for protected frame 1 animation");
     // skip first frame, since it's protected anyway
+    anim->setFrame(1);
     setCurrentFrame(1);
     setLoopInPoint(2);
   }
   else
   {
 //    qDebug("qavimator::fileNew(): adding loop points for unprotected frame 1 animation");
+    anim->setFrame(0);
     setCurrentFrame(0);
     setLoopInPoint(1);
   }
@@ -820,6 +815,13 @@ void qavimator::fileNew()
   // show frame as unprotected
   emit protectFrame(false);
   protect=false;
+
+  // FIXME: code duplication
+  connect(anim,SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
+
+  editPartCombo->setCurrentIndex(1);
+
+  setPlaystate(PLAYSTATE_STOPPED);
 
   updateInputs();
   updateFps();
@@ -919,12 +921,14 @@ void qavimator::fileAdd(const QString& name)
       if(protectFirstFrame)
       {
 //        qDebug("qavimator::fileAdd(): adding loop points for protected frame 1 animation");
+        anim->setFrame(1);
         setCurrentFrame(1);
         setLoopInPoint(2);
       }
       else
       {
 //        qDebug("qavimator::fileAdd(): adding loop points for unprotected frame 1 animation");
+        anim->setFrame(0);
         setCurrentFrame(0);
         setLoopInPoint(1);
       }
@@ -937,7 +941,7 @@ void qavimator::fileAdd(const QString& name)
     }
 
     // FIXME: code duplication
-    connect(animationView->getAnimation(),SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
+    connect(anim,SIGNAL(currentFrame(int)),this,SLOT(setCurrentFrame(int)));
 
     animationView->selectPart(nodeMapping[editPartCombo->currentIndex()]);
     updateInputs();
