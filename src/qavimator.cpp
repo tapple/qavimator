@@ -58,6 +58,9 @@ qavimator::qavimator() : QMainWindow(0)
   currentPart=0;
   longestRunningTime=0.0;
 
+   // playback stopped by default
+  setPlaystate(PLAYSTATE_STOPPED);
+
   readSettings();
 
   connect(animationView,SIGNAL(partClicked(BVHNode*,
@@ -132,9 +135,6 @@ qavimator::qavimator() : QMainWindow(0)
   stopIcon=QIcon(":/icons/icons/stop.png");
   playIcon=QIcon(":/icons/icons/play.png");
   loopIcon=QIcon(":/icons/icons/loop.png");
-
-  // playback stopped by default
-  setPlaystate(PLAYSTATE_STOPPED);
 
   updateInputs();
 }
