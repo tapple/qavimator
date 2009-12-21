@@ -519,8 +519,8 @@ void Animation::setRotation(BVHNode* node,double x,double y,double z)
       else
       {
         node2->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
-        setEaseIn(node,frame,Settings::easeIn());
-        setEaseOut(node,frame,Settings::easeOut());
+        setEaseIn(node2,frame,Settings::easeIn());
+        setEaseOut(node2,frame,Settings::easeOut());
       }
 
       // tell timeline that this mirrored keyframe has changed (added or changed is the same here)
