@@ -71,6 +71,7 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   setLoopOutPoint(bvh->lastLoadedLoopOut);
   setFrameTime(bvh->lastLoadedFrameTime);
   positionNode=bvh->lastLoadedPositionNode;
+  addKeyFrameAllJoints();
 
   ikTree.set(frames);
   setIK(IK_LHAND, false);
@@ -659,6 +660,7 @@ void Animation::recursiveAddKeyFrame(BVHNode* joint)
 
 void Animation::addKeyFrameAllJoints()
 {
+  addKeyFrame(getNode(0));
   recursiveAddKeyFrame(frames);
 }
 
