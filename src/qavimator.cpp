@@ -964,9 +964,9 @@ void qavimator::fileSaveAs()
 {
    //// For some unknown reason passing "this" locks up the OSX qavimator window. Possibly a QT4 bug, needs investigation
 #ifdef __APPLE__
-   QString file=QFileDialog::getSaveFileName(NULL,tr("Save Animation File"),currentFile,ANIM_FILTER);
+   QString file=QFileDialog::getSaveFileName(NULL,tr("Save Animation File"),currentFile,ANIM_FILTER,0,QFileDialog:: DontConfirmOverwrite);
 #else
-   QString file=QFileDialog::getSaveFileName(this,tr("Save Animation File"),currentFile,ANIM_FILTER);
+   QString file=QFileDialog::getSaveFileName(this,tr("Save Animation File"),currentFile,ANIM_FILTER,0,QFileDialog:: DontConfirmOverwrite);
 #endif
 
   if(!file.isEmpty())
@@ -979,9 +979,8 @@ void qavimator::fileSaveAs()
       file+=".avm";
 
     // if the file didn't exist yet or the user accepted to overwrite it, save it.
-    // this is obsolete for Qt 4.x
-//    if(checkFileOverwrite(fileInfo))
-//    {
+    if(checkFileOverwrite(fileInfo))
+    {
       setCurrentFile(file);
       lastPath=fileInfo.path();
       animationView->getAnimation()->saveBVH(file);
@@ -989,7 +988,7 @@ void qavimator::fileSaveAs()
       selectAnimationCombo->setItemText(selectAnimationCombo->currentIndex(),fileInfo.baseName());
       openFiles[selectAnimationCombo->currentIndex()]=file;
       fileExportForSecondLifeAction->setEnabled(true);
-//    }
+    }
   }
 }
 
@@ -1093,6 +1092,7 @@ void qavimator::fileSaveProps()
       fileName+=".prp";
 
     // check if file exists
+    // Obsolete for Qt 4.x
     if(!checkFileOverwrite(fileInfo)) return;
 
     QFile file(fileName);
@@ -1228,7 +1228,7 @@ void qavimator::setJointLimits(bool on)
   }
 }
 
-// Menu Action: Oprions / Protect First Frame
+// Menu Action: Options / Protect First Frame
 void qavimator::setProtectFirstFrame(bool on)
 {
   protectFirstFrame=on;
@@ -1239,7 +1239,7 @@ void qavimator::setProtectFirstFrame(bool on)
   updateInputs();
 }
 
-// Menu Action: Oprions / Show Timeline
+// Menu Action: Options / Show Timeline
 void qavimator::showTimeline(bool on)
 {
   if(on)
