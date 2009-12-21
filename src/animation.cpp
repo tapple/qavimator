@@ -560,7 +560,11 @@ RotationLimits Animation::getRotationLimits(BVHNode* node)
   {
     double xMin,yMin,zMin,xMax,yMax,zMax;
 
-    if(limits)
+    if(node->type==BVH_POS)
+    {
+      xMin=yMin=zMin=xMax=yMax=zMax=0;
+    }
+    else if(limits)
     {
       bvh->bvhGetChannelLimits(node,BVH_XROT,&xMin,&xMax);
       bvh->bvhGetChannelLimits(node,BVH_YROT,&yMin,&yMax);
