@@ -2059,7 +2059,7 @@ void qavimator::on_playButton_clicked()
 void qavimator::on_keyframeButton_toggled(bool on)
 {
   qDebug("on_keyframeButton_toggled(%d)",(int) on);
-  animationView->getAnimation()->toggleKeyFrame(animationView->getSelectedPart());
+  animationView->getAnimation()->toggleKeyFrame(currentPart); // (animationView->getSelectedPart());
   animationView->repaint();
 }
 

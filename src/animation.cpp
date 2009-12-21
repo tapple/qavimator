@@ -758,12 +758,13 @@ void Animation::deleteKeyFrameAllJoints()
 {
   // never delete the first keyframe
   if(frame==0) return;
+  deleteKeyFrame(getNode(0),frame);
   recursiveDeleteKeyFrame(frames);
 }
 
 bool Animation::toggleKeyFrame(BVHNode* node)
 {
-//  qDebug("node %d",(int) node);
+//  qDebug("Animation::toggleKeyFrame(node): node %ld",(unsigned long) node);
   if(!node)
     return toggleKeyFrameAllJoints();
   else
