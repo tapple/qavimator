@@ -932,8 +932,14 @@ void Animation::insertFrameHelper(BVHNode* joint,int frame)
 
 void Animation::insertFrame(int track,int pos)
 {
-  if(track==0)
+  if(track==-1)
+  {
+    // insert positional frame
+    BVHNode* joint=getNode(0);
+    if(joint) joint->insertFrame(pos);
+    // insert all rotational frames
     insertFrameHelper(frames,pos);
+  }
   else
   {
     BVHNode* joint=getNode(track);
@@ -958,8 +964,14 @@ void Animation::deleteFrame(int track,int pos)
 {
 //  qDebug("Animation::deleteFrame(joint %d,frame %d)",track,frame);
 
-  if(track==0)
+  if(track==-1)
+  {
+    // delete positional frame
+    BVHNode* joint=getNode(0);
+    if(joint) joint->deleteFrame(pos);
+    // delete all rotational frames
     deleteFrameHelper(frames,pos);
+  }
   else
   {
     BVHNode* joint=getNode(track);

@@ -539,7 +539,7 @@ void Timeline::keyPressEvent(QKeyEvent* e)
     case Qt::Key_Delete:
       emit deleteFrame(trackSelected,frameSelected);
 
-      if(trackSelected)
+      if(trackSelected!=-1)
         drawTrack(trackSelected);
       else
         fullRepaint=true;
@@ -550,7 +550,7 @@ void Timeline::keyPressEvent(QKeyEvent* e)
     case Qt::Key_Insert:
       emit insertFrame(trackSelected,frameSelected);
 
-      if(trackSelected)
+      if(trackSelected!=-1)
         drawTrack(trackSelected);
       else
         fullRepaint=true;

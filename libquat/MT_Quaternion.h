@@ -46,6 +46,8 @@
 #ifndef MT_QUATERNION_H
 #define MT_QUATERNION_H
 
+#include <stdio.h>
+
 #include <MT_assert.h>
 
 #include "MT_Vector3.h"
