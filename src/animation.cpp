@@ -485,10 +485,6 @@ void Animation::solveIK()
 
 void Animation::setRotation(BVHNode* node,double x,double y,double z)
 {
-  BVHNode* node2=NULL;
-
-  QString mirrorName;
-
   if (node)
   {
     //qDebug(QString("Animation::setRotation(")+jointName+")");
@@ -512,10 +508,10 @@ void Animation::setRotation(BVHNode* node,double x,double y,double z)
     }
 
     //      node->dumpKeyframes();
-    mirrorName=getPartMirror(node->name());
+    QString mirrorName=getPartMirror(node->name());
     if(mirrored && !mirrorName.isEmpty())
     {
-      node2=bvh->bvhFindNode(frames,mirrorName);
+      BVHNode* node2=bvh->bvhFindNode(frames,mirrorName);
 
       // new keyframe system
       if(node2->isKeyframe(frame))
@@ -527,8 +523,8 @@ void Animation::setRotation(BVHNode* node,double x,double y,double z)
         setEaseOut(node,frame,Settings::easeOut());
       }
 
-      // tell timeline that this keyframe has changed (added or changed is the same here)
-      emit redrawTrack(getPartIndex(node));
+      // tell timeline that this mirrored keyframe has changed (added or changed is the same here)
+      emit redrawTrack(getPartIndex(node2));
     }
     setDirty(true);
     // tell timeline that this keyframe has changed (added or changed is the same here)
