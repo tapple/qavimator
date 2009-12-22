@@ -865,6 +865,10 @@ void Animation::copyKeyFrame(int jointNumber,int from,int to)
 void Animation::moveKeyFrame(int jointNumber,int from,int to,bool copy)
 {
   qDebug("Animation::moveKeyFrame(): jointNumber: %d",jointNumber);
+
+  // make sure we don't drag a trail of mirror keys behind
+  setMirrored(false);
+
   // set frame pointer to source frame position
   setFrame(from);
 
