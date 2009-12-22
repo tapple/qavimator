@@ -33,7 +33,7 @@
 #ifndef MT_ExpMap_H
 #define MT_ExpMap_H
 
-#include <MT_assert.h>
+#include "MT_assert.h"
 
 #include "MT_Vector3.h"
 #include "MT_Quaternion.h"

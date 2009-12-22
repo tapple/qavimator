@@ -46,7 +46,7 @@
 #ifndef MT_VECTOR3_H
 #define MT_VECTOR3_H
 
-#include <MT_assert.h>
+#include "MT_assert.h"
 #include "MT_Tuple3.h"
 
 class MT_Vector3 : public MT_Tuple3 {

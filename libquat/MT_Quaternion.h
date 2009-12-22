@@ -48,7 +48,7 @@
 
 #include <stdio.h>
 
-#include <MT_assert.h>
+#include "MT_assert.h"
 
 #include "MT_Vector3.h"
 #include "MT_Vector4.h"
