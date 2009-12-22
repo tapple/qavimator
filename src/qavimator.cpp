@@ -58,7 +58,12 @@ qavimator::qavimator() : QMainWindow(0)
   currentPart=0;
   longestRunningTime=0.0;
 
-   // playback stopped by default
+  // prepare play button icons
+  stopIcon=QIcon(":/icons/icons/stop.png");
+  playIcon=QIcon(":/icons/icons/play.png");
+  loopIcon=QIcon(":/icons/icons/loop.png");
+
+  // playback stopped by default
   setPlaystate(PLAYSTATE_STOPPED);
 
   readSettings();
@@ -130,11 +135,6 @@ qavimator::qavimator() : QMainWindow(0)
   // if opening of files didn't work or no files were specified on the
   // command line, open a new one
   if(openFiles.count()==0) fileNew();
-
-  // prepare play button icons
-  stopIcon=QIcon(":/icons/icons/stop.png");
-  playIcon=QIcon(":/icons/icons/play.png");
-  loopIcon=QIcon(":/icons/icons/loop.png");
 
   updateInputs();
 }
