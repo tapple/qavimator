@@ -22,6 +22,10 @@
 #include <string.h>
 #include "slparts.h"
 
+#include <QMap>
+
+QMap<QString,GLuint> partLists;
+
 void doDraw(int num,const double* normals,const double* vertices)
 {
   num*=3;
@@ -36,8 +40,18 @@ void doDraw(int num,const double* normals,const double* vertices)
 
 void drawSLFemalePart(const QString& name)
 {
-  if(name=="End")
+  if(partLists.contains(name))
+  {
+    glCallList(partLists[name]);
+    glFlush();
     return;
+  }
+
+  GLuint newList=glGenLists(1);
+  glNewList(newList,GL_COMPILE);
+
+  if(name=="End")
+    ;
   else if(name=="hip")
   {
     const double normals[]={
@@ -13984,7 +13998,7 @@ void drawSLFemalePart(const QString& name)
       0.090667, -0.898598, 0.429303,
       -0.072348, -0.913313, 0.400780
     };
-    
+
     const double vertices[]={
       0.000000, -1.961784, 2.684122,
       0.000000, -2.127548, 2.322753,
@@ -19628,7 +19642,7 @@ void drawSLFemalePart(const QString& name)
       0.274212, -0.845910, 0.457432,
       0.290054, -0.881614, 0.372324
     };
-    
+
     const double vertices[]={
       2.751195, -1.517334, 2.517673,
       2.987727, -2.851112, 0.627331,
@@ -20967,7 +20981,7 @@ void drawSLFemalePart(const QString& name)
       0.288060, 0.356483, 0.888786,
       0.255712, 0.687218, 0.679958
     };
-    
+
     const double vertices[]={
       -0.493582, 2.448280, 2.849803,
       -1.106951, 2.350273, 2.694791,
@@ -43356,4 +43370,8 @@ void drawSLFemalePart(const QString& name)
 
     doDraw(510,normals,vertices);
   }
+
+  glEndList();
+  partLists.insert(name,newList);
+  glCallList(newList);
 }
