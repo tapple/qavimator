@@ -24,14 +24,14 @@
 
 void doDrawMale(int num,const double* normals,const double* vertices)
 {
-  num*=3;
-  glBegin(GL_TRIANGLES);
-  for(int count=0;count<num;count+=3)
-  {
-    glNormal3f(normals[count],normals[count+1],normals[count+2]);
-    glVertex3f(vertices[count],vertices[count+1],vertices[count+2]);
-  }
-  glEnd();
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_NORMAL_ARRAY);
+  glVertexPointer(3,GL_DOUBLE,0,vertices);
+  glNormalPointer(GL_DOUBLE,0,normals);
+  glDrawArrays(GL_TRIANGLES,0,num);
+  glDisableClientState(GL_NORMAL_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  return;
 }
 
 void drawSLMalePart(const QString& name) {

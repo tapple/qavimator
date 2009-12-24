@@ -413,6 +413,7 @@ void AnimationView::draw()
   if(!animList.isEmpty()) drawAnimations();
   drawFloor();
   drawProps();
+  glFlush();
 }
 
 void AnimationView::drawAnimations()
