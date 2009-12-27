@@ -491,7 +491,7 @@ void BVHNode::optimize()
       pDifference.y/=distance;
       pDifference.z/=distance;
 
-      if(fabs(pDifference.x-oldPDifference.x)<tolerance && 
+      if(fabs(pDifference.x-oldPDifference.x)<tolerance &&
          fabs(pDifference.y-oldPDifference.y)<tolerance &&
          fabs(pDifference.z-oldPDifference.z)<tolerance)
       {

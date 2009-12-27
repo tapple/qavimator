@@ -412,7 +412,7 @@ void BVH::avmReadKeyFrameProperties(BVHNode* root)
 void BVH::dumpNodes(BVHNode* node,QString indent)
 {
   qDebug("%s %s (%d)",indent.toLatin1().constData(),node->name().toLatin1().constData(),node->numChildren());
-  indent+="·--";
+  indent+="+--";
   for(int i=0;i<node->numChildren();i++)
   {
     dumpNodes(node->child(i),indent);
@@ -873,7 +873,6 @@ void BVH::bvhGetFrameDataHelper(BVHNode* node,int frame)
 {
   if(node->type!=BVH_END)
   {
-    positionCopyBuffer.append(node->frameData(frame).position());
     rotationCopyBuffer.append(node->frameData(frame).rotation());
 
 //    rotationCopyBuffer[rotationCopyBuffer.count()-1].bodyPart=node->name(); // not necessary but nice for debugging
@@ -891,8 +890,7 @@ void BVH::bvhGetFrameData(BVHNode* node,int frame)
   if(!node) return;
 
   rotationCopyBuffer.clear();
-  positionCopyBuffer.clear();
-
+  positionCopyBuffer=lastLoadedPositionNode->frameData(frame).position();
   bvhGetFrameDataHelper(node,frame);
 }
 
@@ -902,7 +900,7 @@ void BVH::bvhSetFrameDataHelper(BVHNode* node,int frame)
   if(node->type!=BVH_END)
   {
     // add the node as key frame
-    node->addKeyframe(frame,positionCopyBuffer[pasteIndex],rotationCopyBuffer[pasteIndex]);
+    node->addKeyframe(frame,Position(),rotationCopyBuffer[pasteIndex]);
 //    qDebug(QString("pasting frame data for %1 frame number %2 (%3)").arg(node->name()).arg(frame).arg(rotationCopyBuffer[pasteIndex].bodyPart));
     // increment paste buffer counter
     pasteIndex++;
@@ -919,6 +917,7 @@ void BVH::bvhSetFrameData(BVHNode* node,int frame)
 
   // reset paste buffer counter
   pasteIndex=0;
+  lastLoadedPositionNode->addKeyframe(frame,positionCopyBuffer,Rotation());
   // paste all keyframes for all joints
   bvhSetFrameDataHelper(node,frame);
 }
