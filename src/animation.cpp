@@ -519,7 +519,7 @@ void Animation::setRotation(BVHNode* node,double x,double y,double z)
         node2->setKeyframeRotation(frame,Rotation(x,-y,-z));
       else
       {
-        node2->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,y,z));
+        node2->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,-y,-z));
         setEaseIn(node2,frame,Settings::easeIn());
         setEaseOut(node2,frame,Settings::easeOut());
       }
