@@ -194,9 +194,9 @@ class qavimator : public QMainWindow, Ui::MainWindow
     void setAvatarScale(int percent);
     void partChoice();
     void rotationValue();
-    void rotationSlider();
+    void rotationSlider(const QObject* slider);
     void positionValue();
-    void positionSlider();
+    void positionSlider(const QObject* slider);
 
     void easeInChanged(int change);
     void easeOutChanged(int change);

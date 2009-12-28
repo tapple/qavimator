@@ -387,17 +387,31 @@ void qavimator::partChoice()
 }
 
 // gets called whenever a body part rotation slider is moved
-void qavimator::rotationSlider()
+void qavimator::rotationSlider(const QObject* slider)
 {
-  double x=getX();
-  double y=getY();
-  double z=getZ();
-
-  setX(x);
-  setY(y);
-  setZ(z);
-
   Animation* anim=animationView->getAnimation();
+  Rotation rot=anim->getRotation(currentPart);
+
+  double x=rot.x;
+  double y=rot.y;
+  double z=rot.z;
+
+  if(slider==xRotationSlider)
+  {
+    x=getX();
+    setX(x);
+  }
+  else if(slider==yRotationSlider)
+  {
+    y=getY();
+    setY(y);
+  }
+  else if(slider==zRotationSlider)
+  {
+    z=getZ();
+    setZ(z);
+  }
+
   if(animationView->getSelectedPart())
   {
     anim->setRotation(animationView->getSelectedPart(),x,y,z);
@@ -444,15 +458,30 @@ void qavimator::rotationValue()
   updateKeyBtn();
 }
 
-void qavimator::positionSlider()
+void qavimator::positionSlider(const QObject* slider)
 {
-  double x=getXPos();
-  double y=getYPos();
-  double z=getZPos();
+  Animation* anim=animationView->getAnimation();
+  Position pos=anim->getPosition();
 
-  setXPos(x);
-  setYPos(y);
-  setZPos(z);
+  double x=pos.x;
+  double y=pos.y;
+  double z=pos.z;
+
+  if(slider==xPositionSlider)
+  {
+    x=getXPos();
+    setXPos(x);
+  }
+  else if(slider==yPositionSlider)
+  {
+    y=getYPos();
+    setYPos(y);
+  }
+  else if(slider==zPositionSlider)
+  {
+    z=getZPos();
+    setZPos(z);
+  }
 
   animationView->getAnimation()->setPosition(x,y,z);
   animationView->repaint();
@@ -1882,7 +1911,7 @@ void qavimator::on_xRotationEdit_lostFocus()
 
 void qavimator::on_xRotationSlider_valueChanged(int)
 {
-  rotationSlider();
+  rotationSlider(sender());
 }
 
 void qavimator::on_yRotationEdit_returnPressed()
@@ -1897,7 +1926,7 @@ void qavimator::on_yRotationEdit_lostFocus()
 
 void qavimator::on_yRotationSlider_valueChanged(int)
 {
-  rotationSlider();
+  rotationSlider(sender());
 }
 
 void qavimator::on_zRotationEdit_returnPressed()
@@ -1912,7 +1941,7 @@ void qavimator::on_zRotationEdit_lostFocus()
 
 void qavimator::on_zRotationSlider_valueChanged(int)
 {
-  rotationSlider();
+  rotationSlider(sender());
 }
 
 void qavimator::on_xPositionEdit_returnPressed()
@@ -1927,7 +1956,7 @@ void qavimator::on_xPositionEdit_lostFocus()
 
 void qavimator::on_xPositionSlider_valueChanged(int)
 {
-  positionSlider();
+  positionSlider(sender());
 }
 
 void qavimator::on_yPositionEdit_returnPressed()
@@ -1942,7 +1971,7 @@ void qavimator::on_yPositionEdit_lostFocus()
 
 void qavimator::on_yPositionSlider_valueChanged(int)
 {
-  positionSlider();
+  positionSlider(sender());
 }
 
 void qavimator::on_zPositionEdit_returnPressed()
@@ -1957,7 +1986,7 @@ void qavimator::on_zPositionEdit_lostFocus()
 
 void qavimator::on_zPositionSlider_valueChanged(int)
 {
-  positionSlider();
+  positionSlider(sender());
 }
 
 void qavimator::on_easeInCheck_stateChanged(int newState)
