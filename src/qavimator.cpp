@@ -239,19 +239,10 @@ void qavimator::partClicked(BVHNode* node,Rotation rot,RotationLimits limits,Pos
     for(int index=0;index<editPartCombo->count();index++)
       if(editPartCombo->itemText(index)==currentPart->name()) editPartCombo->setCurrentIndex(index);
 
-    setX(rot.x);
-    setY(rot.y);
-    setZ(rot.z);
-
-//    emit enablePosition(!protect);
-    if(node->type==BVH_POS)
-      emit enableRotation(false);
-    else
-      emit enableRotation(!protect);
-
-    setXPos(pos.x);
-    setYPos(pos.y);
-    setZPos(pos.z);
+    // do not send signals for moving sliders while changing the slider limits
+    xRotationSlider->blockSignals(true);
+    yRotationSlider->blockSignals(true);
+    zRotationSlider->blockSignals(true);
 
     // hip gets a full 360 degree limit, all others according to SL.lim
     // maybe this shouldn't be like this to allow for multi rotation spins
@@ -267,6 +258,25 @@ void qavimator::partClicked(BVHNode* node,Rotation rot,RotationLimits limits,Pos
       yRotationSlider->setRange((int)(limits.yMin*PRECISION),(int)(limits.yMax*PRECISION));
       zRotationSlider->setRange((int)(limits.zMin*PRECISION),(int)(limits.zMax*PRECISION));
     }
+
+    // re-enable signals
+    xRotationSlider->blockSignals(false);
+    yRotationSlider->blockSignals(false);
+    zRotationSlider->blockSignals(false);
+
+    setX(rot.x);
+    setY(rot.y);
+    setZ(rot.z);
+
+//    emit enablePosition(!protect);
+    if(node->type==BVH_POS)
+      emit enableRotation(false);
+    else
+      emit enableRotation(!protect);
+
+    setXPos(pos.x);
+    setYPos(pos.y);
+    setZPos(pos.z);
 
     // show the user if this part has a key frame here
     updateKeyBtn();
