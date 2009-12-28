@@ -19,12 +19,6 @@
  *
  */
 
-#include <iostream>
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <QMessageBox>
 
 #include "bvh.h"
@@ -67,7 +61,7 @@ QString BVH::token()
 
 bool BVH::expect_token(const QString& name)
 {
-  qDebug("BVH::expect_token('%s')",name.toLatin1().constData());
+//  qDebug("BVH::expect_token('%s')",name.toLatin1().constData());
 
   if(name!=token())
   {
@@ -290,7 +284,7 @@ void BVH::parseLimFile(BVHNode* root,const QString& limFile) const
 // blown away by interpolation
 void BVH::setAllKeyFramesHelper(BVHNode* node,int numberOfFrames) const
 {
-  qDebug("BVH::setAllKeyFramesHelper()");
+//  qDebug("BVH::setAllKeyFramesHelper()");
 
   for(int i=0;i<numberOfFrames;i++)
   {
@@ -575,42 +569,40 @@ BVHNode* BVH::animRead(const QString& file,const QString& limFile)
   return root;
 }
 
-void BVH::bvhIndent(FILE *f, int depth)
+void BVH::bvhIndent(QTextStream& out,int depth)
 {
-  for (int i=0; i<depth; i++) {
-    fprintf(f, "\t");
-  }
+  for(int i=0;i<depth;i++)
+    out << "\t";
 }
 
-void BVH::bvhWriteNode(BVHNode *node, FILE *f, int depth)
+void BVH::bvhWriteNode(BVHNode* node,QTextStream& out,int depth)
 {
-  bvhIndent(f, depth);
-  QString line=QString("%1 %2\n").arg(bvhTypeName[node->type]).arg(node->name());
-  fprintf(f,line.toLatin1().constData());
-//  fprintf(f, "%s %s\n", bvhTypeName[node->type].toLatin1().constData(), node->name);
-  bvhIndent(f, depth);
-  fprintf(f, "{\n");
-  bvhIndent(f, depth+1);
-  fprintf(f, "OFFSET %.6f %.6f %.6f\n",
-	  node->offset[0],
-	  node->offset[1],
-	  node->offset[2]);
-  if (node->type != BVH_END) {
-    bvhIndent(f, depth+1);
-    fprintf(f, "CHANNELS %d ", node->numChannels);
-    for (int i=0; i<node->numChannels; i++) {
-      fprintf(f, "%s ", bvhChannelName[node->channelType[i]].toLatin1().constData());
-    }
-    fprintf(f, "\n");
+  bvhIndent(out,depth);
+  out << bvhTypeName[node->type] << " " << node->name() << endl;
+
+  bvhIndent(out, depth);
+  out << "{" << endl;
+
+  bvhIndent(out,depth+1);
+  out << "OFFSET " << node->offset[0] << " " << node->offset[1] << " " << node->offset[2] << endl;
+
+  if(node->type!=BVH_END)
+  {
+    bvhIndent(out,depth+1);
+    out << "CHANNELS " << node->numChannels << " ";
+    for (int i=0;i<node->numChannels;i++)
+      out << bvhChannelName[node->channelType[i]] << " ";
+
+    out << endl;
   }
-  for (int i=0; i<node->numChildren(); i++) {
-    bvhWriteNode(node->child(i), f, depth+1);
-  }
-  bvhIndent(f, depth);
-  fprintf(f, "}\n");
+  for(int i=0;i<node->numChildren();i++)
+    bvhWriteNode(node->child(i),out,depth+1);
+
+  bvhIndent(out,depth);
+  out << "}" << endl;
 }
 
-void BVH::bvhWriteFrame(BVHNode *node, int frame, FILE *f)
+void BVH::bvhWriteFrame(BVHNode* node,QTextStream& out,int frame)
 {
   Rotation rot=node->frameData(frame).rotation();
   Position pos=positionNode->frameData(frame).position();
@@ -629,69 +621,73 @@ void BVH::bvhWriteFrame(BVHNode *node, int frame, FILE *f)
     else if(type==BVH_YROT) value=rot.y;
     else if(type==BVH_ZROT) value=rot.z;
 
-    fprintf(f, "%f ",value);
+    out << value << " ";
   }
 
-  for (int i=0; i<node->numChildren(); i++) {
-    bvhWriteFrame(node->child(i), frame, f);
-  }
+  for(int i=0;i<node->numChildren();i++)
+    bvhWriteFrame(node->child(i),out,frame);
 }
 
 void BVH::bvhWrite(Animation* anim, const QString& file)
 {
   int i;
-  FILE *f = fopen(file.toLatin1().constData(), "wt");
+  QFile f(file);
+  f.open(QFile::WriteOnly);
+  QTextStream out(&f);
+  out.setNumberFlags(QTextStream::ForcePoint);
+  out.setRealNumberPrecision(7);
 
   BVHNode* root=anim->getMotion();
   positionNode=anim->getNode(0);
 
-  fprintf(f, "HIERARCHY\n");
-  bvhWriteNode(root, f, 0);
-  fprintf(f, "MOTION\n");
-  fprintf(f, "Frames:\t%d\n", anim->getNumberOfFrames());
-  fprintf(f, "Frame Time:\t%f\n", anim->frameTime());
-  for (i=0; i<anim->getNumberOfFrames(); i++) {
-    bvhWriteFrame(root, i, f);
-    fprintf(f, "\n");
+  out << "HIERACHY" << endl;
+  bvhWriteNode(root,out,0);
+
+  out << "MOTION" << endl;
+
+  out << "Frames:\t" << anim->getNumberOfFrames() << endl;
+  out << "Frame Time:\t" << anim->frameTime() << endl;
+
+  for(i=0;i<anim->getNumberOfFrames();i++)
+  {
+    bvhWriteFrame(root,out,i);
+    out << endl;
   }
-  fclose(f);
+
+  f.close();
 }
 
-void BVH::avmWriteKeyFrame(BVHNode* root, FILE* f)
+void BVH::avmWriteKeyFrame(BVHNode* root,QTextStream& out)
 {
   const QList<int> keys=root->keyframeList();
   // no key frames (usually at joint ends), just write a 0\n line
   if(keys.count()==0)
-  {
-    fprintf(f,"0\n");
-  }
+    out << "0" << endl;
+
   // write line of key files
   else
   {
     // write number of key files
-    fprintf(f,"%u ",keys.count()-1);
+    out << keys.count()-1 << " ";
 
     // skip frame 0 (always key frame) while saving and write all keys in a row
     for(unsigned int i=1;i< (unsigned int) keys.count();i++)
-    {
-      fprintf(f,"%d ",keys[i]);
-    }
-    fprintf(f,"\n");
+      out << keys[i] << " ";
+
+    out << endl;
   }
 
   for(int i=0;i<root->numChildren();i++)
-  {
-    avmWriteKeyFrame(root->child(i),f);
-  }
+    avmWriteKeyFrame(root->child(i),out);
 }
 
 // writes ease in / out data
-void BVH::avmWriteKeyFrameProperties(BVHNode* root, FILE* f)
+void BVH::avmWriteKeyFrameProperties(BVHNode* root,QTextStream& out)
 {
   const QList<int> keys=root->keyframeList();
 
   // NOTE: remember, ease in/out data always takes first frame into account
-  fprintf(f,"%u ",keys.count());
+  out << keys.count() << " ";
 
   // NOTE: remember, ease in/out data always takes first frame into account
   for(unsigned int i=0;i< (unsigned int) keys.count();i++)
@@ -701,53 +697,59 @@ void BVH::avmWriteKeyFrameProperties(BVHNode* root, FILE* f)
     if(root->keyframeDataByIndex(i).easeIn()) type|=1;
     if(root->keyframeDataByIndex(i).easeOut()) type|=2;
 
-    fprintf(f,"%d ",type);
+    out << type << " ";
   }
-  fprintf(f,"\n");
+  out << endl;
 
   for(int i=0;i<root->numChildren();i++)
-  {
-    avmWriteKeyFrameProperties(root->child(i),f);
-  }
+    avmWriteKeyFrameProperties(root->child(i),out);
 }
 
 void BVH::avmWrite(Animation* anim,const QString& file)
 {
-  FILE* f=fopen(file.toLatin1().constData(),"wt");
+  QFile f(file);
+  f.open(QFile::WriteOnly);
+  QTextStream out(&f);
+  out.setNumberFlags(QTextStream::ForcePoint);
+  out.setRealNumberPrecision(7);
 
   BVHNode* root=anim->getMotion();
   positionNode=anim->getNode(0);
 
-  fprintf(f,"HIERARCHY\n");
-  bvhWriteNode(root,f,0);
-  fprintf(f,"MOTION\n");
-  fprintf(f,"Frames:\t%d\n",anim->getNumberOfFrames());
-//  qDebug("Frames:\t%d\n",anim->getNumberOfFrames());
-  fprintf(f,"Frame Time:\t%f\n",anim->frameTime());
+  out << "HIERARCHY" << endl;
+  bvhWriteNode(root,out,0);
+
+  out << "MOTION" << endl;
+
+  out << "Frames:\t" << anim->getNumberOfFrames() << endl;
+
+  out << "Frame Time:\t" << anim->frameTime() << endl;
   for(int i=0;i<anim->getNumberOfFrames();i++)
   {
-    bvhWriteFrame(root,i,f);
-    fprintf(f,"\n");
+    bvhWriteFrame(root,out,i);
+    out << endl;
   }
 
-  avmWriteKeyFrame(root,f);
-  fprintf(f,"Properties\n");
-  avmWriteKeyFrameProperties(root,f);
+  avmWriteKeyFrame(root,out);
+  out << "Properties" << endl;
+
+  avmWriteKeyFrameProperties(root,out);
 
   // write remaining properties
-  fprintf(f,"Scale: %f\n",anim->getAvatarScale());
-  fprintf(f,"Figure: %d\n",anim->getFigureType());
-  fprintf(f,"LoopIn: %d\n",anim->getLoopInPoint());
-  fprintf(f,"LoopOut: %d\n",anim->getLoopOutPoint());
+  out << "Scale: " << anim->getAvatarScale() << endl;
+  out << "Figure: " << anim->getFigureType() << endl;
+  out << "LoopIn: " << anim->getLoopInPoint() << endl;
+  out << "LoopOut: " << anim->getLoopOutPoint() << endl;
 
   // HACK: add-on for position key support - this needs to be revised badly
   // HACK: we need a new file format that makes it easier to add new features
-  fprintf(f,"Positions: ");
-  avmWriteKeyFrame(positionNode,f);
-  fprintf(f,"PositionsEase: ");
-  avmWriteKeyFrameProperties(positionNode,f);
+  out << "Positions: ";
+  avmWriteKeyFrame(positionNode,out);
 
-  fclose(f);
+  out << "PositionsEase: ";
+  avmWriteKeyFrameProperties(positionNode,out);
+
+  f.close();
 }
 
 void BVH::animWrite(Animation* anim,const QString& file)
@@ -759,16 +761,15 @@ void BVH::animWrite(Animation* anim,const QString& file)
     avmWrite(anim,file);
 }
 
-void BVH::bvhPrintNode(BVHNode *n, int depth)
+void BVH::bvhPrintNode(BVHNode* n,int depth)
 {
   int i;
-  for (i=0; i<depth*4; i++) { printf(" "); }
-  QString line=QString("%1 (%2 %3 %4)").arg(n->name()).arg(n->offset[0]).arg(n->offset[1]).arg(n->offset[2]);
-  printf(line.toLatin1().constData());
-//  printf("%s (%lf %lf %lf)\n", n->name, n->offset[0], n->offset[1], n->offset[2]);
-  for (i=0; i<n->numChildren(); i++) {
+  QString indent;
+  for(i=0;i<depth;i++)
+    indent+="    ";
+  qDebug() << indent << n->name() << " (" << n->offset[0] << n->offset[1] << n->offset[2] << ")";
+  for(i=0;i<n->numChildren();i++)
     bvhPrintNode(n->child(i), depth+1);
-  }
 }
 
 BVHNode* BVH::bvhFindNode(BVHNode* root,const QString& name) const

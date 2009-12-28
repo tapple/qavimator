@@ -23,6 +23,7 @@
 #define BVH_H
 
 #include <QtCore>
+#include <QTextStream>
 
 #include "rotation.h"
 #include "bvhnode.h"
@@ -47,9 +48,9 @@ class BVH
     void setNumFrames(int numFrames);
     int numFrames() const;
     void setAllKeyFrames(Animation* anim) const;
-    void bvhIndent(FILE* f, int depth);
-    void bvhWriteNode(BVHNode* node, FILE* f, int depth);
-    void bvhWriteFrame(BVHNode* node, int frame, FILE* f);
+    void bvhIndent(QTextStream& out,int depth);
+    void bvhWriteNode(BVHNode* node,QTextStream& out,int depth);
+    void bvhWriteFrame(BVHNode* node,QTextStream& out,int frame);
     void bvhPrintNode(BVHNode* n, int depth);
 
     void bvhWrite(Animation* root,const QString& file);
@@ -108,8 +109,8 @@ class BVH
     void avmReadKeyFrame(BVHNode* root);
     void avmReadKeyFrameProperties(BVHNode* root);
 
-    void avmWriteKeyFrame(BVHNode* root, FILE* f);
-    void avmWriteKeyFrameProperties(BVHNode* root, FILE* f);
+    void avmWriteKeyFrame(BVHNode* root,QTextStream& out);
+    void avmWriteKeyFrameProperties(BVHNode* root,QTextStream& out);
 
     // removes all unknown nodes from the animation
     void removeNoSLNodes(BVHNode* root);
