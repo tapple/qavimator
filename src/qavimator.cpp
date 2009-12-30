@@ -914,6 +914,10 @@ void qavimator::fileOpen(const QString& name)
     if(!clearOpenFiles()) return;
     fileAdd(file);
   }
+
+  // update timeline and animation view with the currently selected body part
+  // this helps to sync the visual selections
+  partChoice();
 }
 
 // Menu action: File / Add New Animation ...
