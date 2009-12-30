@@ -91,7 +91,9 @@ class qavimator : public QMainWindow, Ui::MainWindow
     void on_editCutAction_triggered();
     void on_editCopyAction_triggered();
     void on_editPasteAction_triggered();
-    void on_editOptimizeBVHAction_triggered();
+
+    void on_toolsOptimizeBVHAction_triggered();
+    void on_toolsMirrorAction_triggered();
 
     void on_optionsSkeletonAction_toggled(bool on);
     void on_optionsJointLimitsAction_toggled(bool on);
@@ -178,7 +180,9 @@ class qavimator : public QMainWindow, Ui::MainWindow
     void editCut();
     void editCopy();
     void editPaste();
-    void editOptimizeBVH();
+
+    void toolsOptimizeBVH();
+    void toolsMirror();
 
     void showSkeleton(bool on);
     void setJointLimits(bool on);

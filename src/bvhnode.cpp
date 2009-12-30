@@ -34,6 +34,8 @@ BVHNode::BVHNode(const QString& name)
   // have clean one-time cache
   flushFrameCache();
 
+  setMirror(NULL,0);
+
   numChannels=0;
 
   ikRot.x=0;
@@ -524,6 +526,60 @@ void BVHNode::optimize()
     itBefore=itCurrent;
     itCurrent++;
   } // while
+}
+
+BVHNode* BVHNode::getMirror() const
+{
+  return mirrorPart;
+}
+
+unsigned int BVHNode::getMirrorIndex() const
+{
+  return mirrorIndex;
+}
+
+void BVHNode::setMirror(BVHNode* mirror,unsigned int index)
+{
+  mirrorPart=mirror;
+  mirrorIndex=index;
+}
+
+void BVHNode::mirrorKeys()
+{
+  QList<int> keys=keyframeList();
+  for(unsigned int index=0;index< (unsigned int) keys.count();index++)
+  {
+    int frame=keys[index];
+    if(type==BVH_POS)
+    {
+      Position pos=frameData(frame).position();
+      pos.x=-pos.x;
+      setKeyframePosition(frame,pos);
+    }
+    else
+    {
+      Rotation rot=frameData(frame).rotation();
+      rot.y=-rot.y;
+      rot.z=-rot.z;
+      setKeyframeRotation(frame,rot);
+    }
+  }
+}
+
+void BVHNode::mirror()
+{
+  mirrorKeys();
+
+  BVHNode* node2=getMirror();
+
+  // if a mirror node is given, swap the keyframes, too
+  if(node2)
+  {
+    node2->mirrorKeys();
+    QMap<int,FrameData> temp=keyframes;
+    keyframes=node2->keyframes;
+    node2->keyframes=temp;
+  }
 }
 
 // ************************************************************************

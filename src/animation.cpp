@@ -194,11 +194,6 @@ bool Animation::getMirrored()
   return mirrored;
 }
 
-unsigned int Animation::getPartMirror(int index)
-{
-  return partMirror[index];
-}
-
 // get next frame and take care of looping
 int Animation::stepForward()
 {
@@ -509,23 +504,21 @@ void Animation::setRotation(BVHNode* node,double x,double y,double z)
     }
 
     //      node->dumpKeyframes();
-    QString mirrorName=getPartMirror(node->name());
-    if(mirrored && !mirrorName.isEmpty())
+    BVHNode* mirrorNode=node->getMirror();
+    if(mirrored && mirrorNode)
     {
-      BVHNode* node2=bvh->bvhFindNode(frames,mirrorName);
-
       // new keyframe system
-      if(node2->isKeyframe(frame))
-        node2->setKeyframeRotation(frame,Rotation(x,-y,-z));
+      if(mirrorNode->isKeyframe(frame))
+        mirrorNode->setKeyframeRotation(frame,Rotation(x,-y,-z));
       else
       {
-        node2->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,-y,-z));
-        setEaseIn(node2,frame,Settings::easeIn());
-        setEaseOut(node2,frame,Settings::easeOut());
+        mirrorNode->addKeyframe(frame,node->frameData(frame).position(),Rotation(x,-y,-z));
+        setEaseIn(mirrorNode,frame,Settings::easeIn());
+        setEaseOut(mirrorNode,frame,Settings::easeOut());
       }
 
       // tell timeline that this mirrored keyframe has changed (added or changed is the same here)
-      emit redrawTrack(getPartIndex(node2));
+      emit redrawTrack(getPartIndex(mirrorNode));
     }
     setDirty(true);
     // tell timeline that this keyframe has changed (added or changed is the same here)
@@ -825,26 +818,33 @@ void Animation::pasteFrame()
 
 void Animation::calcPartMirrors()
 {
-  int i=1;
   QString name;
   QString n;
-  partMirror[0]=0;  // part indices start at 1
 
+  // start at node index 1
+  int i=1;
+  // go through all nodes by index, stop if a node has no name (=does not exist =end of list)
   while(!(n=bvh->bvhGetName(frames,i)).isEmpty())
   {
+    // find node by name
+    BVHNode* node=bvh->bvhFindNode(frames,n);
+    // copy the name
     name=n;
+    // create a mirrored name (first letter r becomes l, otherwise first letter becomes r)
     if(n.startsWith("r")) name[0]='l';
-    else name[0]='r';    // if n doesn't start with l, there will be no match,
-                         // which is what we want since partMirror will be 0.
-    partMirror[i++]=bvh->bvhGetIndex(frames,name);
-  }
-}
+    else name[0]='r';
 
-const QString Animation::getPartMirror(const QString& name) const
-{
-  int index=bvh->bvhGetIndex(frames, name);
-  if(index) index=partMirror[index];
-  return bvh->bvhGetName(frames,index);
+    // check if mirrored name is valid, get the node with that name
+    BVHNode* m=bvh->bvhFindNode(frames,name);
+    if(m)
+    {
+      // name was valid, record this node as mirror of the current node
+      // keep the index number for une in AnimationView later
+      node->setMirror(m,bvh->bvhGetIndex(frames,m->name()));
+    }
+    // next node
+    i++;
+  }
 }
 
 int Animation::numKeyFrames(int jointNumber)
@@ -1004,6 +1004,38 @@ void Animation::optimize()
 {
   optimizeHelper(positionNode);
   optimizeHelper(frames);
+  setDirty(true);
+}
+
+void Animation::mirrorHelper(BVHNode* joint)
+{
+  // make sure only to mirror one side of l/r joints, and joints that have no mirror node
+  if(!joint->name().startsWith("l"))
+  {
+    joint->mirror();
+    emit redrawTrack(getPartIndex(joint));
+    if(joint->getMirror())
+      emit redrawTrack(joint->getMirrorIndex());
+  }
+
+  for(int i=0;i<joint->numChildren();i++)
+    mirrorHelper(joint->child(i));
+}
+
+void Animation::mirror(BVHNode* joint)
+{
+  if(!joint)
+  {
+    positionNode->mirror();
+    mirrorHelper(frames);
+  }
+  else
+  {
+    joint->mirror();
+    emit redrawTrack(getPartIndex(joint));
+    if(joint->getMirror())
+      emit redrawTrack(joint->getMirrorIndex());
+  }
   setDirty(true);
 }
 

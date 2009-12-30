@@ -188,6 +188,7 @@ class AnimationView : public QGLWidget
     unsigned int selectName;
     unsigned int partHighlighted;
     unsigned int partSelected;
+    unsigned int mirrorSelected;
     unsigned int propSelected;  // needs an own variable, because we will drag the handle, not the prop
     unsigned int propDragging;  // holds the actual drag handle id
 

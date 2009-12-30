@@ -66,6 +66,7 @@ AnimationView::AnimationView(QWidget* parent,const char* /* name */,Animation* a
   partHighlighted=0;
   propDragging=0;
   partSelected=0;
+  mirrorSelected=0;
   dragX=0;
   dragY=0;
   changeX=0;
@@ -616,6 +617,7 @@ void AnimationView::mousePressEvent(QMouseEvent* event)
     if(!selected)
     {
       partSelected=0;
+      mirrorSelected=0;
       propSelected=0;
       propDragging=0;
       emit backgroundClicked();
@@ -685,7 +687,11 @@ void AnimationView::mouseDoubleClickEvent(QMouseEvent* event)
   if(selected>=OBJECT_START) return;
 
   if(modifier & SHIFT)
-    getAnimation()->setMirrored(true);
+  {
+    mirrorSelected=getSelectedPart()->getMirrorIndex()+(selected/ANIMATION_INCREMENT)*ANIMATION_INCREMENT;
+    if(mirrorSelected)
+      getAnimation()->setMirrored(true);
+  }
   else if(selected && selected < OBJECT_START)
     getAnimation()->setIK(getAnimation()->getNode(selected),
                      !getAnimation()->getIK(getAnimation()->getNode(selected)));
@@ -878,8 +884,8 @@ void AnimationView::drawPart(Animation* anim,unsigned int currentAnimationIndex,
     {
       if(selecting) glLoadName(selectName);
       if(anim->getMirrored() &&
-        (anim->getPartMirror(partSelected)==selectName ||
-         partSelected==selectName))
+          (mirrorSelected==selectName || partSelected==selectName)
+	)
       {
         glColor4f(1.0,0.635,0.059,1);
       }
@@ -1151,6 +1157,7 @@ void AnimationView::selectPart(int partNum)
   if(node->type==BVH_END)
   {
     partSelected=0;
+    mirrorSelected=0;
     propSelected=0;
     propDragging=0;
     emit backgroundClicked();
@@ -1191,6 +1198,7 @@ void AnimationView::selectProp(const QString& propName)
 {
   // make sure no part is selected anymore
   partSelected=0;
+  mirrorSelected=0;
   Prop* prop=getPropByName(propName);
   if(prop) propSelected=prop->id;
   repaint();

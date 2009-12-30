@@ -1230,7 +1230,7 @@ void qavimator::editPaste()
 }
 
 // Menu Action: Edit / Paste
-void qavimator::editOptimizeBVH()
+void qavimator::toolsOptimizeBVH()
 {
   animationView->getAnimation()->optimize();
   updateInputs();
@@ -1840,9 +1840,16 @@ void qavimator::on_editPasteAction_triggered()
   editPaste();
 }
 
-void qavimator::on_editOptimizeBVHAction_triggered()
+void qavimator::on_toolsOptimizeBVHAction_triggered()
 {
-  editOptimizeBVH();
+  toolsOptimizeBVH();
+}
+
+void qavimator::on_toolsMirrorAction_triggered()
+{
+  Animation* anim=animationView->getAnimation();
+  anim->mirror(currentPart);
+  updateInputs();
 }
 
 void qavimator::on_optionsSkeletonAction_toggled(bool on)

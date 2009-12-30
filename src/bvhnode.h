@@ -111,6 +111,14 @@ class BVHNode
 
     void dumpKeyframes();
 
+    // set and get mirror nodes for this node
+    void setMirror(BVHNode* mirror,unsigned int index);
+    BVHNode* getMirror() const;
+    unsigned int getMirrorIndex() const;
+
+    // mirrors the rotations in a node and swaps the tracks' keyframes if needed
+    void mirror();
+
     BVHNodeType type;
     double offset[3];
     int numChannels;
@@ -132,7 +140,15 @@ class BVHNode
     int getKeyframeNumberBefore(int frame) const;
     int getKeyframeNumberAfter(int frame) const;
 
+    // mirrors the keyframes inside of this node
+    void mirrorKeys();
+
     QString m_name;
+
+    // this node's mirror, if applicable
+    BVHNode* mirrorPart;
+    unsigned int mirrorIndex;
+
     QList<BVHNode*> children;
     QMap<int,FrameData> keyframes;
 

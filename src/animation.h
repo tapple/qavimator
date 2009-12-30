@@ -79,8 +79,6 @@ class Animation : public QObject
     int getPartIndex(BVHNode* node);
     void setMirrored(bool mirror);
     bool getMirrored();
-    unsigned int getPartMirror(int index);
-    const QString getPartMirror(const QString& name) const;
 
     // get and set frames per second
     void setFPS(int fps);
@@ -141,6 +139,9 @@ class Animation : public QObject
 
     bool compareFrames(const BVHNode* joint,int key1,int key2) const;
 
+    // mirror a joint or the whole animation, if joint==0
+    void mirror(BVHNode* joint);
+
     void optimize();
 
     enum { MAX_PARTS=64 };
@@ -186,7 +187,6 @@ class Animation : public QObject
     int loopOutPoint;
 
     bool mirrored;
-    unsigned int partMirror[MAX_PARTS+1];
     bool limits;
     bool ikOn[NUM_IK];
     IKTree ikTree;
@@ -197,6 +197,7 @@ class Animation : public QObject
     void insertFrameHelper(BVHNode* joint,int frame);
     void deleteFrameHelper(BVHNode* joint,int frame);
     void optimizeHelper(BVHNode* joint);
+    void mirrorHelper(BVHNode* joint);
 
     void calcPartMirrors();
     void setIK(IKPartType part, bool flag);
