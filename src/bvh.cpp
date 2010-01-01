@@ -640,7 +640,7 @@ void BVH::bvhWrite(Animation* anim, const QString& file)
   BVHNode* root=anim->getMotion();
   positionNode=anim->getNode(0);
 
-  out << "HIERACHY" << endl;
+  out << "HIERARCHY" << endl;
   bvhWriteNode(root,out,0);
 
   out << "MOTION" << endl;
