@@ -127,6 +127,9 @@ class AnimationView : public QGLWidget
     void backgroundClicked();
     void animationSelected(Animation* animation);
 
+    void storeCameraPosition(int num);
+    void restoreCameraPosition(int num);
+
   public slots:
     void resetCamera();
     void protectFrame(bool on);

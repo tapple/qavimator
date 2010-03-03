@@ -27,9 +27,34 @@
 
 #include "camera.h"
 
+#include <QDebug>
+
+CameraPosition::CameraPosition(float px,float py,float pz,float rx,float ry)
+{
+  panX=px;
+  panY=py;
+  panZ=pz;
+  rotX=rx;
+  rotY=ry;
+}
+
+CameraPosition::~CameraPosition()
+{
+}
+
 Camera::Camera()
 {
+  positions.append(new CameraPosition(0.0, 40.0, 100.0, 40.0, 37.0));
+  positions.append(new CameraPosition(0.0, 40.0, 100.0, 48.0, 320.0));
+  positions.append(new CameraPosition(0.0, 40.0, 100.0, 17.0, 180.0));
+  positions.append(new CameraPosition(0.0, 15.0, 100.0, 80.0, 360.0));
   reset();
+}
+
+Camera::~Camera()
+{
+  while(!positions.isEmpty())
+    delete positions.takeFirst();
 }
 
 void Camera::rotate(float x, float y)
@@ -81,4 +106,24 @@ float Camera::xRotation() const
 float Camera::yRotation() const
 {
   return rotY;
+}
+
+void Camera::storeCameraPosition(int num)
+{
+  CameraPosition* pos=positions[num];
+  pos->panX=panX;
+  pos->panY=panY;
+  pos->panZ=panZ;
+  pos->rotX=rotX;
+  pos->rotY=rotY;
+}
+
+void Camera::restoreCameraPosition(int num)
+{
+  const CameraPosition* pos=positions[num];
+  panX=pos->panX;
+  panY=pos->panY;
+  panZ=pos->panZ;
+  rotX=pos->rotX;
+  rotY=pos->rotY;
 }

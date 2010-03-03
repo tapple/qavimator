@@ -103,6 +103,9 @@ AnimationView::AnimationView(QWidget* parent,const char* /* name */,Animation* a
   if(anim) setAnimation(anim);
   setMouseTracking(true);
   setFocusPolicy(Qt::StrongFocus);
+
+  connect(this,SIGNAL(storeCameraPosition(int)),&camera,SLOT(storeCameraPosition(int)));
+  connect(this,SIGNAL(restoreCameraPosition(int)),&camera,SLOT(restoreCameraPosition(int)));
 }
 
 AnimationView::~AnimationView()
@@ -706,6 +709,8 @@ void AnimationView::wheelEvent(QWheelEvent* event)
 
 void AnimationView::keyPressEvent(QKeyEvent* event)
 {
+  int num=-1;
+
   switch(event->key())
   {
     case Qt::Key_PageUp:
@@ -731,6 +736,36 @@ void AnimationView::keyPressEvent(QKeyEvent* event)
       zSelect = true;
       repaint();
       break;
+    case Qt::Key_F9:
+      num=0;
+      break;
+    case Qt::Key_F10:
+      num=1;
+      break;
+    case Qt::Key_F11:
+      num=2;
+      break;
+    case Qt::Key_F12:
+      num=3;
+      break;
+    case Qt::Key_Escape:
+      resetCamera();
+      break;
+    default:
+      event->ignore();
+      return;
+  }
+
+  if(num>=0)
+  {
+    Qt::KeyboardModifiers modifier=event->modifiers();
+    if(modifier==Qt::ShiftModifier)
+      emit storeCameraPosition(num);
+    else if(modifier==Qt::NoModifier)
+    {
+      emit restoreCameraPosition(num);
+      repaint();
+    }
   }
   event->ignore();
 }

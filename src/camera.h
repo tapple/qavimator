@@ -24,12 +24,30 @@
 
 #include "math3d.h"
 
+#include <QObject>
+
 using namespace Math3D;
 
-class Camera
+class CameraPosition
 {
   public:
+    CameraPosition(float px,float py,float pz,float rx,float ry);
+    ~CameraPosition();
+
+    float panX;
+    float panY;
+    float panZ;
+    float rotX;
+    float rotY;
+};
+
+class Camera : public QObject
+{
+  Q_OBJECT
+
+  public:
     Camera();
+    ~Camera();
 
     void rotate(float x, float y);
     void pan(float x, float y, float z);
@@ -39,9 +57,15 @@ class Camera
     float xRotation() const;
     float yRotation() const;
 
-  private:
-    float rotX, rotY;
-    float panX, panY, panZ;
+  public slots:
+    void storeCameraPosition(int num);
+    void restoreCameraPosition(int num);
+
+  protected:
+    float rotX,rotY;
+    float panX,panY,panZ;
+
+    QList<CameraPosition*> positions;
 };
 
 #endif
