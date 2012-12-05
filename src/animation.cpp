@@ -36,7 +36,7 @@
 Animation::Animation(BVH* newBVH,const QString& bvhFile) :
   frame(0),totalFrames(0),mirrored(false)
 {
-  qDebug("Animation::Animation(%lx)",(unsigned long) this);
+  qDebug("Animation::Animation(%px)",this);
 
   bvh=newBVH;
   if(!bvh)
@@ -90,7 +90,7 @@ Animation::Animation(BVH* newBVH,const QString& bvhFile) :
 
 Animation::~Animation()
 {
-  qDebug("Animation::~Animation(%lx)",(unsigned long) this);
+  qDebug("Animation::~Animation(%px)",this);
 
   // remove rotation keyframes
   if(frames) bvh->bvhDelete(frames);
