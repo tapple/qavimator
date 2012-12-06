@@ -27,7 +27,7 @@
 
 Timeline::Timeline(QWidget* parent,Qt::WindowFlags) : QFrame(parent)
 {
-  qDebug("Timeline(0x%0lx)",(unsigned long) this);
+  qDebug("Timeline(0x%0px)",this);
 
   // init offscreen pixmap as 0 so the first change of number of frames will not
   // try to copy old pixmap data
@@ -109,7 +109,7 @@ void Timeline::paintEvent(QPaintEvent* /* e */)
 
 void Timeline::setNumberOfFrames(int frames)
 {
-  qDebug("Timeline::setNumberOfFrames(%d==%d): %0lx",numOfFrames,frames,(unsigned long) offscreen);
+  qDebug("Timeline::setNumberOfFrames(%d==%d): %0px",numOfFrames,frames,offscreen);
 
   numOfFrames=frames;
 

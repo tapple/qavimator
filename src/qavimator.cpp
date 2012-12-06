@@ -620,7 +620,7 @@ void qavimator::updateInputs()
 void qavimator::updateKeyBtn()
 {
   Animation* anim=animationView->getAnimation();
-  qDebug("qavimator::updateKeyBtn(): anim=%lx",(unsigned long) anim);
+  qDebug("qavimator::updateKeyBtn(): anim=%px",anim);
 
   // make sure we don't send a toggle signal on display update
   keyframeButton->blockSignals(true);
