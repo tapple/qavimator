@@ -85,8 +85,14 @@ documentation.files += ../documentation/*
 
 win32 {
   DEFINES += QAVIMATOR_DATAPATH=\\\".\\\"
+}
+
+win32-g++ {
   TARGETDEPS += ../libquat/release/libquat.a
   LIBS += ../libquat/release/libquat.a
+} else {
+  TARGETDEPS += ../libquat/release/quat.lib
+  LIBS += ../libquat/release/quat.lib
 }
 
 !win32 {
