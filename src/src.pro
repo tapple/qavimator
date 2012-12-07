@@ -108,6 +108,6 @@ macx {
   DEFINES += QAVIMATOR_DATAPATH=\\\".\\\"
   LIBS -= -lGLU -lglut
   LIBS += -framework OpenGL -framework AGL -framework GLUT -bind_at_load
-  CONFIG += x86 ppc
+  CONFIG += x86
   QMAKE_POST_LINK += sh fixbundle.sh
 }

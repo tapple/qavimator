@@ -50,7 +50,7 @@ SOURCES += MEM_RefCountedC-Api.cpp \
 DEFINES += NDEBUG=1
 
 macx {
-  CONFIG += x86 ppc
+  CONFIG += x86
 }
 
 CONFIG += release \
