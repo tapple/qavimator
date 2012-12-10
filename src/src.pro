@@ -51,8 +51,7 @@ QT += opengl
 LIBS += -lglut \
         -lGLU
 
-INCLUDEPATH += ../libquat \
-               /usr/include
+INCLUDEPATH += ../libquat
 
 QMAKE_CXXFLAGS_DEBUG += -g3
 
@@ -108,6 +107,6 @@ macx {
   DEFINES += QAVIMATOR_DATAPATH=\\\".\\\"
   LIBS -= -lGLU -lglut
   LIBS += -framework OpenGL -framework AGL -framework GLUT -bind_at_load
-  CONFIG += x86
+  #CONFIG += x86
   QMAKE_POST_LINK += sh fixbundle.sh
 }
